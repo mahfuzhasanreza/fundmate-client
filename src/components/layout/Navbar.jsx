@@ -50,7 +50,7 @@ const Navbar = () => {
             >
               <Wallet className="h-6 w-6 md:h-8 md:w-8 text-white" />
             </motion.div>
-            <span className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-primary-600 to-primary-500 bg-clip-text text-transparent">
+            <span className="text-2xl md:text-3xl font-bold bg-primary-600 bg-clip-text text-transparent">
               FundMate
             </span>
           </motion.div>
