@@ -119,16 +119,16 @@ const Footer = () => {
             <div className="space-y-3">
               <div className="flex items-center space-x-2 text-sm">
                 <Mail className="h-4 w-4 text-primary-400" />
-                <span>support@fundmate.com</span>
+                <span>learnicaedu.official@gmail.com</span>
               </div>
-              <div className="flex items-center space-x-2 text-sm">
+              {/* <div className="flex items-center space-x-2 text-sm">
                 <Phone className="h-4 w-4 text-primary-400" />
                 <span>+1 (555) 123-4567</span>
-              </div>
-              <div className="flex items-center space-x-2 text-sm">
+              </div> */}
+              {/* <div className="flex items-center space-x-2 text-sm">
                 <MapPin className="h-4 w-4 text-primary-400" />
                 <span>123 Finance St, NY 10001</span>
-              </div>
+              </div> */}
             </div>
           </div>
         </div>

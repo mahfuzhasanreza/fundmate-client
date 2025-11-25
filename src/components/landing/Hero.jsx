@@ -23,47 +23,95 @@ const Hero = () => {
   }
 
   return (
-    <section id="home" className="relative bg-gradient-to-br from-primary-50 via-white to-secondary-50 pt-20 pb-32 md:pt-32 md:pb-40 overflow-hidden">
-      {/* Background Decorations */}
+    <section id="home" className="relative pt-20 pb-32 md:pt-32 md:pb-40 overflow-hidden">
+      {/* Advanced Background Design */}
+      {/* Base Gradient */}
+      <div className="absolute inset-0 bg-gradient-to-br from-primary-100 via-white to-secondary-100"></div>
+      
+      {/* Mesh Gradient Overlay */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-primary-200/40 via-transparent to-transparent"></div>
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_var(--tw-gradient-stops))] from-secondary-200/40 via-transparent to-transparent"></div>
+      
+      {/* Animated Gradient Orbs */}
       <motion.div 
-        className="absolute top-0 left-0 w-72 h-72 bg-primary-200 rounded-full mix-blend-multiply filter blur-xl opacity-30"
+        className="absolute top-0 right-1/4 w-96 h-96 bg-gradient-to-br from-primary-300 to-primary-200 rounded-full mix-blend-multiply filter blur-3xl opacity-40"
         animate={{ 
           scale: [1, 1.2, 1],
-          x: [0, 50, 0],
-          y: [0, 30, 0]
+          x: [0, 100, 0],
+          y: [0, 50, 0],
+          rotate: [0, 90, 0]
         }}
         transition={{ 
-          duration: 8,
+          duration: 15,
           repeat: Infinity,
           ease: "easeInOut"
         }}
       ></motion.div>
+      
       <motion.div 
-        className="absolute top-0 right-0 w-72 h-72 bg-secondary-200 rounded-full mix-blend-multiply filter blur-xl opacity-30"
+        className="absolute bottom-0 left-1/3 w-96 h-96 bg-gradient-to-tr from-secondary-300 to-secondary-200 rounded-full mix-blend-multiply filter blur-3xl opacity-40"
         animate={{ 
           scale: [1, 1.3, 1],
-          x: [0, -50, 0],
-          y: [0, 50, 0]
+          x: [0, -80, 0],
+          y: [0, -60, 0],
+          rotate: [0, -90, 0]
         }}
         transition={{ 
-          duration: 10,
+          duration: 12,
           repeat: Infinity,
           ease: "easeInOut"
         }}
       ></motion.div>
+
       <motion.div 
-        className="absolute -bottom-8 left-20 w-72 h-72 bg-primary-300 rounded-full mix-blend-multiply filter blur-xl opacity-30"
+        className="absolute top-1/2 left-0 w-80 h-80 bg-gradient-to-br from-primary-200 to-secondary-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30"
         animate={{ 
-          scale: [1, 1.1, 1],
-          x: [0, -30, 0],
-          y: [0, -30, 0]
+          scale: [1, 1.15, 1],
+          x: [0, 60, 0],
+          y: [0, -40, 0],
+          rotate: [0, 180, 0]
         }}
         transition={{ 
-          duration: 7,
+          duration: 18,
           repeat: Infinity,
           ease: "easeInOut"
         }}
       ></motion.div>
+
+      {/* Geometric Pattern Overlay */}
+      <div className="absolute inset-0 opacity-5">
+        <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+              <circle cx="20" cy="20" r="1" fill="currentColor" className="text-primary-600"/>
+            </pattern>
+          </defs>
+          <rect width="100%" height="100%" fill="url(#grid)" />
+        </svg>
+      </div>
+
+
+      {/* Floating Particles */}
+      {[...Array(6)].map((_, i) => (
+        <motion.div
+          key={i}
+          className="absolute w-2 h-2 bg-primary-400 rounded-full opacity-20"
+          style={{
+            top: `${Math.random() * 100}%`,
+            left: `${Math.random() * 100}%`,
+          }}
+          animate={{
+            y: [0, -100, 0],
+            opacity: [0.2, 0.5, 0.2],
+          }}
+          transition={{
+            duration: 10 + i * 2,
+            repeat: Infinity,
+            delay: i * 0.5,
+            ease: "easeInOut"
+          }}
+        ></motion.div>
+      ))}
 
       <div className="container-custom relative">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
