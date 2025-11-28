@@ -257,12 +257,25 @@ const Campaigns = () => {
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-8"
+          className="mb-8"
         >
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">Support Meaningful Causes</h1>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Make a difference in the world by supporting campaigns that create positive impact in communities
-          </p>
+          <div className="flex flex-col lg:flex-row items-center justify-between mb-6">
+            <div className="text-center lg:text-left mb-4 lg:mb-0">
+              <h1 className="text-4xl font-bold text-gray-900 mb-4">Support Meaningful Causes</h1>
+              <p className="text-lg text-gray-600 max-w-2xl">
+                Make a difference in the world by supporting campaigns that create positive impact in communities
+              </p>
+            </div>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => navigate('/create-campaign')}
+              className="flex items-center space-x-3 bg-primary-600 text-white px-8 py-4 rounded-xl font-semibold hover:bg-primary-700 transition-all shadow-lg"
+            >
+              <Gift className="h-5 w-5" />
+              <span>Create Campaign</span>
+            </motion.button>
+          </div>
         </motion.div>
 
         {/* Search and Filters */}
