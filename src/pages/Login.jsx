@@ -16,8 +16,8 @@ const Login = () => {
     e.preventDefault()
     // Add your login logic here
     console.log('Login submitted:', formData)
-    // For now, just navigate to home
-    navigate('/')
+    // Navigate to dashboard after login
+    navigate('/dashboard')
   }
 
   const handleChange = (e) => {

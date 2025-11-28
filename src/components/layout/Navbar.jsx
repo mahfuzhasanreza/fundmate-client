@@ -23,7 +23,7 @@ const Navbar = () => {
   const navLinks = [
     { name: 'Explore Loans', href: '#loans' },
     { name: 'Explore Campaigns', href: '#campaigns' },
-    { name: 'Dashboard', href: '#dashboard' },
+    { name: 'Dashboard', href: '/dashboard', isRoute: true },
   ]
 
   return (
@@ -58,18 +58,33 @@ const Navbar = () => {
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
             {navLinks.map((link, index) => (
-              <motion.a
-                key={link.name}
-                href={link.href}
-                className="text-gray-700 hover:text-primary-600 font-medium transition-colors duration-200 relative group"
-                initial={{ opacity: 0, y: -20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-                whileHover={{ y: -2 }}
-              >
-                {link.name}
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-primary-600 to-primary-500 group-hover:w-full transition-all duration-300"></span>
-              </motion.a>
+              link.isRoute ? (
+                <motion.button
+                  key={link.name}
+                  onClick={() => navigate(link.href)}
+                  className="text-gray-700 hover:text-primary-600 font-medium transition-colors duration-200 relative group"
+                  initial={{ opacity: 0, y: -20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                  whileHover={{ y: -2 }}
+                >
+                  {link.name}
+                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-primary-600 to-primary-500 group-hover:w-full transition-all duration-300"></span>
+                </motion.button>
+              ) : (
+                <motion.a
+                  key={link.name}
+                  href={link.href}
+                  className="text-gray-700 hover:text-primary-600 font-medium transition-colors duration-200 relative group"
+                  initial={{ opacity: 0, y: -20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                  whileHover={{ y: -2 }}
+                >
+                  {link.name}
+                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-primary-600 to-primary-500 group-hover:w-full transition-all duration-300"></span>
+                </motion.a>
+              )
             ))}
           </div>
 
@@ -117,17 +132,33 @@ const Navbar = () => {
             >
               <div className="flex flex-col space-y-4">
                 {navLinks.map((link, index) => (
-                  <motion.a
-                    key={link.name}
-                    href={link.href}
-                    className="text-gray-700 hover:text-primary-600 font-medium transition-colors duration-200 pl-4 border-l-2 border-transparent hover:border-primary-500"
-                    onClick={() => setIsOpen(false)}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: index * 0.1 }}
-                  >
-                    {link.name}
-                  </motion.a>
+                  link.isRoute ? (
+                    <motion.button
+                      key={link.name}
+                      onClick={() => {
+                        navigate(link.href)
+                        setIsOpen(false)
+                      }}
+                      className="text-gray-700 hover:text-primary-600 font-medium transition-colors duration-200 pl-4 border-l-2 border-transparent hover:border-primary-500 text-left"
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                    >
+                      {link.name}
+                    </motion.button>
+                  ) : (
+                    <motion.a
+                      key={link.name}
+                      href={link.href}
+                      className="text-gray-700 hover:text-primary-600 font-medium transition-colors duration-200 pl-4 border-l-2 border-transparent hover:border-primary-500"
+                      onClick={() => setIsOpen(false)}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                    >
+                      {link.name}
+                    </motion.a>
+                  )
                 ))}
                 <div className="flex flex-col space-y-2 pt-4 border-t border-gray-200">
                   <motion.button 

@@ -20,8 +20,8 @@ const Register = () => {
     e.preventDefault()
     // Add your registration logic here
     console.log('Registration submitted:', formData)
-    // For now, just navigate to home
-    navigate('/')
+    // Navigate to dashboard after registration
+    navigate('/dashboard')
   }
 
   const handleChange = (e) => {
