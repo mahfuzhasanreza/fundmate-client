@@ -466,75 +466,190 @@ const LoanAgreement = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="bg-white rounded-2xl shadow-lg border border-gray-100 h-96 flex flex-col"
+            className="bg-gradient-to-br from-white to-gray-50 rounded-2xl shadow-xl border border-gray-100 h-[700px] flex flex-col overflow-hidden"
           >
-            <div className="p-6 border-b border-gray-200">
-              <h3 className="text-xl font-bold text-gray-900 flex items-center">
-                <MessageSquare className="h-5 w-5 mr-2 text-primary-600" />
-                Agreement Communication
-              </h3>
-            </div>
-            
-            {/* Messages */}
-            <div className="flex-1 overflow-y-auto p-6 space-y-4">
-              {agreement.messages.map((message) => (
-                <div key={message.id} className={`flex ${message.sender === 'borrower' ? 'justify-end' : 'justify-start'}`}>
-                  <div className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
-                    message.sender === 'borrower' 
-                      ? 'bg-primary-600 text-white' 
-                      : 'bg-gray-100 text-gray-900'
-                  }`}>
-                    <p className="text-sm">{message.message}</p>
-                    {message.attachments.length > 0 && (
-                      <div className="mt-2 space-y-1">
-                        {message.attachments.map((attachment, index) => (
-                          <div key={index} className="flex items-center space-x-2 text-xs opacity-80">
-                            <Paperclip className="h-3 w-3" />
-                            <span>{attachment.name}</span>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                    <p className="text-xs opacity-75 mt-1">{formatDateTime(message.timestamp)}</p>
+            {/* Chat Header */}
+            <div className="p-6 border-b border-gray-200 bg-white">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <div className="p-3 bg-primary-100 rounded-full">
+                    <MessageSquare className="h-6 w-6 text-primary-600" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-gray-900">Agreement Communication</h3>
+                    <p className="text-sm text-gray-600">Real-time messaging between borrower and lender</p>
                   </div>
                 </div>
+                <div className="flex items-center space-x-2">
+                  <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
+                  <span className="text-sm text-gray-600">Online</span>
+                </div>
+              </div>
+            </div>
+            
+            {/* Messages Container */}
+            <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-gradient-to-b from-gray-50 to-white">
+              {agreement.messages.map((message, index) => (
+                <motion.div
+                  key={message.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                  className={`flex ${message.sender === 'borrower' ? 'justify-end' : 'justify-start'}`}
+                >
+                  <div className={`flex items-start space-x-3 max-w-2xl ${message.sender === 'borrower' ? 'flex-row-reverse space-x-reverse' : ''}`}>
+                    {/* Avatar */}
+                    <div className="flex-shrink-0">
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center text-lg font-bold ${
+                        message.sender === 'borrower' 
+                          ? 'bg-primary-100 text-primary-700' 
+                          : 'bg-blue-100 text-blue-700'
+                      }`}>
+                        {message.sender === 'borrower' ? agreement.borrower.avatar : agreement.lender.avatar}
+                      </div>
+                    </div>
+                    
+                    {/* Message Content */}
+                    <div className={`flex flex-col ${message.sender === 'borrower' ? 'items-end' : 'items-start'}`}>
+                      <div className="flex items-center space-x-2 mb-1">
+                        <span className="text-xs font-semibold text-gray-600">
+                          {message.sender === 'borrower' ? agreement.borrower.name : agreement.lender.name}
+                        </span>
+                        <span className="text-xs text-gray-400">
+                          {formatDateTime(message.timestamp)}
+                        </span>
+                      </div>
+                      
+                      <div className={`px-4 py-3 rounded-2xl shadow-sm max-w-md ${
+                        message.sender === 'borrower' 
+                          ? 'bg-primary-600 text-white rounded-br-md' 
+                          : 'bg-white text-gray-900 border border-gray-200 rounded-bl-md'
+                      }`}>
+                        <p className="text-sm leading-relaxed">{message.message}</p>
+                        
+                        {/* Attachments */}
+                        {message.attachments.length > 0 && (
+                          <div className="mt-3 pt-3 border-t border-opacity-20 border-white">
+                            {message.attachments.map((attachment, index) => (
+                              <motion.div
+                                key={index}
+                                whileHover={{ scale: 1.02 }}
+                                className={`flex items-center space-x-2 p-2 rounded-lg cursor-pointer transition-colors ${
+                                  message.sender === 'borrower' 
+                                    ? 'bg-primary-700 hover:bg-primary-800' 
+                                    : 'bg-gray-50 hover:bg-gray-100'
+                                }`}
+                              >
+                                <Paperclip className="h-4 w-4" />
+                                <span className="text-xs font-medium">{attachment.name}</span>
+                                <Download className="h-3 w-3 ml-auto opacity-70" />
+                              </motion.div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
               ))}
+              
+              {/* Typing Indicator */}
+              <div className="flex justify-start">
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
+                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+                  </div>
+                  <div className="bg-gray-200 rounded-2xl rounded-bl-md px-4 py-3">
+                    <div className="flex space-x-1">
+                      <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                      <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                      <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
             
             {/* Message Input */}
-            <div className="p-6 border-t border-gray-200">
-              <div className="flex space-x-4">
-                <input
-                  type="text"
-                  placeholder="Type your message..."
-                  value={newMessage}
-                  onChange={(e) => setNewMessage(e.target.value)}
-                  className="flex-1 px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
-                  onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-                />
-                <input
-                  type="file"
-                  id="file-upload"
-                  className="hidden"
-                  onChange={handleFileUpload}
-                />
-                <label
-                  htmlFor="file-upload"
-                  className="px-4 py-2 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors flex items-center"
-                >
-                  <Paperclip className="h-5 w-5 text-gray-600" />
-                </label>
-                <button
-                  onClick={handleSendMessage}
-                  className="px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors flex items-center space-x-2"
-                >
-                  <Send className="h-4 w-4" />
-                  <span>Send</span>
-                </button>
-              </div>
+            <div className="p-6 bg-white border-t border-gray-200">
               {selectedFile && (
-                <p className="text-sm text-gray-600 mt-2">Selected file: {selectedFile.name}</p>
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mb-4 p-3 bg-gray-50 rounded-lg border border-gray-200"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <Paperclip className="h-4 w-4 text-gray-500" />
+                      <span className="text-sm text-gray-700">{selectedFile.name}</span>
+                    </div>
+                    <button
+                      onClick={() => setSelectedFile(null)}
+                      className="text-gray-400 hover:text-gray-600 transition-colors"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                </motion.div>
               )}
+              
+              <div className="flex items-end space-x-4">
+                <div className="flex-1">
+                  <textarea
+                    placeholder="Type your message..."
+                    value={newMessage}
+                    onChange={(e) => setNewMessage(e.target.value)}
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-all resize-none"
+                    rows={2}
+                    onKeyPress={(e) => {
+                      if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault()
+                        handleSendMessage()
+                      }
+                    }}
+                  />
+                </div>
+                
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="file"
+                    id="file-upload"
+                    className="hidden"
+                    onChange={handleFileUpload}
+                    accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+                  />
+                  
+                  <motion.label
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    htmlFor="file-upload"
+                    className="p-3 border-2 border-gray-200 rounded-xl cursor-pointer hover:border-primary-300 hover:bg-primary-50 transition-all flex items-center"
+                  >
+                    <Paperclip className="h-5 w-5 text-gray-600" />
+                  </motion.label>
+                  
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={handleSendMessage}
+                    disabled={!newMessage.trim() && !selectedFile}
+                    className={`px-6 py-3 rounded-xl font-semibold transition-all flex items-center space-x-2 ${
+                      newMessage.trim() || selectedFile
+                        ? 'bg-primary-600 text-white hover:bg-primary-700 shadow-lg'
+                        : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                    }`}
+                  >
+                    <Send className="h-4 w-4" />
+                    <span>Send</span>
+                  </motion.button>
+                </div>
+              </div>
+              
+              <p className="text-xs text-gray-500 mt-2 flex items-center space-x-1">
+                <span>Press Enter to send, Shift+Enter for new line</span>
+                <span>•</span>
+                <span>Supports PDF, images, and documents</span>
+              </p>
             </div>
           </motion.div>
         )}
