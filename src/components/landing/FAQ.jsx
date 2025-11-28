@@ -200,25 +200,25 @@ const FAQ = () => {
                   transition={{ duration: 0.6, ease: "easeOut" }}
                   className="text-center"
                 >
-                  <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-2xl p-8">
+                  <div className="bg-gradient-to-r from-primary-50 to-primary-100 border border-primary-200 rounded-2xl p-8">
                     <motion.div
                       initial={{ scale: 0 }}
                       animate={{ scale: 1 }}
                       transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
-                      className="w-16 h-16 bg-gradient-to-r from-green-400 to-emerald-500 rounded-full flex items-center justify-center mx-auto mb-6"
+                      className="w-16 h-16 bg-gradient-to-r from-primary-400 to-primary-500 rounded-full flex items-center justify-center mx-auto mb-6"
                     >
                       <Send className="h-8 w-8 text-white" />
                     </motion.div>
-                    <h4 className="text-2xl font-bold text-green-800 mb-3">Message Sent Successfully!</h4>
-                    <p className="text-green-700 text-lg">Thank you for reaching out. Our team will respond within 24 hours.</p>
+                    <h4 className="text-2xl font-bold text-primary-800 mb-3">Message Sent Successfully!</h4>
+                    <p className="text-primary-700 text-lg">Thank you for reaching out. Our team will respond within 24 hours.</p>
                     <motion.div
-                      className="mt-4 flex items-center justify-center space-x-2 text-green-600"
+                      className="mt-4 flex items-center justify-center space-x-2 text-primary-600"
                       animate={{ opacity: [1, 0.5, 1] }}
                       transition={{ duration: 2, repeat: Infinity }}
                     >
-                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                      <div className="w-2 h-2 bg-primary-500 rounded-full"></div>
+                      <div className="w-2 h-2 bg-primary-500 rounded-full"></div>
+                      <div className="w-2 h-2 bg-primary-500 rounded-full"></div>
                     </motion.div>
                   </div>
                 </motion.div>
@@ -389,7 +389,7 @@ const FAQ = () => {
                 transition={{ duration: 0.8, delay: 1 }}
               >
                 <div className="flex items-center space-x-2 text-gray-600">
-                  <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+                  <div className="w-3 h-3 bg-primary-500 rounded-full animate-pulse"></div>
                   <span className="text-sm font-medium">24/7 Support</span>
                 </div>
                 <div className="flex items-center space-x-2 text-gray-600">

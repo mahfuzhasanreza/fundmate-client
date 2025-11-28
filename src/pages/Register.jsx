@@ -46,7 +46,7 @@ const Register = () => {
     if (strength === 1) return 'bg-red-500'
     if (strength === 2) return 'bg-yellow-500'
     if (strength === 3) return 'bg-blue-500'
-    return 'bg-green-500'
+    return 'bg-primary-500'
   }
 
   const strength = passwordStrength(formData.password)

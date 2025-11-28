@@ -15,7 +15,7 @@ const ToastNotification = ({ notification, onClose, onClick }) => {
   const getIcon = (type) => {
     switch (type) {
       case NotificationTypes.NEW_OFFER:
-        return <DollarSign className="h-5 w-5 text-green-600" />
+        return <DollarSign className="h-5 w-5 text-primary-600" />
       case NotificationTypes.OFFER_ACCEPTED:
         return <CheckCircle className="h-5 w-5 text-primary-600" />
       case NotificationTypes.PAYMENT_UPDATE:
@@ -32,7 +32,7 @@ const ToastNotification = ({ notification, onClose, onClick }) => {
   const getBackgroundColor = (type) => {
     switch (type) {
       case NotificationTypes.NEW_OFFER:
-        return 'bg-green-50 border-green-200'
+        return 'bg-primary-50 border-primary-200'
       case NotificationTypes.OFFER_ACCEPTED:
         return 'bg-primary-50 border-primary-200'
       case NotificationTypes.PAYMENT_UPDATE:

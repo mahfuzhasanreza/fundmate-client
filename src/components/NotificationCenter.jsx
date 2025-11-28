@@ -120,7 +120,7 @@ const NotificationCenter = ({ isOpen, onClose }) => {
   const getNotificationIcon = (type) => {
     switch (type) {
       case 'new_offer':
-        return <DollarSign className="h-5 w-5 text-green-600" />
+        return <DollarSign className="h-5 w-5 text-primary-600" />
       case 'offer_accepted':
         return <CheckCircle className="h-5 w-5 text-primary-600" />
       case 'payment_update':
@@ -137,7 +137,7 @@ const NotificationCenter = ({ isOpen, onClose }) => {
   const getNotificationColor = (type) => {
     switch (type) {
       case 'new_offer':
-        return 'bg-green-50 border-green-200'
+        return 'bg-primary-50 border-primary-200'
       case 'offer_accepted':
         return 'bg-primary-50 border-primary-200'
       case 'payment_update':

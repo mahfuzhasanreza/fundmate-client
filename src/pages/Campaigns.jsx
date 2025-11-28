@@ -186,7 +186,7 @@ const Campaigns = () => {
     urgent: 'bg-red-100 text-red-700',
     high: 'bg-orange-100 text-orange-700', 
     medium: 'bg-yellow-100 text-yellow-700',
-    low: 'bg-green-100 text-green-700'
+    low: 'bg-primary-100 text-primary-700'
   }
 
   const filteredCampaigns = campaigns.filter(campaign => {
@@ -346,7 +346,7 @@ const Campaigns = () => {
                 <span>High Priority</span>
               </div>
               <div className="flex items-center space-x-1">
-                <div className="w-3 h-3 bg-green-400 rounded-full"></div>
+                <div className="w-3 h-3 bg-primary-400 rounded-full"></div>
                 <span>Standard</span>
               </div>
             </div>
@@ -393,7 +393,7 @@ const Campaigns = () => {
                     <div className="flex items-center space-x-1">
                       <h4 className="font-semibold text-sm text-gray-900">{campaign.organizer.name}</h4>
                       {campaign.organizer.verified && (
-                        <CheckCircle className="h-4 w-4 text-green-500" />
+                        <CheckCircle className="h-4 w-4 text-primary-500" />
                       )}
                     </div>
                     <div className="flex items-center text-xs text-gray-600">
@@ -434,7 +434,7 @@ const Campaigns = () => {
                 <div className="grid grid-cols-2 gap-4 mb-4">
                   <div>
                     <p className="text-xs text-gray-600">Raised</p>
-                    <p className="text-lg font-bold text-green-600">৳{campaign.raisedAmount.toLocaleString()}</p>
+                    <p className="text-lg font-bold text-primary-600">৳{campaign.raisedAmount.toLocaleString()}</p>
                   </div>
                   <div>
                     <p className="text-xs text-gray-600">Goal</p>
@@ -579,7 +579,7 @@ const Campaigns = () => {
                         <div className="flex items-center space-x-2">
                           <h4 className="font-semibold text-gray-900">{selectedCampaign.organizer.name}</h4>
                           {selectedCampaign.organizer.verified && (
-                            <CheckCircle className="h-5 w-5 text-green-500" />
+                            <CheckCircle className="h-5 w-5 text-primary-500" />
                           )}
                         </div>
                         <div className="flex items-center text-sm text-gray-600">
@@ -606,7 +606,7 @@ const Campaigns = () => {
                     {/* Progress Section */}
                     <div className="mb-6">
                       <div className="flex justify-between items-center mb-2">
-                        <span className="text-2xl font-bold text-green-600">
+                        <span className="text-2xl font-bold text-primary-600">
                           ৳{selectedCampaign.raisedAmount.toLocaleString()}
                         </span>
                         <span className="text-sm text-gray-600">
@@ -651,7 +651,7 @@ const Campaigns = () => {
                               <div className="text-lg">{donor.avatar}</div>
                               <span className="font-medium text-gray-900">{donor.name}</span>
                             </div>
-                            <span className="font-semibold text-green-600">৳{donor.amount}</span>
+                            <span className="font-semibold text-primary-600">৳{donor.amount}</span>
                           </div>
                         ))}
                       </div>
@@ -673,7 +673,7 @@ const Campaigns = () => {
                                 <p className="text-xs text-gray-600">{donor.time}</p>
                               </div>
                             </div>
-                            <span className="text-sm font-semibold text-green-600">৳{donor.amount}</span>
+                            <span className="text-sm font-semibold text-primary-600">৳{donor.amount}</span>
                           </div>
                         ))}
                       </div>

@@ -598,7 +598,7 @@ const CampaignCreate = () => {
                         formData.urgency === 'urgent' ? 'bg-red-100 text-red-700' :
                         formData.urgency === 'high' ? 'bg-orange-100 text-orange-700' :
                         formData.urgency === 'medium' ? 'bg-yellow-100 text-yellow-700' :
-                        'bg-green-100 text-green-700'
+                        'bg-primary-100 text-primary-700'
                       }`}>
                         {urgencyLevels.find(l => l.value === formData.urgency)?.label}
                       </span>
@@ -633,12 +633,12 @@ const CampaignCreate = () => {
                   </div>
                 </div>
 
-                <div className="bg-green-50 border border-green-200 rounded-xl p-4">
+                <div className="bg-primary-50 border border-primary-200 rounded-xl p-4">
                   <div className="flex items-start space-x-3">
-                    <CheckCircle className="h-5 w-5 text-green-600 mt-0.5" />
+                    <CheckCircle className="h-5 w-5 text-primary-600 mt-0.5" />
                     <div>
-                      <p className="font-semibold text-green-800 mb-1">Ready to Launch!</p>
-                      <p className="text-green-700 text-sm">
+                      <p className="font-semibold text-primary-800 mb-1">Ready to Launch!</p>
+                      <p className="text-primary-700 text-sm">
                         Your campaign will be reviewed and published within 24 hours. 
                         You'll receive an email confirmation once it's live.
                       </p>

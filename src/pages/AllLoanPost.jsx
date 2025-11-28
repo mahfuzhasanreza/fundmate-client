@@ -188,7 +188,7 @@ const AllLoanPost = () => {
   const urgencyColors = {
     high: 'bg-red-100 text-red-700',
     medium: 'bg-yellow-100 text-yellow-700',
-    low: 'bg-green-100 text-green-700'
+    low: 'bg-primary-100 text-primary-700'
   }
 
   const filteredLoans = loanPosts.filter(loan => {
@@ -326,7 +326,7 @@ const AllLoanPost = () => {
                 <span>Medium</span>
               </div>
               <div className="flex items-center space-x-1">
-                <div className="w-3 h-3 bg-green-400 rounded-full"></div>
+                <div className="w-3 h-3 bg-primary-400 rounded-full"></div>
                 <span>Low Priority</span>
               </div>
             </div>
@@ -354,7 +354,7 @@ const AllLoanPost = () => {
                       <h3 className="font-semibold text-gray-900 flex items-center">
                         {loan.borrower.name}
                         {loan.borrower.verified && (
-                          <CheckCircle className="h-4 w-4 text-green-500 ml-2" />
+                          <CheckCircle className="h-4 w-4 text-primary-500 ml-2" />
                         )}
                       </h3>
                       <div className="flex items-center space-x-2 text-sm">
@@ -375,7 +375,7 @@ const AllLoanPost = () => {
                       {loan.urgency === 'high' ? 'Urgent' : loan.urgency === 'medium' ? 'Medium' : 'Standard'}
                     </span>
                     {loan.hasCollateral && (
-                      <div className="flex items-center text-xs text-green-600">
+                      <div className="flex items-center text-xs text-primary-600">
                         <Shield className="h-3 w-3 mr-1" />
                         <span>Collateral</span>
                       </div>

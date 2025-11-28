@@ -76,7 +76,7 @@ const LoanDetails = () => {
       title: 'First Offer Received',
       description: 'John D. offered ৳10,000 at 7.5% interest',
       icon: DollarSign,
-      color: 'text-green-600'
+      color: 'text-primary-600'
     },
     {
       id: 3,
@@ -219,7 +219,7 @@ const LoanDetails = () => {
                 </div>
                 <span className={`px-3 py-1 rounded-full text-sm font-semibold ${
                   loanData.status === 'active' 
-                    ? 'bg-green-100 text-green-700' 
+                    ? 'bg-primary-100 text-primary-700' 
                     : 'bg-yellow-100 text-yellow-700'
                 }`}>
                   {loanData.status === 'active' ? 'Active' : 'Pending'}
@@ -363,7 +363,7 @@ const LoanDetails = () => {
                       <span className={`px-3 py-1 rounded-full text-sm font-semibold ${
                         offer.status === 'pending' 
                           ? 'bg-yellow-100 text-yellow-700' 
-                          : 'bg-green-100 text-green-700'
+                          : 'bg-primary-100 text-primary-700'
                       }`}>
                         {offer.status === 'pending' ? 'Pending' : 'Accepted'}
                       </span>
@@ -420,7 +420,7 @@ const LoanDetails = () => {
                 <h4 className="text-lg font-semibold text-gray-900 mb-1">
                   {loanData.borrower.name}
                   {loanData.borrower.verified && (
-                    <CheckCircle className="inline h-5 w-5 text-green-500 ml-2" />
+                    <CheckCircle className="inline h-5 w-5 text-primary-500 ml-2" />
                   )}
                 </h4>
                 <div className="flex items-center justify-center space-x-1 mb-2">
@@ -512,16 +512,16 @@ const LoanDetails = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.8 }}
-          className="mt-8 bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-200 rounded-2xl p-6"
+          className="mt-8 bg-gradient-to-br from-primary-50 to-primary-100 border-2 border-primary-200 rounded-2xl p-6"
         >
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center space-x-3">
-              <div className="p-2 bg-green-100 rounded-full">
-                <CheckCircle className="h-6 w-6 text-green-600" />
+              <div className="p-2 bg-primary-100 rounded-full">
+                <CheckCircle className="h-6 w-6 text-primary-600" />
               </div>
               <div>
                 <h3 className="text-xl font-bold text-gray-900">Offer Accepted!</h3>
-                <p className="text-green-600 font-semibold">Agreement has been created</p>
+                <p className="text-primary-600 font-semibold">Agreement has been created</p>
               </div>
             </div>
             <div className="text-right">
@@ -531,17 +531,17 @@ const LoanDetails = () => {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            <div className="bg-white rounded-lg p-4 border border-green-200">
+            <div className="bg-white rounded-lg p-4 border border-primary-200">
               <p className="text-sm text-gray-600 mb-1">Accepted Amount</p>
-              <p className="text-2xl font-bold text-green-600">৳{loanData.amount.toLocaleString()}</p>
+              <p className="text-2xl font-bold text-primary-600">৳{loanData.amount.toLocaleString()}</p>
             </div>
-            <div className="bg-white rounded-lg p-4 border border-green-200">
+            <div className="bg-white rounded-lg p-4 border border-primary-200">
               <p className="text-sm text-gray-600 mb-1">Interest Rate</p>
-              <p className="text-2xl font-bold text-green-600">{loanData.interestRange}%</p>
+              <p className="text-2xl font-bold text-primary-600">{loanData.interestRange}%</p>
             </div>
-            <div className="bg-white rounded-lg p-4 border border-green-200">
+            <div className="bg-white rounded-lg p-4 border border-primary-200">
               <p className="text-sm text-gray-600 mb-1">Monthly Payment</p>
-              <p className="text-2xl font-bold text-green-600">৳697.58</p>
+              <p className="text-2xl font-bold text-primary-600">৳697.58</p>
             </div>
           </div>
 
@@ -558,19 +558,19 @@ const LoanDetails = () => {
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              className="flex items-center justify-center space-x-2 bg-green-600 text-white py-4 px-6 rounded-xl font-semibold hover:bg-green-700 transition-all shadow-lg"
+              className="flex items-center justify-center space-x-2 bg-primary-600 text-white py-4 px-6 rounded-xl font-semibold hover:bg-primary-700 transition-all shadow-lg"
             >
               <MessageSquare className="h-5 w-5" />
               <span>Contact Lender</span>
             </motion.button>
           </div>
 
-          <div className="mt-4 p-4 bg-green-100 rounded-lg">
+          <div className="mt-4 p-4 bg-primary-100 rounded-lg">
             <div className="flex items-start space-x-3">
-              <CheckCircle className="h-5 w-5 text-green-600 mt-0.5" />
+              <CheckCircle className="h-5 w-5 text-primary-600 mt-0.5" />
               <div className="text-sm">
-                <p className="font-semibold text-green-800 mb-1">Next Steps:</p>
-                <ul className="text-green-700 space-y-1">
+                <p className="font-semibold text-primary-800 mb-1">Next Steps:</p>
+                <ul className="text-primary-700 space-y-1">
                   <li>• Review and sign the loan agreement</li>
                   <li>• Set up automatic payment schedule</li>
                   <li>• First payment due on December 20, 2024</li>

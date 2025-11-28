@@ -54,9 +54,9 @@ const Dashboard = () => {
       value: '2',
       change: 'As Borrower',
       icon: TrendingUp,
-      color: 'green',
-      bgColor: 'bg-green-100',
-      textColor: 'text-green-600'
+      color: 'primary',
+      bgColor: 'bg-primary-100',
+      textColor: 'text-primary-600'
     },
     {
       title: 'Loan Offers Received',
@@ -99,9 +99,9 @@ const Dashboard = () => {
       value: '৳1,200',
       change: 'Expected this month',
       icon: DollarSign,
-      color: 'emerald',
-      bgColor: 'bg-emerald-100',
-      textColor: 'text-emerald-600'
+      color: 'primary',
+      bgColor: 'bg-primary-100',
+      textColor: 'text-primary-600'
     },
     {
       title: 'Total Invested',
@@ -123,7 +123,7 @@ const Dashboard = () => {
       description: 'Your business loan of ৳5,000 has been approved',
       time: '2 hours ago',
       icon: CheckCircle,
-      color: 'text-green-600'
+      color: 'text-primary-600'
     },
     {
       id: 2,
@@ -148,10 +148,10 @@ const Dashboard = () => {
       type: 'payment',
       title: 'Payment Received',
       description: 'Received ৳500 loan repayment from Sarah',
-      time: '2 days ago',
+      time: '1 day ago',
       icon: DollarSign,
-      color: 'text-emerald-600'
-    }
+      color: 'text-primary-600'
+    },
   ]
 
   // Upcoming payments

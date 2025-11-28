@@ -69,7 +69,7 @@ const FeaturedLoans = () => {
   const getRiskColor = (risk) => {
     switch (risk) {
       case 'Very Low':
-        return 'bg-green-100 text-green-700'
+        return 'bg-primary-100 text-primary-700'
       case 'Low':
         return 'bg-blue-100 text-blue-700'
       case 'Medium':
@@ -152,7 +152,7 @@ const FeaturedLoans = () => {
                         whileHover={{ scale: 1.2, rotate: 360 }}
                         transition={{ duration: 0.5 }}
                       >
-                        <CheckCircle className="h-5 w-5 text-green-600" />
+                        <CheckCircle className="h-5 w-5 text-primary-600" />
                       </motion.div>
                     )}
                   </div>

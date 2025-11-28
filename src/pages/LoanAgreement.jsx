@@ -105,7 +105,7 @@ const LoanAgreement = () => {
 
   const getStatusColor = (status) => {
     switch (status) {
-      case 'active': return 'bg-green-100 text-green-700'
+      case 'active': return 'bg-primary-100 text-primary-700'
       case 'pending': return 'bg-yellow-100 text-yellow-700'
       case 'completed': return 'bg-blue-100 text-blue-700'
       case 'overdue': return 'bg-red-100 text-red-700'
@@ -125,7 +125,7 @@ const LoanAgreement = () => {
 
   const getPaymentStatusColor = (status) => {
     switch (status) {
-      case 'paid': return 'bg-green-100 text-green-700'
+      case 'paid': return 'bg-primary-100 text-primary-700'
       case 'pending': return 'bg-yellow-100 text-yellow-700'
       case 'overdue': return 'bg-red-100 text-red-700'
       default: return 'bg-gray-100 text-gray-700'
@@ -248,7 +248,7 @@ const LoanAgreement = () => {
                     <div className="flex items-center space-x-2 mb-2">
                       <h4 className="font-semibold text-lg">{agreement.borrower.name}</h4>
                       {agreement.borrower.verified && (
-                        <CheckCircle className="h-5 w-5 text-green-500" />
+                        <CheckCircle className="h-5 w-5 text-primary-500" />
                       )}
                     </div>
                     <div className="space-y-1 text-sm text-gray-600">
@@ -279,7 +279,7 @@ const LoanAgreement = () => {
                     <div className="flex items-center space-x-2 mb-2">
                       <h4 className="font-semibold text-lg">{agreement.lender.name}</h4>
                       {agreement.lender.verified && (
-                        <CheckCircle className="h-5 w-5 text-green-500" />
+                        <CheckCircle className="h-5 w-5 text-primary-500" />
                       )}
                     </div>
                     <div className="space-y-1 text-sm text-gray-600">
@@ -315,9 +315,9 @@ const LoanAgreement = () => {
                   <p className="text-sm text-gray-600 mb-1">Original Amount</p>
                   <p className="text-2xl font-bold text-gray-900">৳{agreement.loan.originalAmount.toLocaleString()}</p>
                 </div>
-                <div className="text-center p-4 bg-green-50 rounded-lg">
+                <div className="text-center p-4 bg-primary-50 rounded-lg">
                   <p className="text-sm text-gray-600 mb-1">Accepted Amount</p>
-                  <p className="text-2xl font-bold text-green-600">৳{agreement.loan.acceptedAmount.toLocaleString()}</p>
+                  <p className="text-2xl font-bold text-primary-600">৳{agreement.loan.acceptedAmount.toLocaleString()}</p>
                 </div>
                 <div className="text-center p-4 bg-blue-50 rounded-lg">
                   <p className="text-sm text-gray-600 mb-1">Interest Rate</p>
@@ -404,7 +404,7 @@ const LoanAgreement = () => {
                           </div>
                         )}
                         {payment.status === 'paid' && (
-                          <button className="px-3 py-1 bg-green-100 text-green-700 text-xs rounded-lg">
+                          <button className="px-3 py-1 bg-primary-100 text-primary-700 text-xs rounded-lg">
                             ✓ Confirmed
                           </button>
                         )}
@@ -440,8 +440,8 @@ const LoanAgreement = () => {
                 {agreement.attachments.map((doc) => (
                   <div key={doc.id} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:border-primary-300 transition-colors">
                     <div className="flex items-center space-x-3">
-                      <div className={`p-2 rounded-lg ${doc.type === 'document' ? 'bg-blue-100' : 'bg-green-100'}`}>
-                        <FileText className={`h-5 w-5 ${doc.type === 'document' ? 'text-blue-600' : 'text-green-600'}`} />
+                      <div className={`p-2 rounded-lg ${doc.type === 'document' ? 'bg-blue-100' : 'bg-primary-100'}`}>
+                        <FileText className={`h-5 w-5 ${doc.type === 'document' ? 'text-blue-600' : 'text-primary-600'}`} />
                       </div>
                       <div>
                         <p className="font-semibold text-gray-900">{doc.name}</p>
@@ -481,7 +481,7 @@ const LoanAgreement = () => {
                   </div>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
+                  <div className="w-3 h-3 bg-primary-400 rounded-full animate-pulse"></div>
                   <span className="text-sm text-gray-600">Online</span>
                 </div>
               </div>
@@ -669,7 +669,7 @@ const LoanAgreement = () => {
             <TrendingUp className="h-5 w-5" />
             <span>Transaction History</span>
           </button>
-          <button className="flex items-center space-x-2 px-6 py-3 bg-green-600 text-white rounded-xl font-semibold hover:bg-green-700 transition-all shadow-lg">
+          <button className="flex items-center space-x-2 px-6 py-3 bg-primary-600 text-white rounded-xl font-semibold hover:bg-primary-700 transition-all shadow-lg">
             <Receipt className="h-5 w-5" />
             <span>Mark Payment Done</span>
           </button>
