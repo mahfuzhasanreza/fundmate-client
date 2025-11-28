@@ -4,6 +4,7 @@ import Navbar from './components/layout/Navbar'
 import Footer from './components/layout/Footer'
 import LandingPage from './pages/LandingPage'
 import Login from './pages/Login'
+import Register from './pages/Register'
 
 function App() {
   return (
@@ -11,6 +12,7 @@ function App() {
       <div className="min-h-screen flex flex-col">
         <Routes>
           <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
           <Route path="/" element={
             <>
               <Navbar />
