@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { Menu, X, Wallet } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
+import NotificationBell from '../NotificationBell'
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false)
@@ -92,6 +93,7 @@ const Navbar = () => {
 
           {/* Desktop CTA Buttons */}
           <div className="hidden md:flex items-center space-x-4">
+            <NotificationBell />
             <motion.button 
               onClick={() => navigate('/login')}
               className="text-primary-600 hover:text-primary-700 font-semibold transition-colors duration-200"
