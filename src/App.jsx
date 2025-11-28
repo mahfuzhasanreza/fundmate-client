@@ -1,5 +1,5 @@
 import React from 'react'
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom'
 import Navbar from './components/layout/Navbar'
 import Footer from './components/layout/Footer'
 import LandingPage from './pages/LandingPage'
@@ -8,26 +8,31 @@ import Register from './pages/Register'
 import Dashboard from './pages/Dashboard'
 import LoanRequest from './pages/LoanRequest'
 
-function App() {
+function AppContent() {
+  const location = useLocation()
+  const hideNavAndFooter = location.pathname === '/login' || location.pathname === '/register'
+
   return (
-    <Router>
-      <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col">
+      {!hideNavAndFooter && <Navbar />}
+      <main className="flex-grow">
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/loan-request" element={<LoanRequest />} />
-          <Route path="/" element={
-            <>
-              <Navbar />
-              <main className="flex-grow">
-                <LandingPage />
-              </main>
-              <Footer />
-            </>
-          } />
+          <Route path="/" element={<LandingPage />} />
         </Routes>
-      </div>
+      </main>
+      {!hideNavAndFooter && <Footer />}
+    </div>
+  )
+}
+
+function App() {
+  return (
+    <Router>
+      <AppContent />
     </Router>
   )
 }

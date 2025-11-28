@@ -220,73 +220,27 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Top Navigation */}
-      <nav className="bg-white border-b border-gray-200 fixed w-full z-30">
-        <div className="px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            {/* Left side */}
-            <div className="flex items-center space-x-4">
-              <button
-                onClick={() => setSidebarOpen(!sidebarOpen)}
-                className="lg:hidden text-gray-600 hover:text-gray-900"
-              >
-                {sidebarOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-              </button>
-              
-              <div className="flex items-center space-x-2">
-                <div className="bg-gradient-to-r from-primary-600 to-primary-500 p-2 rounded-lg">
-                  <LayoutDashboard className="h-6 w-6 text-white" />
-                </div>
-                <span className="text-xl font-bold text-gray-900 hidden sm:block">FundMate Dashboard</span>
-              </div>
-            </div>
-
-            {/* Search bar */}
-            <div className="flex-1 max-w-md mx-4 hidden md:block">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-                <input
-                  type="text"
-                  placeholder="Search..."
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
-                />
-              </div>
-            </div>
-
-            {/* Right side */}
-            <div className="flex items-center space-x-4">
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="relative p-2 text-gray-600 hover:text-gray-900"
-              >
-                <Bell className="h-6 w-6" />
-                <span className="absolute top-1 right-1 h-2 w-2 bg-red-500 rounded-full"></span>
-              </motion.button>
-
-              <div className="flex items-center space-x-3 pl-4 border-l border-gray-200">
-                <div className="text-right hidden sm:block">
-                  <p className="text-sm font-semibold text-gray-900">{user.name}</p>
-                  <p className="text-xs text-gray-500">{user.role}</p>
-                </div>
-                <div className="text-3xl">{user.avatar}</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </nav>
-
-      <div className="flex pt-16">
+      <div className="flex">
         {/* Sidebar */}
         <AnimatePresence>
-          {(sidebarOpen || window.innerWidth >= 1024) && (
+          {(sidebarOpen || typeof window !== 'undefined' && window.innerWidth >= 1024) && (
             <motion.aside
               initial={{ x: -300 }}
               animate={{ x: 0 }}
               exit={{ x: -300 }}
               transition={{ duration: 0.3 }}
-              className="fixed lg:static inset-y-0 left-0 z-20 w-64 bg-white border-r border-gray-200 pt-16 overflow-y-auto"
+              className="fixed lg:static inset-y-0 left-0 top-16 z-20 w-64 bg-white border-r border-gray-200 overflow-y-auto h-screen pt-4"
             >
+              {/* Mobile Menu Toggle */}
+              <div className="lg:hidden p-4">
+                <button
+                  onClick={() => setSidebarOpen(false)}
+                  className="text-gray-600 hover:text-gray-900"
+                >
+                  <X className="h-6 w-6" />
+                </button>
+              </div>
+
               <div className="p-4 space-y-2">
                 {sidebarItems.map((item) => {
                   const Icon = item.icon
@@ -330,6 +284,18 @@ const Dashboard = () => {
 
         {/* Main Content */}
         <main className="flex-1 p-4 lg:p-8 overflow-x-hidden">
+          {/* Mobile Header */}
+          <div className="lg:hidden mb-6 flex items-center justify-between">
+            <button
+              onClick={() => setSidebarOpen(true)}
+              className="text-gray-600 hover:text-gray-900"
+            >
+              <Menu className="h-6 w-6" />
+            </button>
+            <h1 className="text-xl font-bold text-gray-900">Dashboard</h1>
+            <div className="text-2xl">{user.avatar}</div>
+          </div>
+
           <motion.div
             key={activeSection}
             initial={{ opacity: 0, y: 20 }}
