@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react'
-import { ArrowRight, Play, Search, ChevronLeft, ChevronRight } from 'lucide-react'
+import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
 
 const Hero = () => {
-  const [searchCategory, setSearchCategory] = useState('all')
   const [currentSlide, setCurrentSlide] = useState(0)
   const navigate = useNavigate()
 
@@ -218,43 +217,6 @@ const Hero = () => {
               Get funded by your community or help others achieve their goals with complete 
               transparency and automated management.
             </motion.p>
-
-            {/* Enhanced Search Bar */}
-            <motion.div 
-              className="max-w-3xl mx-auto"
-              variants={itemVariants}
-            >
-              <div className="bg-white/95 backdrop-blur-md rounded-3xl shadow-2xl p-3 border border-white/30">
-                <div className="flex flex-col lg:flex-row gap-3">
-                  <div className="flex-1 flex items-center gap-3 px-6 py-4 bg-white/50 rounded-2xl">
-                    <Search className="h-6 w-6 text-gray-600" />
-                    <input 
-                      type="text" 
-                      placeholder="Search for loans or campaigns..."
-                      className="flex-1 bg-transparent border-none outline-none text-gray-800 placeholder-gray-500 text-lg"
-                    />
-                  </div>
-                  <div className="flex gap-3">
-                    <select 
-                      value={searchCategory}
-                      onChange={(e) => setSearchCategory(e.target.value)}
-                      className="px-6 py-4 bg-white/50 rounded-2xl border-none outline-none text-gray-800 cursor-pointer hover:bg-white/70 transition-all text-lg"
-                    >
-                      <option value="all">All</option>
-                      <option value="loans">Loans</option>
-                      <option value="campaigns">Campaigns</option>
-                    </select>
-                    <motion.button 
-                      className="px-8 py-4 bg-gradient-to-r from-primary-600 to-primary-500 text-white rounded-2xl font-bold hover:shadow-2xl transition-all text-lg"
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                    >
-                      Search
-                    </motion.button>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
 
             <motion.div 
               className="flex flex-col sm:flex-row gap-6 justify-center"
