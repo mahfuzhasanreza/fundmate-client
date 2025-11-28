@@ -1,9 +1,11 @@
 import React, { useState } from 'react'
 import { ArrowRight, Play, Search } from 'lucide-react'
 import { motion } from 'framer-motion'
+import { useNavigate } from 'react-router-dom'
 
 const Hero = () => {
   const [searchCategory, setSearchCategory] = useState('all')
+  const navigate = useNavigate()
   
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -194,6 +196,7 @@ const Hero = () => {
               variants={itemVariants}
             >
               <motion.button 
+                onClick={() => navigate('/loan-request')}
                 className="btn-primary flex items-center justify-center space-x-2 group"
                 whileHover={{ scale: 1.05, boxShadow: "0 20px 40px rgba(22, 163, 74, 0.3)" }}
                 whileTap={{ scale: 0.95 }}
