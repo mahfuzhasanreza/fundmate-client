@@ -6,7 +6,7 @@ const Stats = () => {
   const stats = [
     {
       icon: <DollarSign className="h-8 w-8" />,
-      value: '$2.5M+',
+      value: '৳2.5M+',
       label: 'Total Funded',
       bgColor: 'bg-green-100',
       textColor: 'text-green-600'

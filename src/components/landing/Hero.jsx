@@ -310,7 +310,7 @@ const Hero = () => {
                   💰
                 </motion.span>
                 <div className="text-white">
-                  <p className="font-bold text-lg">$2.5M+</p>
+                  <p className="font-bold text-lg">৳2.5M+</p>
                   <p className="text-sm opacity-80">Funded</p>
                 </div>
               </motion.div>

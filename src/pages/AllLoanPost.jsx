@@ -395,7 +395,7 @@ const AllLoanPost = () => {
                 <div className="grid grid-cols-2 gap-4 mb-4">
                   <div className="text-center p-3 bg-primary-50 rounded-lg">
                     <DollarSign className="h-5 w-5 text-primary-600 mx-auto mb-1" />
-                    <p className="text-lg font-bold text-gray-900">${loan.amount.toLocaleString()}</p>
+                  <p className="text-lg font-bold text-gray-900">৳{loan.amount.toLocaleString()}</p>
                     <p className="text-xs text-gray-600">Amount</p>
                   </div>
                   <div className="text-center p-3 bg-blue-50 rounded-lg">
@@ -414,7 +414,7 @@ const AllLoanPost = () => {
                   <div>
                     <p className="text-sm text-gray-600">Monthly Payment*</p>
                     <p className="font-bold text-primary-600">
-                      ${calculateMonthlyPayment(loan.amount, loan.preferredInterest, loan.tenure)}
+                      ৳{calculateMonthlyPayment(loan.amount, loan.preferredInterest, loan.tenure)}
                     </p>
                   </div>
                 </div>

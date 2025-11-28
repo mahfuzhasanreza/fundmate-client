@@ -311,7 +311,7 @@ const CampaignCreate = () => {
 
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Target Amount ($) *
+                      Target Amount (৳) *
                     </label>
                     <div className="relative">
                       <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
@@ -612,7 +612,7 @@ const CampaignCreate = () => {
                     <div className="grid grid-cols-2 gap-4 mb-4">
                       <div>
                         <p className="text-sm text-gray-600">Target Amount</p>
-                        <p className="text-lg font-bold text-gray-900">${Number(formData.targetAmount).toLocaleString()}</p>
+                        <p className="text-lg font-bold text-gray-900">৳{Number(formData.targetAmount).toLocaleString()}</p>
                       </div>
                       <div>
                         <p className="text-sm text-gray-600">Duration</p>

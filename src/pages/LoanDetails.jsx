@@ -74,7 +74,7 @@ const LoanDetails = () => {
       time: '2:15 PM',
       type: 'offer',
       title: 'First Offer Received',
-      description: 'John D. offered $10,000 at 7.5% interest',
+      description: 'John D. offered ৳10,000 at 7.5% interest',
       icon: DollarSign,
       color: 'text-green-600'
     },
@@ -229,7 +229,7 @@ const LoanDetails = () => {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                 <div className="text-center p-4 bg-primary-50 rounded-xl">
                   <DollarSign className="h-8 w-8 text-primary-600 mx-auto mb-2" />
-                  <p className="text-2xl font-bold text-gray-900">${loanData.amount.toLocaleString()}</p>
+                  <p className="text-2xl font-bold text-gray-900">৳{loanData.amount.toLocaleString()}</p>
                   <p className="text-sm text-gray-600">Loan Amount</p>
                 </div>
                 <div className="text-center p-4 bg-blue-50 rounded-xl">
@@ -372,7 +372,7 @@ const LoanDetails = () => {
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
                       <div>
                         <p className="text-xs text-gray-500 mb-1">Amount</p>
-                        <p className="font-bold text-gray-900">${offer.amount.toLocaleString()}</p>
+                        <p className="font-bold text-gray-900">৳{offer.amount.toLocaleString()}</p>
                       </div>
                       <div>
                         <p className="text-xs text-gray-500 mb-1">Interest Rate</p>
@@ -385,7 +385,7 @@ const LoanDetails = () => {
                       <div>
                         <p className="text-xs text-gray-500 mb-1">Monthly Payment</p>
                         <p className="font-bold text-primary-600">
-                          ${calculateMonthlyPayment(offer.amount, offer.interestRate, offer.tenure)}
+                          ৳{calculateMonthlyPayment(offer.amount, offer.interestRate, offer.tenure)}
                         </p>
                       </div>
                     </div>
@@ -439,7 +439,7 @@ const LoanDetails = () => {
                 <div className="flex items-center justify-between">
                   <span className="text-gray-600">Total Borrowed</span>
                   <span className="font-semibold text-gray-900">
-                    ${loanData.borrower.totalBorrowed.toLocaleString()}
+                    ৳{loanData.borrower.totalBorrowed.toLocaleString()}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
@@ -484,19 +484,19 @@ const LoanDetails = () => {
                 <div className="flex justify-between">
                   <span className="opacity-90">Monthly Payment*</span>
                   <span className="font-bold">
-                    ${calculateMonthlyPayment(loanData.amount, loanData.preferredInterest, loanData.tenure)}
+                    ৳{calculateMonthlyPayment(loanData.amount, loanData.preferredInterest, loanData.tenure)}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="opacity-90">Total Interest</span>
                   <span className="font-bold">
-                    ${(calculateMonthlyPayment(loanData.amount, loanData.preferredInterest, loanData.tenure) * loanData.tenure - loanData.amount).toFixed(2)}
+                    ৳{(calculateMonthlyPayment(loanData.amount, loanData.preferredInterest, loanData.tenure) * loanData.tenure - loanData.amount).toFixed(2)}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="opacity-90">Total Repayment</span>
                   <span className="font-bold">
-                    ${(calculateMonthlyPayment(loanData.amount, loanData.preferredInterest, loanData.tenure) * loanData.tenure).toFixed(2)}
+                    ৳{(calculateMonthlyPayment(loanData.amount, loanData.preferredInterest, loanData.tenure) * loanData.tenure).toFixed(2)}
                   </span>
                 </div>
               </div>
@@ -533,7 +533,7 @@ const LoanDetails = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
             <div className="bg-white rounded-lg p-4 border border-green-200">
               <p className="text-sm text-gray-600 mb-1">Accepted Amount</p>
-              <p className="text-2xl font-bold text-green-600">${loanData.amount.toLocaleString()}</p>
+              <p className="text-2xl font-bold text-green-600">৳{loanData.amount.toLocaleString()}</p>
             </div>
             <div className="bg-white rounded-lg p-4 border border-green-200">
               <p className="text-sm text-gray-600 mb-1">Interest Rate</p>
@@ -541,7 +541,7 @@ const LoanDetails = () => {
             </div>
             <div className="bg-white rounded-lg p-4 border border-green-200">
               <p className="text-sm text-gray-600 mb-1">Monthly Payment</p>
-              <p className="text-2xl font-bold text-green-600">$697.58</p>
+              <p className="text-2xl font-bold text-green-600">৳697.58</p>
             </div>
           </div>
 
@@ -603,7 +603,7 @@ const LoanDetails = () => {
               <form onSubmit={handleSubmitOffer} className="space-y-4">
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Offer Amount ($)
+                    Offer Amount (৳)
                   </label>
                   <input
                     type="number"

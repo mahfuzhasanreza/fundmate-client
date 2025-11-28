@@ -313,11 +313,11 @@ const LoanAgreement = () => {
               <div className="grid grid-cols-2 gap-6">
                 <div className="text-center p-4 bg-primary-50 rounded-lg">
                   <p className="text-sm text-gray-600 mb-1">Original Amount</p>
-                  <p className="text-2xl font-bold text-gray-900">${agreement.loan.originalAmount.toLocaleString()}</p>
+                  <p className="text-2xl font-bold text-gray-900">৳{agreement.loan.originalAmount.toLocaleString()}</p>
                 </div>
                 <div className="text-center p-4 bg-green-50 rounded-lg">
                   <p className="text-sm text-gray-600 mb-1">Accepted Amount</p>
-                  <p className="text-2xl font-bold text-green-600">${agreement.loan.acceptedAmount.toLocaleString()}</p>
+                  <p className="text-2xl font-bold text-green-600">৳{agreement.loan.acceptedAmount.toLocaleString()}</p>
                 </div>
                 <div className="text-center p-4 bg-blue-50 rounded-lg">
                   <p className="text-sm text-gray-600 mb-1">Interest Rate</p>

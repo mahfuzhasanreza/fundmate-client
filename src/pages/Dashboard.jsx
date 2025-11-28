@@ -69,7 +69,7 @@ const Dashboard = () => {
     },
     {
       title: 'Donations Given',
-      value: '$2,450',
+      value: '৳2,450',
       change: '12 campaigns',
       icon: Heart,
       color: 'pink',
@@ -87,7 +87,7 @@ const Dashboard = () => {
     },
     {
       title: 'Payments Due',
-      value: '$850',
+      value: '৳850',
       change: 'Due in 5 days',
       icon: AlertCircle,
       color: 'orange',
@@ -96,7 +96,7 @@ const Dashboard = () => {
     },
     {
       title: 'Payments To Receive',
-      value: '$1,200',
+      value: '৳1,200',
       change: 'Expected this month',
       icon: DollarSign,
       color: 'emerald',
@@ -105,7 +105,7 @@ const Dashboard = () => {
     },
     {
       title: 'Total Invested',
-      value: '$5,000',
+      value: '৳5,000',
       change: 'As Lender',
       icon: PieChart,
       color: 'indigo',
@@ -120,7 +120,7 @@ const Dashboard = () => {
       id: 1,
       type: 'loan_approved',
       title: 'Loan Request Approved',
-      description: 'Your business loan of $5,000 has been approved',
+      description: 'Your business loan of ৳5,000 has been approved',
       time: '2 hours ago',
       icon: CheckCircle,
       color: 'text-green-600'
@@ -129,7 +129,7 @@ const Dashboard = () => {
       id: 2,
       type: 'offer_received',
       title: 'New Loan Offer',
-      description: 'John Doe offered $2,000 at 7.5% interest',
+      description: 'John Doe offered ৳2,000 at 7.5% interest',
       time: '5 hours ago',
       icon: UserCheck,
       color: 'text-blue-600'
@@ -138,7 +138,7 @@ const Dashboard = () => {
       id: 3,
       type: 'donation',
       title: 'Donation Made',
-      description: 'You donated $100 to Medical Emergency Fund',
+      description: 'You donated ৳100 to Medical Emergency Fund',
       time: '1 day ago',
       icon: Heart,
       color: 'text-pink-600'
@@ -147,7 +147,7 @@ const Dashboard = () => {
       id: 4,
       type: 'payment',
       title: 'Payment Received',
-      description: 'Received $500 loan repayment from Sarah',
+      description: 'Received ৳500 loan repayment from Sarah',
       time: '2 days ago',
       icon: DollarSign,
       color: 'text-emerald-600'
@@ -383,7 +383,7 @@ const OverviewSection = ({ stats, recentActivities, upcomingPayments, activeCamp
                 <div key={payment.id} className="p-4 bg-orange-50 rounded-lg border border-orange-100">
                   <div className="flex justify-between items-start mb-2">
                     <h3 className="font-semibold text-gray-900">{payment.title}</h3>
-                    <span className="text-lg font-bold text-orange-600">${payment.amount}</span>
+                    <span className="text-lg font-bold text-orange-600">৳{payment.amount}</span>
                   </div>
                   <div className="flex items-center text-sm text-gray-600">
                     <Calendar className="h-4 w-4 mr-1" />
@@ -411,8 +411,8 @@ const OverviewSection = ({ stats, recentActivities, upcomingPayments, activeCamp
                   <h3 className="font-semibold text-gray-900 mb-3">{campaign.title}</h3>
                   <div className="mb-3">
                     <div className="flex justify-between text-sm mb-2">
-                      <span className="font-semibold text-gray-900">${campaign.raised.toLocaleString()}</span>
-                      <span className="text-gray-600">of ${campaign.goal.toLocaleString()}</span>
+                      <span className="font-semibold text-gray-900">৳{campaign.raised.toLocaleString()}</span>
+                      <span className="text-gray-600">of ৳{campaign.goal.toLocaleString()}</span>
                     </div>
                     <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
                       <div 

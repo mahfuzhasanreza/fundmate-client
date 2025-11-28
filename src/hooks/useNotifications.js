@@ -81,7 +81,7 @@ export const createNotification = {
   newOffer: (lenderName, amount, interestRate, loanId) => ({
     type: NotificationTypes.NEW_OFFER,
     title: 'New Loan Offer Received',
-    message: `${lenderName} submitted an offer of $${amount.toLocaleString()} at ${interestRate}% interest for your loan request.`,
+    message: `${lenderName} submitted an offer of ৳${amount.toLocaleString()} at ${interestRate}% interest for your loan request.`,
     data: { lenderName, amount, interestRate, loanId },
     persistent: true
   }),
@@ -89,7 +89,7 @@ export const createNotification = {
   offerAccepted: (borrowerName, amount, agreementId) => ({
     type: NotificationTypes.OFFER_ACCEPTED,
     title: 'Offer Accepted',
-    message: `${borrowerName} accepted your loan offer of $${amount.toLocaleString()}. Agreement has been created.`,
+    message: `${borrowerName} accepted your loan offer of ৳${amount.toLocaleString()}. Agreement has been created.`,
     data: { borrowerName, amount, agreementId },
     persistent: true
   }),

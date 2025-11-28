@@ -101,7 +101,7 @@ const LoanRequest = () => {
       if (!formData.loanTitle.trim()) newErrors.loanTitle = 'Loan title is required'
       if (!formData.amount) newErrors.amount = 'Amount is required'
       if (formData.amount && (parseFloat(formData.amount) < 100 || parseFloat(formData.amount) > 100000)) {
-        newErrors.amount = 'Amount must be between $100 and $100,000'
+        newErrors.amount = 'Amount must be between ৳100 and ৳100,000'
       }
       if (!formData.purpose) newErrors.purpose = 'Purpose is required'
     }
@@ -265,7 +265,7 @@ const LoanRequest = () => {
 
                       <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-2">
-                          Loan Amount ($) *
+                          Loan Amount (৳) *
                         </label>
                         <div className="relative">
                           <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
@@ -288,7 +288,7 @@ const LoanRequest = () => {
                             {errors.amount}
                           </p>
                         )}
-                        <p className="text-xs text-gray-500 mt-1">Amount between $100 - $100,000</p>
+                        <p className="text-xs text-gray-500 mt-1">Amount between ৳100 - ৳100,000</p>
                       </div>
 
                       <div>
@@ -693,7 +693,7 @@ const LoanRequest = () => {
                     <div>
                       <p className="text-xs text-gray-500 mb-1">Amount</p>
                       <p className="font-semibold text-gray-900">
-                        ${formData.amount || '0'}
+                        ৳{formData.amount || '0'}
                       </p>
                     </div>
                     <div>
@@ -739,7 +739,7 @@ const LoanRequest = () => {
                     <div className="pt-4 border-t border-gray-200">
                       <p className="text-xs text-gray-500 mb-1">Estimated Monthly Payment</p>
                       <p className="text-2xl font-bold text-primary-600">
-                        ${calculateMonthlyPayment()}
+                        ৳{calculateMonthlyPayment()}
                       </p>
                       <p className="text-xs text-gray-500 mt-1">
                         {formData.interestType === '0' ? 'No interest' : 'Including interest'}

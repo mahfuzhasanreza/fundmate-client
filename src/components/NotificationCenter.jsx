@@ -27,7 +27,7 @@ const NotificationCenter = ({ isOpen, onClose }) => {
       id: 1,
       type: 'new_offer',
       title: 'New Loan Offer Received',
-      message: 'Michael Chen submitted an offer of $15,000 at 8.2% interest for your business expansion loan.',
+      message: 'Michael Chen submitted an offer of ৳15,000 at 8.2% interest for your business expansion loan.',
       timestamp: new Date(Date.now() - 30 * 60 * 1000), // 30 minutes ago
       read: false,
       data: {
@@ -41,7 +41,7 @@ const NotificationCenter = ({ isOpen, onClose }) => {
       id: 2,
       type: 'offer_accepted',
       title: 'Offer Accepted',
-      message: 'Sarah Johnson accepted your loan offer of $12,000. Agreement has been created.',
+      message: 'Sarah Johnson accepted your loan offer of ৳12,000. Agreement has been created.',
       timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
       read: false,
       data: {
@@ -54,7 +54,7 @@ const NotificationCenter = ({ isOpen, onClose }) => {
       id: 3,
       type: 'payment_update',
       title: 'Payment Received',
-      message: 'Emily Rodriguez has made a payment of $697.58 for loan agreement AGR-2024-001.',
+      message: 'Emily Rodriguez has made a payment of ৳697.58 for loan agreement AGR-2024-001.',
       timestamp: new Date(Date.now() - 4 * 60 * 60 * 1000), // 4 hours ago
       read: true,
       data: {

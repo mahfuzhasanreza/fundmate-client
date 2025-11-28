@@ -434,11 +434,11 @@ const Campaigns = () => {
                 <div className="grid grid-cols-2 gap-4 mb-4">
                   <div>
                     <p className="text-xs text-gray-600">Raised</p>
-                    <p className="text-lg font-bold text-green-600">${campaign.raisedAmount.toLocaleString()}</p>
+                    <p className="text-lg font-bold text-green-600">৳{campaign.raisedAmount.toLocaleString()}</p>
                   </div>
                   <div>
                     <p className="text-xs text-gray-600">Goal</p>
-                    <p className="text-lg font-bold text-gray-900">${campaign.targetAmount.toLocaleString()}</p>
+                    <p className="text-lg font-bold text-gray-900">৳{campaign.targetAmount.toLocaleString()}</p>
                   </div>
                 </div>
 
@@ -607,14 +607,14 @@ const Campaigns = () => {
                     <div className="mb-6">
                       <div className="flex justify-between items-center mb-2">
                         <span className="text-2xl font-bold text-green-600">
-                          ${selectedCampaign.raisedAmount.toLocaleString()}
+                          ৳{selectedCampaign.raisedAmount.toLocaleString()}
                         </span>
                         <span className="text-sm text-gray-600">
                           {selectedCampaign.progress}%
                         </span>
                       </div>
                       <p className="text-sm text-gray-600 mb-3">
-                        raised of ${selectedCampaign.targetAmount.toLocaleString()} goal
+                        raised of ৳{selectedCampaign.targetAmount.toLocaleString()} goal
                       </p>
                       <div className="w-full bg-gray-200 rounded-full h-3">
                         <div
@@ -651,7 +651,7 @@ const Campaigns = () => {
                               <div className="text-lg">{donor.avatar}</div>
                               <span className="font-medium text-gray-900">{donor.name}</span>
                             </div>
-                            <span className="font-semibold text-green-600">${donor.amount}</span>
+                            <span className="font-semibold text-green-600">৳{donor.amount}</span>
                           </div>
                         ))}
                       </div>
@@ -673,7 +673,7 @@ const Campaigns = () => {
                                 <p className="text-xs text-gray-600">{donor.time}</p>
                               </div>
                             </div>
-                            <span className="text-sm font-semibold text-green-600">${donor.amount}</span>
+                            <span className="text-sm font-semibold text-green-600">৳{donor.amount}</span>
                           </div>
                         ))}
                       </div>
@@ -711,7 +711,7 @@ const Campaigns = () => {
               <form onSubmit={handleDonationSubmit} className="space-y-4">
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Donation Amount ($)
+                    Donation Amount (৳)
                   </label>
                   <input
                     type="number"
@@ -733,7 +733,7 @@ const Campaigns = () => {
                       onClick={() => setDonationAmount(amount.toString())}
                       className="py-2 px-4 border-2 border-gray-200 rounded-lg hover:border-primary-500 hover:bg-primary-50 transition-all text-sm font-semibold"
                     >
-                      ${amount}
+                      ৳{amount}
                     </button>
                   ))}
                 </div>
