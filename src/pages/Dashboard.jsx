@@ -222,7 +222,7 @@ const Dashboard = () => {
     <div className="min-h-screen bg-gray-50">
       <div className="flex">
         {/* Sidebar */}
-        <AnimatePresence>
+        {/* <AnimatePresence>
           {(sidebarOpen || typeof window !== 'undefined' && window.innerWidth >= 1024) && (
             <motion.aside
               initial={{ x: -300 }}
@@ -231,7 +231,7 @@ const Dashboard = () => {
               transition={{ duration: 0.3 }}
               className="fixed lg:static inset-y-0 left-0 top-16 z-20 w-64 bg-white border-r border-gray-200 overflow-y-auto h-screen pt-4"
             >
-              {/* Mobile Menu Toggle */}
+            
               <div className="lg:hidden p-4">
                 <button
                   onClick={() => setSidebarOpen(false)}
@@ -280,7 +280,7 @@ const Dashboard = () => {
               </div>
             </motion.aside>
           )}
-        </AnimatePresence>
+        </AnimatePresence> */}
 
         {/* Main Content */}
         <main className="flex-1 p-4 lg:p-8 overflow-x-hidden">
