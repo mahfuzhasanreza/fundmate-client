@@ -9,21 +9,21 @@ const Hero = () => {
 
   // Background slider images - using placeholder images for now
   const backgroundImages = [
-    {
-      url: 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1926&q=80',
-      title: 'Peer-to-Peer Lending',
-      description: 'Connect with lenders and borrowers in your community'
-    },
+    // {
+    //   url: 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1926&q=80',
+    //   title: 'Peer-to-Peer Lending',
+    //   description: 'Connect with lenders and borrowers in your community'
+    // },
     {
       url: 'https://images.unsplash.com/photo-1559136555-9303baea8ebd?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1970&q=80',
       title: 'Crowdfunding Campaigns',
       description: 'Support meaningful projects and causes'
     },
-    {
-      url: 'https://images.unsplash.com/photo-1551836022-deb4988cc6c0?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1926&q=80',
-      title: 'Financial Growth',
-      description: 'Build financial security through community support'
-    }
+    // {
+    //   url: 'https://images.unsplash.com/photo-1551836022-deb4988cc6c0?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1926&q=80',
+    //   title: 'Financial Growth',
+    //   description: 'Build financial security through community support'
+    // }
   ]
 
   // Auto-slide functionality
@@ -213,9 +213,7 @@ const Hero = () => {
               className="text-xl md:text-2xl text-white/90 leading-relaxed max-w-3xl mx-auto"
               variants={itemVariants}
             >
-              FundMate connects people for peer-to-peer loans and crowdfunding campaigns. 
-              Get funded by your community or help others achieve their goals with complete 
-              transparency and automated management.
+              FundMate connects people for peer-to-peer loans and crowdfunding campaigns.
             </motion.p>
 
             <motion.div 
