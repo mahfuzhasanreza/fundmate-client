@@ -506,6 +506,79 @@ const LoanDetails = () => {
             </motion.div>
           </div>
         </div>
+
+        {/* Accepted Offer Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.8 }}
+          className="mt-8 bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-200 rounded-2xl p-6"
+        >
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center space-x-3">
+              <div className="p-2 bg-green-100 rounded-full">
+                <CheckCircle className="h-6 w-6 text-green-600" />
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-gray-900">Offer Accepted!</h3>
+                <p className="text-green-600 font-semibold">Agreement has been created</p>
+              </div>
+            </div>
+            <div className="text-right">
+              <p className="text-sm text-gray-600">Agreement ID</p>
+              <p className="font-bold text-gray-900">AGR-2024-001</p>
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <div className="bg-white rounded-lg p-4 border border-green-200">
+              <p className="text-sm text-gray-600 mb-1">Accepted Amount</p>
+              <p className="text-2xl font-bold text-green-600">${loanData.amount.toLocaleString()}</p>
+            </div>
+            <div className="bg-white rounded-lg p-4 border border-green-200">
+              <p className="text-sm text-gray-600 mb-1">Interest Rate</p>
+              <p className="text-2xl font-bold text-green-600">{loanData.interestRange}%</p>
+            </div>
+            <div className="bg-white rounded-lg p-4 border border-green-200">
+              <p className="text-sm text-gray-600 mb-1">Monthly Payment</p>
+              <p className="text-2xl font-bold text-green-600">$697.58</p>
+            </div>
+          </div>
+
+          <div className="flex flex-col sm:flex-row gap-4">
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => navigate('/agreement/AGR-2024-001')}
+              className="flex-1 flex items-center justify-center space-x-2 bg-primary-600 text-white py-4 px-6 rounded-xl font-semibold hover:bg-primary-700 transition-all shadow-lg"
+            >
+              <Shield className="h-5 w-5" />
+              <span>View Loan Agreement</span>
+            </motion.button>
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className="flex items-center justify-center space-x-2 bg-green-600 text-white py-4 px-6 rounded-xl font-semibold hover:bg-green-700 transition-all shadow-lg"
+            >
+              <MessageSquare className="h-5 w-5" />
+              <span>Contact Lender</span>
+            </motion.button>
+          </div>
+
+          <div className="mt-4 p-4 bg-green-100 rounded-lg">
+            <div className="flex items-start space-x-3">
+              <CheckCircle className="h-5 w-5 text-green-600 mt-0.5" />
+              <div className="text-sm">
+                <p className="font-semibold text-green-800 mb-1">Next Steps:</p>
+                <ul className="text-green-700 space-y-1">
+                  <li>• Review and sign the loan agreement</li>
+                  <li>• Set up automatic payment schedule</li>
+                  <li>• First payment due on December 20, 2024</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </motion.div>
       </div>
 
       {/* Offer Modal */}
