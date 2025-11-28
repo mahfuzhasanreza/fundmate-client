@@ -21,7 +21,7 @@ const Navbar = () => {
   }
 
   const navLinks = [
-    { name: 'Explore Loans', href: '#loans' },
+    { name: 'All Loans', href: '/all-loans', isRoute: true },
     { name: 'Explore Campaigns', href: '#campaigns' },
     { name: 'Request Loan', href: '/loan-request', isRoute: true },
     { name: 'Dashboard', href: '/dashboard', isRoute: true },
