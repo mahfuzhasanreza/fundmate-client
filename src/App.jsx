@@ -10,6 +10,7 @@ import LoanRequest from './pages/LoanRequest'
 import LoanDetails from './pages/LoanDetails'
 import AllLoanPost from './pages/AllLoanPost'
 import LoanAgreement from './pages/LoanAgreement'
+import Campaigns from './pages/Campaigns'
 
 function AppContent() {
   const location = useLocation()
@@ -27,6 +28,7 @@ function AppContent() {
           <Route path="/loan/:id" element={<LoanDetails />} />
           <Route path="/all-loans" element={<AllLoanPost />} />
           <Route path="/agreement/:agreementId" element={<LoanAgreement />} />
+          <Route path="/campaigns" element={<Campaigns />} />
           <Route path="/" element={<LandingPage />} />
         </Routes>
       </main>
