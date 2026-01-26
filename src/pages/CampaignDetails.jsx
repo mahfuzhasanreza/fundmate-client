@@ -196,16 +196,7 @@ const CampaignDetails = () => {
                           <span className="text-sm text-gray-500">৳{Number(donation.amount || 0).toLocaleString()}</span>
                         </div>
                         {donation.message && <p className="text-sm text-gray-600">{donation.message}</p>}
-                        {canDelete && (
-                          <div className="mt-2 text-right">
-                            <button
-                              onClick={() => handleDeleteDonation(donation._id || donation.id)}
-                              className="text-xs font-semibold text-red-600 hover:text-red-700"
-                            >
-                              Delete
-                            </button>
-                          </div>
-                        )}
+                       
                       </div>
                     )
                   })}
