@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { 
   DollarSign, 
@@ -19,42 +19,70 @@ import {
   Shield,
   Percent
 } from 'lucide-react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
+import { getLoanRequestById } from '../services/loanService'
 
 const LoanDetails = () => {
   const navigate = useNavigate()
+  const { id } = useParams()
   const [showOfferModal, setShowOfferModal] = useState(false)
   const [offerAmount, setOfferAmount] = useState('')
   const [offerInterest, setOfferInterest] = useState('')
   const [offerMessage, setOfferMessage] = useState('')
+  const [loanData, setLoanData] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
 
-  // Dummy loan data
-  const loanData = {
-    id: 'LN-2024-001',
-    title: 'Small Business Expansion Loan',
-    amount: 15000,
-    purpose: 'Business Expansion',
-    description: 'Looking to expand my bakery business by purchasing new equipment and hiring additional staff. We have been profitable for 3 years and need funds to meet growing demand.',
-    tenure: 24,
-    preferredInterest: 8.5,
-    repaymentSchedule: 'monthly',
-    collateral: 'Business assets and equipment as collateral',
-    status: 'active',
-    postedDate: '2024-11-15',
-    deadline: '2024-12-15',
-    currentOffers: 8,
-    borrower: {
-      name: 'Sarah Johnson',
-      avatar: '👩‍💼',
-      rating: 4.8,
-      totalBorrowed: 45000,
-      successfulLoans: 5,
-      memberSince: 'Jan 2022',
-      location: 'New York, NY',
-      occupation: 'Business Owner',
-      verified: true
+  useEffect(() => {
+    const fetchLoan = async () => {
+      if (!id) return
+      try {
+        setLoading(true)
+        setError('')
+        const response = await getLoanRequestById(id)
+        const data = response?.data ?? response
+        setLoanData(data)
+      } catch (err) {
+        console.error('Failed to load loan details:', err)
+        setError('Failed to load loan details. Please try again.')
+        setLoanData(null)
+      } finally {
+        setLoading(false)
+      }
     }
-  }
+
+    fetchLoan()
+  }, [id])
+
+  const derivedLoan = useMemo(() => {
+    if (!loanData) return null
+    return {
+      id: loanData._id || loanData.id,
+      title: loanData.loanTitle || loanData.title || 'Loan Request',
+      amount: loanData.loanAmount || loanData.amount || 0,
+      purpose: loanData.purpose || 'General',
+      description: loanData.description || loanData.collateralNotes || 'No description provided.',
+      tenure: loanData.preferredTenure || loanData.tenure || 0,
+      preferredInterest: loanData.interestRate || loanData.preferredInterest || 0,
+      repaymentSchedule: loanData.repaymentSchedule || 'monthly',
+      collateral: loanData.collateral || loanData.collateralNotes || '',
+      status: loanData.status || 'pending',
+      postedDate: loanData.createdAt || loanData.postedDate || Date.now(),
+      deadline: loanData.deadline || loanData.createdAt || Date.now(),
+      currentOffers: loanData.offersCount || 0,
+      borrower: {
+        name: loanData.borrower?.name || loanData.userEmail?.split('@')[0] || 'Unknown User',
+        avatar: loanData.borrower?.avatar || '👤',
+        rating: loanData.borrower?.rating || 4.5,
+        totalBorrowed: loanData.borrower?.totalBorrowed || 0,
+        successfulLoans: loanData.borrower?.successfulLoans || 0,
+        memberSince: loanData.borrower?.memberSince || 'N/A',
+        location: loanData.borrower?.location || 'Location not specified',
+        occupation: loanData.borrower?.occupation || 'Borrower',
+        verified: Boolean(loanData.borrower?.verified)
+      }
+    }
+  }, [loanData])
 
   // Timeline data
   const timeline = [
@@ -163,6 +191,7 @@ const LoanDetails = () => {
 
   const calculateMonthlyPayment = (principal, rate, months) => {
     const monthlyRate = rate / 100 / 12
+    if (!principal || !rate || !months) return '0.00'
     const payment = principal * (monthlyRate * Math.pow(1 + monthlyRate, months)) / (Math.pow(1 + monthlyRate, months) - 1)
     return payment.toFixed(2)
   }
@@ -200,6 +229,19 @@ const LoanDetails = () => {
           </div>
         </div>
 
+        {loading && (
+          <div className="flex items-center justify-center py-16 text-gray-600 font-semibold">
+            Loading loan details...
+          </div>
+        )}
+
+        {error && !loading && (
+          <div className="bg-red-50 border border-red-200 rounded-xl p-6 text-center text-red-600 font-semibold">
+            {error}
+          </div>
+        )}
+
+        {!loading && !error && derivedLoan && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
@@ -212,34 +254,34 @@ const LoanDetails = () => {
               <div className="flex items-start justify-between mb-6">
                 <div>
                   <span className="inline-block bg-primary-100 text-primary-700 text-sm font-semibold px-3 py-1 rounded-full mb-3">
-                    ID: {loanData.id}
+                    ID: {derivedLoan.id}
                   </span>
-                  <h1 className="text-3xl font-bold text-gray-900 mb-2">{loanData.title}</h1>
-                  <p className="text-gray-600">{loanData.description}</p>
+                  <h1 className="text-3xl font-bold text-gray-900 mb-2">{derivedLoan.title}</h1>
+                  <p className="text-gray-600">{derivedLoan.description}</p>
                 </div>
                 <span className={`px-3 py-1 rounded-full text-sm font-semibold ${
-                  loanData.status === 'active' 
+                  derivedLoan.status === 'active' 
                     ? 'bg-primary-100 text-primary-700' 
                     : 'bg-yellow-100 text-yellow-700'
                 }`}>
-                  {loanData.status === 'active' ? 'Active' : 'Pending'}
+                  {derivedLoan.status === 'active' ? 'Active' : 'Pending'}
                 </span>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                 <div className="text-center p-4 bg-primary-50 rounded-xl">
                   <DollarSign className="h-8 w-8 text-primary-600 mx-auto mb-2" />
-                  <p className="text-2xl font-bold text-gray-900">৳{loanData.amount.toLocaleString()}</p>
+                  <p className="text-2xl font-bold text-gray-900">৳{derivedLoan.amount.toLocaleString()}</p>
                   <p className="text-sm text-gray-600">Loan Amount</p>
                 </div>
                 <div className="text-center p-4 bg-blue-50 rounded-xl">
                   <Calendar className="h-8 w-8 text-blue-600 mx-auto mb-2" />
-                  <p className="text-2xl font-bold text-gray-900">{loanData.tenure}</p>
+                  <p className="text-2xl font-bold text-gray-900">{derivedLoan.tenure}</p>
                   <p className="text-sm text-gray-600">Months</p>
                 </div>
                 <div className="text-center p-4 bg-purple-50 rounded-xl">
                   <Percent className="h-8 w-8 text-purple-600 mx-auto mb-2" />
-                  <p className="text-2xl font-bold text-gray-900">{loanData.preferredInterest}%</p>
+                  <p className="text-2xl font-bold text-gray-900">{derivedLoan.preferredInterest}%</p>
                   <p className="text-sm text-gray-600">Preferred Rate</p>
                 </div>
               </div>
@@ -247,29 +289,29 @@ const LoanDetails = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
                 <div>
                   <p className="font-semibold text-gray-900 mb-1">Purpose</p>
-                  <p className="text-gray-600">{loanData.purpose}</p>
+                  <p className="text-gray-600">{derivedLoan.purpose}</p>
                 </div>
                 <div>
                   <p className="font-semibold text-gray-900 mb-1">Repayment</p>
-                  <p className="text-gray-600 capitalize">{loanData.repaymentSchedule}</p>
+                  <p className="text-gray-600 capitalize">{derivedLoan.repaymentSchedule}</p>
                 </div>
                 <div>
                   <p className="font-semibold text-gray-900 mb-1">Posted Date</p>
-                  <p className="text-gray-600">{new Date(loanData.postedDate).toLocaleDateString()}</p>
+                  <p className="text-gray-600">{new Date(derivedLoan.postedDate).toLocaleDateString()}</p>
                 </div>
                 <div>
                   <p className="font-semibold text-gray-900 mb-1">Application Deadline</p>
-                  <p className="text-gray-600">{new Date(loanData.deadline).toLocaleDateString()}</p>
+                  <p className="text-gray-600">{new Date(derivedLoan.deadline).toLocaleDateString()}</p>
                 </div>
               </div>
 
-              {loanData.collateral && (
+              {derivedLoan.collateral && (
                 <div className="mt-6 p-4 bg-yellow-50 rounded-xl border border-yellow-200">
                   <div className="flex items-start space-x-3">
                     <Shield className="h-5 w-5 text-yellow-600 mt-0.5" />
                     <div>
                       <p className="font-semibold text-gray-900 mb-1">Collateral Offered</p>
-                      <p className="text-gray-600">{loanData.collateral}</p>
+                      <p className="text-gray-600">{derivedLoan.collateral}</p>
                     </div>
                   </div>
                 </div>
@@ -416,49 +458,49 @@ const LoanDetails = () => {
               <h3 className="text-xl font-bold text-gray-900 mb-4">Borrower Profile</h3>
               
               <div className="text-center mb-6">
-                <div className="text-6xl mb-3">{loanData.borrower.avatar}</div>
+                <div className="text-6xl mb-3">{derivedLoan.borrower.avatar}</div>
                 <h4 className="text-lg font-semibold text-gray-900 mb-1">
-                  {loanData.borrower.name}
-                  {loanData.borrower.verified && (
+                  {derivedLoan.borrower.name}
+                  {derivedLoan.borrower.verified && (
                     <CheckCircle className="inline h-5 w-5 text-primary-500 ml-2" />
                   )}
                 </h4>
                 <div className="flex items-center justify-center space-x-1 mb-2">
                   <Star className="h-4 w-4 text-yellow-400" />
-                  <span className="font-medium text-gray-700">{loanData.borrower.rating}</span>
+                  <span className="font-medium text-gray-700">{derivedLoan.borrower.rating}</span>
                   <span className="text-gray-500">/5</span>
                 </div>
-                <p className="text-gray-600">{loanData.borrower.occupation}</p>
+                <p className="text-gray-600">{derivedLoan.borrower.occupation}</p>
               </div>
 
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <span className="text-gray-600">Member Since</span>
-                  <span className="font-semibold text-gray-900">{loanData.borrower.memberSince}</span>
+                  <span className="font-semibold text-gray-900">{derivedLoan.borrower.memberSince}</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-gray-600">Total Borrowed</span>
                   <span className="font-semibold text-gray-900">
-                    ৳{loanData.borrower.totalBorrowed.toLocaleString()}
+                    ৳{derivedLoan.borrower.totalBorrowed.toLocaleString()}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-gray-600">Successful Loans</span>
-                  <span className="font-semibold text-gray-900">{loanData.borrower.successfulLoans}</span>
+                  <span className="font-semibold text-gray-900">{derivedLoan.borrower.successfulLoans}</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-gray-600 flex items-center">
                     <MapPin className="h-4 w-4 mr-1" />
                     Location
                   </span>
-                  <span className="font-semibold text-gray-900">{loanData.borrower.location}</span>
+                  <span className="font-semibold text-gray-900">{derivedLoan.borrower.location}</span>
                 </div>
               </div>
 
               <div className="mt-6 pt-4 border-t border-gray-200">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-gray-600">Current Offers</span>
-                  <span className="font-semibold text-primary-600">{loanData.currentOffers}</span>
+                  <span className="font-semibold text-primary-600">{derivedLoan.currentOffers}</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-gray-600 flex items-center">
@@ -466,7 +508,7 @@ const LoanDetails = () => {
                     Days Left
                   </span>
                   <span className="font-semibold text-orange-600">
-                    {Math.ceil((new Date(loanData.deadline) - new Date()) / (1000 * 60 * 60 * 24))}
+                    {Math.ceil((new Date(derivedLoan.deadline) - new Date()) / (1000 * 60 * 60 * 24))}
                   </span>
                 </div>
               </div>
@@ -484,19 +526,19 @@ const LoanDetails = () => {
                 <div className="flex justify-between">
                   <span className="opacity-90">Monthly Payment*</span>
                   <span className="font-bold">
-                    ৳{calculateMonthlyPayment(loanData.amount, loanData.preferredInterest, loanData.tenure)}
+                    ৳{calculateMonthlyPayment(derivedLoan.amount, derivedLoan.preferredInterest, derivedLoan.tenure)}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="opacity-90">Total Interest</span>
                   <span className="font-bold">
-                    ৳{(calculateMonthlyPayment(loanData.amount, loanData.preferredInterest, loanData.tenure) * loanData.tenure - loanData.amount).toFixed(2)}
+                    ৳{(calculateMonthlyPayment(derivedLoan.amount, derivedLoan.preferredInterest, derivedLoan.tenure) * derivedLoan.tenure - derivedLoan.amount).toFixed(2)}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="opacity-90">Total Repayment</span>
                   <span className="font-bold">
-                    ৳{(calculateMonthlyPayment(loanData.amount, loanData.preferredInterest, loanData.tenure) * loanData.tenure).toFixed(2)}
+                    ৳{(calculateMonthlyPayment(derivedLoan.amount, derivedLoan.preferredInterest, derivedLoan.tenure) * derivedLoan.tenure).toFixed(2)}
                   </span>
                 </div>
               </div>
@@ -506,79 +548,84 @@ const LoanDetails = () => {
             </motion.div>
           </div>
         </div>
+        )}
 
         {/* Accepted Offer Section */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.8 }}
-          className="mt-8 bg-gradient-to-br from-primary-50 to-primary-100 border-2 border-primary-200 rounded-2xl p-6"
-        >
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center space-x-3">
-              <div className="p-2 bg-primary-100 rounded-full">
-                <CheckCircle className="h-6 w-6 text-primary-600" />
+        {!loading && !error && derivedLoan && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.8 }}
+            className="mt-8 bg-gradient-to-br from-primary-50 to-primary-100 border-2 border-primary-200 rounded-2xl p-6"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center space-x-3">
+                <div className="p-2 bg-primary-100 rounded-full">
+                  <CheckCircle className="h-6 w-6 text-primary-600" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-gray-900">Offer Accepted!</h3>
+                  <p className="text-primary-600 font-semibold">Agreement has been created</p>
+                </div>
               </div>
-              <div>
-                <h3 className="text-xl font-bold text-gray-900">Offer Accepted!</h3>
-                <p className="text-primary-600 font-semibold">Agreement has been created</p>
+              <div className="text-right">
+                <p className="text-sm text-gray-600">Agreement ID</p>
+                <p className="font-bold text-gray-900">AGR-2024-001</p>
               </div>
             </div>
-            <div className="text-right">
-              <p className="text-sm text-gray-600">Agreement ID</p>
-              <p className="font-bold text-gray-900">AGR-2024-001</p>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+              <div className="bg-white rounded-lg p-4 border border-primary-200">
+                <p className="text-sm text-gray-600 mb-1">Accepted Amount</p>
+                  <p className="text-2xl font-bold text-primary-600">
+                    ৳{derivedLoan?.amount?.toLocaleString() || 0}
+                  </p>
+              </div>
+              <div className="bg-white rounded-lg p-4 border border-primary-200">
+                <p className="text-sm text-gray-600 mb-1">Interest Rate</p>
+                <p className="text-2xl font-bold text-primary-600">{derivedLoan?.preferredInterest || 0}%</p>
+              </div>
+              <div className="bg-white rounded-lg p-4 border border-primary-200">
+                <p className="text-sm text-gray-600 mb-1">Monthly Payment</p>
+                <p className="text-2xl font-bold text-primary-600">৳697.58</p>
+              </div>
             </div>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            <div className="bg-white rounded-lg p-4 border border-primary-200">
-              <p className="text-sm text-gray-600 mb-1">Accepted Amount</p>
-              <p className="text-2xl font-bold text-primary-600">৳{loanData.amount.toLocaleString()}</p>
-            </div>
-            <div className="bg-white rounded-lg p-4 border border-primary-200">
-              <p className="text-sm text-gray-600 mb-1">Interest Rate</p>
-              <p className="text-2xl font-bold text-primary-600">{loanData.interestRange}%</p>
-            </div>
-            <div className="bg-white rounded-lg p-4 border border-primary-200">
-              <p className="text-sm text-gray-600 mb-1">Monthly Payment</p>
-              <p className="text-2xl font-bold text-primary-600">৳697.58</p>
-            </div>
-          </div>
 
-          <div className="flex flex-col sm:flex-row gap-4">
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={() => navigate('/agreement/AGR-2024-001')}
-              className="flex-1 flex items-center justify-center space-x-2 bg-primary-600 text-white py-4 px-6 rounded-xl font-semibold hover:bg-primary-700 transition-all shadow-lg"
-            >
-              <Shield className="h-5 w-5" />
-              <span>View Loan Agreement</span>
-            </motion.button>
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              className="flex items-center justify-center space-x-2 bg-primary-600 text-white py-4 px-6 rounded-xl font-semibold hover:bg-primary-700 transition-all shadow-lg"
-            >
-              <MessageSquare className="h-5 w-5" />
-              <span>Contact Lender</span>
-            </motion.button>
-          </div>
+            <div className="flex flex-col sm:flex-row gap-4">
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => navigate('/agreement/AGR-2024-001')}
+                className="flex-1 flex items-center justify-center space-x-2 bg-primary-600 text-white py-4 px-6 rounded-xl font-semibold hover:bg-primary-700 transition-all shadow-lg"
+              >
+                <Shield className="h-5 w-5" />
+                <span>View Loan Agreement</span>
+              </motion.button>
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className="flex items-center justify-center space-x-2 bg-primary-600 text-white py-4 px-6 rounded-xl font-semibold hover:bg-primary-700 transition-all shadow-lg"
+              >
+                <MessageSquare className="h-5 w-5" />
+                <span>Contact Lender</span>
+              </motion.button>
+            </div>
 
-          <div className="mt-4 p-4 bg-primary-100 rounded-lg">
-            <div className="flex items-start space-x-3">
-              <CheckCircle className="h-5 w-5 text-primary-600 mt-0.5" />
-              <div className="text-sm">
-                <p className="font-semibold text-primary-800 mb-1">Next Steps:</p>
-                <ul className="text-primary-700 space-y-1">
-                  <li>• Review and sign the loan agreement</li>
-                  <li>• Set up automatic payment schedule</li>
-                  <li>• First payment due on December 20, 2024</li>
-                </ul>
+            <div className="mt-4 p-4 bg-primary-100 rounded-lg">
+              <div className="flex items-start space-x-3">
+                <CheckCircle className="h-5 w-5 text-primary-600 mt-0.5" />
+                <div className="text-sm">
+                  <p className="font-semibold text-primary-800 mb-1">Next Steps:</p>
+                  <ul className="text-primary-700 space-y-1">
+                    <li>• Review and sign the loan agreement</li>
+                    <li>• Set up automatic payment schedule</li>
+                    <li>• First payment due on December 20, 2024</li>
+                  </ul>
+                </div>
               </div>
             </div>
-          </div>
-        </motion.div>
+          </motion.div>
+        )}
       </div>
 
       {/* Offer Modal */}
@@ -610,7 +657,7 @@ const LoanDetails = () => {
                     value={offerAmount}
                     onChange={(e) => setOfferAmount(e.target.value)}
                     placeholder="Enter amount"
-                    max={loanData.amount}
+                    max={derivedLoan?.amount || 0}
                     required
                     className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-primary-500 outline-none transition-all"
                   />
