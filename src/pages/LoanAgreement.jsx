@@ -25,6 +25,7 @@ import {
   Home
 } from 'lucide-react'
 import { useParams, useNavigate } from 'react-router-dom'
+import { getLoanAgreementById } from '../services/loanService'
 
 const LoanAgreement = () => {
   const { agreementId } = useParams()
@@ -32,76 +33,70 @@ const LoanAgreement = () => {
   const [activeTab, setActiveTab] = useState('overview')
   const [newMessage, setNewMessage] = useState('')
   const [selectedFile, setSelectedFile] = useState(null)
+  const [agreementData, setAgreementData] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
 
-  // Dummy agreement data
-  const agreement = {
-    id: agreementId || 'AGR-2024-001',
-    status: 'active', // active, pending, completed, overdue
-    createdDate: '2024-11-20',
-    loan: {
-      originalAmount: 15000,
-      acceptedAmount: 15000,
-      interestRate: 8.5,
-      purpose: 'Business Expansion',
-      tenure: 24,
-      monthlyPayment: 697.58
-    },
-    borrower: {
-      name: 'Sarah Johnson',
-      email: 'sarah.johnson@email.com',
-      avatar: '👩‍💼',
-      rating: 4.8,
-      verified: true,
-      location: 'New York, NY',
-      phone: '+1 (555) 123-4567'
-    },
-    lender: {
-      name: 'Michael Chen',
-      email: 'michael.chen@email.com',
-      avatar: '👨‍💼',
-      rating: 4.9,
-      verified: true,
-      location: 'Los Angeles, CA',
-      phone: '+1 (555) 987-6543'
-    },
-    repaymentPlan: [
-      { id: 1, amount: 697.58, dueDate: '2024-12-20', status: 'paid', paidDate: '2024-12-19' },
-      { id: 2, amount: 697.58, dueDate: '2025-01-20', status: 'paid', paidDate: '2025-01-18' },
-      { id: 3, amount: 697.58, dueDate: '2025-02-20', status: 'pending', paidDate: null },
-      { id: 4, amount: 697.58, dueDate: '2025-03-20', status: 'pending', paidDate: null },
-      { id: 5, amount: 697.58, dueDate: '2025-04-20', status: 'pending', paidDate: null },
-      { id: 6, amount: 697.58, dueDate: '2025-05-20', status: 'pending', paidDate: null }
-    ],
-    attachments: [
-      { id: 1, name: 'Business_Plan.pdf', type: 'document', uploadedBy: 'borrower', date: '2024-11-20' },
-      { id: 2, name: 'Financial_Statements.pdf', type: 'document', uploadedBy: 'borrower', date: '2024-11-20' },
-      { id: 3, name: 'Collateral_Photos.jpg', type: 'image', uploadedBy: 'borrower', date: '2024-11-20' },
-      { id: 4, name: 'Loan_Terms.pdf', type: 'document', uploadedBy: 'lender', date: '2024-11-21' }
-    ],
-    messages: [
-      {
-        id: 1,
-        sender: 'lender',
-        message: 'Agreement has been finalized. Looking forward to working with you!',
-        timestamp: '2024-11-21T10:30:00Z',
-        attachments: []
-      },
-      {
-        id: 2,
-        sender: 'borrower',
-        message: 'Thank you for the loan. First payment will be made on time.',
-        timestamp: '2024-11-21T14:15:00Z',
-        attachments: []
-      },
-      {
-        id: 3,
-        sender: 'borrower',
-        message: 'First payment completed. Please find the receipt attached.',
-        timestamp: '2024-12-19T16:45:00Z',
-        attachments: [{ name: 'Payment_Receipt_Dec.pdf', type: 'document' }]
+  useEffect(() => {
+    const fetchAgreement = async () => {
+      if (!agreementId) return
+      try {
+        setLoading(true)
+        setError('')
+        const response = await getLoanAgreementById(agreementId)
+        const data = response?.data ?? response
+        setAgreementData(data)
+      } catch (err) {
+        console.error('Failed to load agreement:', err)
+        setError('Failed to load agreement. Please try again.')
+        setAgreementData(null)
+      } finally {
+        setLoading(false)
       }
-    ]
-  }
+    }
+
+    fetchAgreement()
+  }, [agreementId])
+
+  const agreement = React.useMemo(() => {
+    if (!agreementData) {
+      return null
+    }
+    return {
+      id: agreementData._id || agreementData.id || agreementId,
+      status: agreementData.status || 'active',
+      createdDate: agreementData.createdAt || agreementData.createdDate || Date.now(),
+      loan: {
+        originalAmount: agreementData.loan?.originalAmount ?? agreementData.originalAmount ?? 0,
+        acceptedAmount: agreementData.loan?.acceptedAmount ?? agreementData.acceptedAmount ?? 0,
+        interestRate: agreementData.loan?.interestRate ?? agreementData.interestRate ?? 0,
+        purpose: agreementData.loan?.purpose ?? agreementData.purpose ?? 'General',
+        tenure: agreementData.loan?.tenure ?? agreementData.tenure ?? 0,
+        monthlyPayment: agreementData.loan?.monthlyPayment ?? agreementData.monthlyPayment ?? 0
+      },
+      borrower: {
+        name: agreementData.borrower?.name || 'Borrower',
+        email: agreementData.borrower?.email || '',
+        avatar: agreementData.borrower?.avatar || '👤',
+        rating: agreementData.borrower?.rating || 4.5,
+        verified: Boolean(agreementData.borrower?.verified),
+        location: agreementData.borrower?.location || 'Location not specified',
+        phone: agreementData.borrower?.phone || ''
+      },
+      lender: {
+        name: agreementData.lender?.name || 'Lender',
+        email: agreementData.lender?.email || '',
+        avatar: agreementData.lender?.avatar || '👤',
+        rating: agreementData.lender?.rating || 4.5,
+        verified: Boolean(agreementData.lender?.verified),
+        location: agreementData.lender?.location || 'Location not specified',
+        phone: agreementData.lender?.phone || ''
+      },
+      repaymentPlan: Array.isArray(agreementData.repaymentPlan) ? agreementData.repaymentPlan : [],
+      attachments: Array.isArray(agreementData.attachments) ? agreementData.attachments : [],
+      messages: Array.isArray(agreementData.messages) ? agreementData.messages : []
+    }
+  }, [agreementData, agreementId])
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -162,6 +157,26 @@ const LoanAgreement = () => {
   const handleFileUpload = (event) => {
     const file = event.target.files[0]
     setSelectedFile(file)
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-primary-50 py-8 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto text-center text-gray-600 font-semibold">
+          Loading loan agreement...
+        </div>
+      </div>
+    )
+  }
+
+  if (error || !agreement) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-primary-50 py-8 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto text-center text-red-600 font-semibold">
+          {error || 'Agreement not found.'}
+        </div>
+      </div>
+    )
   }
 
   return (

@@ -199,6 +199,67 @@ export const deleteLoanOffer = async (loanRequestId, offerId) => {
 }
 
 /**
+ * Accept a loan offer and create a loan agreement
+ * @param {string} loanRequestId - Loan request ID
+ * @param {string} offerId - Offer ID
+ * @returns {Promise<Object>} Agreement response
+ */
+export const acceptLoanOffer = async (loanRequestId, offerId) => {
+  try {
+    console.log('✅ Accepting loan offer:', loanRequestId, offerId)
+
+    const response = await fetch(`${API_BASE_URL}/api/loan-requests/${loanRequestId}/offers/${offerId}/accept`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    })
+
+    const data = await response.json()
+
+    if (!response.ok) {
+      throw new Error(data.message || 'Failed to accept loan offer')
+    }
+
+    console.log('✅ Loan offer accepted:', data)
+    return data
+  } catch (error) {
+    console.error('❌ Accept loan offer error:', error)
+    throw error
+  }
+}
+
+/**
+ * Get loan agreement by ID
+ * @param {string} agreementId - Agreement ID
+ * @returns {Promise<Object>} Agreement data
+ */
+export const getLoanAgreementById = async (agreementId) => {
+  try {
+    console.log('📥 Fetching loan agreement by ID:', agreementId)
+
+    const response = await fetch(`${API_BASE_URL}/api/loan-agreements/${agreementId}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    })
+
+    const data = await response.json()
+
+    if (!response.ok) {
+      throw new Error(data.message || 'Failed to fetch loan agreement')
+    }
+
+    console.log('✅ Loan agreement fetched successfully:', data)
+    return data
+  } catch (error) {
+    console.error('❌ Fetch loan agreement error:', error)
+    throw error
+  }
+}
+
+/**
  * Get loan requests for the current user
  * @param {string} userEmail - User's email address
  * @returns {Promise<Array>} Array of user's loan requests

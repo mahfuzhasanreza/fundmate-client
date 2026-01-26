@@ -22,7 +22,7 @@ import {
 import { useNavigate, useParams } from 'react-router-dom'
 import { useAuthState } from 'react-firebase-hooks/auth'
 import { auth } from '../config/firebase'
-import { createLoanOffer, getLoanOffersByLoanId, getLoanRequestById } from '../services/loanService'
+import { acceptLoanOffer, createLoanOffer, getLoanOffersByLoanId, getLoanRequestById } from '../services/loanService'
 
 const LoanDetails = () => {
   const navigate = useNavigate()
@@ -39,6 +39,7 @@ const LoanDetails = () => {
   const [offers, setOffers] = useState([])
   const [offersLoading, setOffersLoading] = useState(true)
   const [offersError, setOffersError] = useState('')
+  const [acceptingOfferId, setAcceptingOfferId] = useState(null)
 
   const dedupeOffers = (items) => {
     const list = Array.isArray(items) ? items : []
@@ -134,6 +135,8 @@ const LoanDetails = () => {
     }
   }, [loanData])
 
+  const isCreator = Boolean(user?.email && loanData?.userEmail && user.email === loanData.userEmail)
+
   // Timeline data
   const timeline = [
     {
@@ -213,6 +216,29 @@ const LoanDetails = () => {
     }
 
     submit()
+  }
+
+  const handleAcceptOffer = async (offer) => {
+    if (!isCreator || !offer) return
+    const offerId = offer._id || offer.id
+    if (!offerId) return
+    try {
+      setAcceptingOfferId(offerId)
+      setOffersError('')
+      const response = await acceptLoanOffer(id, offerId)
+      const agreementId = response?.data?.agreementId || response?.data?._id || response?.agreementId || response?._id
+      const refreshed = await getLoanOffersByLoanId(id)
+      const refreshedData = refreshed?.data ?? refreshed
+      setOffers(dedupeOffers(refreshedData))
+      if (agreementId) {
+        navigate(`/agreement/${agreementId}`)
+      }
+    } catch (err) {
+      console.error('Accept offer failed:', err)
+      setOffersError('Failed to accept offer.')
+    } finally {
+      setAcceptingOfferId(null)
+    }
   }
 
   const calculateMonthlyPayment = (principal, rate, months) => {
@@ -474,6 +500,19 @@ const LoanDetails = () => {
                           <MessageSquare className="h-4 w-4 text-gray-400 mt-1" />
                           <p className="text-gray-700 text-sm">{offer.message}</p>
                         </div>
+                      </div>
+                    )}
+                    {isCreator && (offer.status || 'pending') === 'pending' && (
+                      <div className="mt-4 flex justify-end">
+                        <motion.button
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                          onClick={() => handleAcceptOffer(offer)}
+                          disabled={acceptingOfferId === (offer._id || offer.id)}
+                          className="px-4 py-2 bg-primary-600 text-white rounded-lg font-semibold hover:bg-primary-700 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+                        >
+                          Accept Offer
+                        </motion.button>
                       </div>
                     )}
                   </motion.div>
