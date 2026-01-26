@@ -657,60 +657,69 @@ const CampaignsSection = ({ loading, error, campaigns, completedCampaigns, incom
   )
 }
 
-const OffersSection = ({ isAuthenticated, loading, error, offers, acceptedOffers }) => (
-  <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
-    <h1 className="text-3xl font-bold text-gray-900 mb-4">Offers</h1>
-    {!isAuthenticated && <p className="text-gray-600">Please log in to view your offers.</p>}
-    {isAuthenticated && loading && <p className="text-gray-600 font-semibold">Loading offers...</p>}
-    {isAuthenticated && !loading && error && <p className="text-red-600 font-semibold">{error}</p>}
-    {isAuthenticated && !loading && !error && offers.length === 0 && (
-      <p className="text-gray-600">No offers found.</p>
-    )}
-    {isAuthenticated && !loading && !error && offers.length > 0 && (
-      <div className="space-y-6">
-        <div>
-          <h2 className="text-lg font-semibold text-gray-900 mb-2">Offers I Created</h2>
-          <div className="space-y-3">
-            {offers.map((offer) => (
-              <div key={offer._id || offer.id} className="border border-gray-200 rounded-xl p-4">
-                <div className="flex items-center justify-between mb-1">
-                  <span className="font-semibold text-gray-900">{offer.lenderName || 'Me'}</span>
-                  <span className="text-sm text-gray-500">{offer.status || 'pending'}</span>
-                </div>
-                <div className="text-sm text-gray-700">
-                  Amount: ৳{Number(offer.amount || 0).toLocaleString()} · {offer.interestRate || 0}% · {offer.tenureMonths || offer.tenure || 0} months
-                </div>
-                {offer.message && <p className="text-sm text-gray-600 mt-1">{offer.message}</p>}
+const OffersSection = ({ isAuthenticated, loading, error, offers, acceptedOffers }) => {
+  const navigate = useNavigate()
+
+  const renderOfferRow = (offer, statusLabel, statusClass) => (
+    <div key={offer._id || offer.id} className="border border-gray-200 rounded-xl p-4">
+      <div className="flex items-center justify-between mb-1">
+        <span className="font-semibold text-gray-900">{offer.lenderName || 'Me'}</span>
+        <span className={`text-sm ${statusClass}`}>{statusLabel}</span>
+      </div>
+      <div className="text-sm text-gray-700">
+        Amount: ৳{Number(offer.amount || 0).toLocaleString()} · {offer.interestRate || 0}% · {offer.tenureMonths || offer.tenure || 0} months
+      </div>
+      {offer.message && <p className="text-sm text-gray-600 mt-1">{offer.message}</p>}
+      <div className="mt-3 text-right">
+        <button
+          onClick={() => offer.loanRequestId && navigate(`/loan/${offer.loanRequestId}`)}
+          disabled={!offer.loanRequestId}
+          className="px-4 py-2 bg-primary-600 text-white rounded-lg font-semibold hover:bg-primary-700 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+        >
+          View Details
+        </button>
+      </div>
+    </div>
+  )
+
+  return (
+    <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
+      <h1 className="text-3xl font-bold text-gray-900 mb-4">Offers</h1>
+      {!isAuthenticated && <p className="text-gray-600">Please log in to view your offers.</p>}
+      {isAuthenticated && loading && <p className="text-gray-600 font-semibold">Loading offers...</p>}
+      {isAuthenticated && !loading && error && <p className="text-red-600 font-semibold">{error}</p>}
+      {isAuthenticated && !loading && !error && offers.length === 0 && (
+        <p className="text-gray-600">No offers found.</p>
+      )}
+      {isAuthenticated && !loading && !error && offers.length > 0 && (
+        <div className="space-y-6">
+          <div>
+            <h2 className="text-lg font-semibold text-gray-900 mb-2">Offers I Created</h2>
+            <div className="space-y-3">
+              {offers.map((offer) =>
+                renderOfferRow(offer, offer.status || 'pending', 'text-gray-500')
+              )}
+            </div>
+          </div>
+
+          <div>
+            <h2 className="text-lg font-semibold text-gray-900 mb-2">Accepted Offers</h2>
+            {acceptedOffers.length === 0 && (
+              <p className="text-gray-600">No accepted offers yet.</p>
+            )}
+            {acceptedOffers.length > 0 && (
+              <div className="space-y-3">
+                {acceptedOffers.map((offer) =>
+                  renderOfferRow(offer, 'accepted', 'text-green-600')
+                )}
               </div>
-            ))}
+            )}
           </div>
         </div>
-
-        <div>
-          <h2 className="text-lg font-semibold text-gray-900 mb-2">Accepted Offers</h2>
-          {acceptedOffers.length === 0 && (
-            <p className="text-gray-600">No accepted offers yet.</p>
-          )}
-          {acceptedOffers.length > 0 && (
-            <div className="space-y-3">
-              {acceptedOffers.map((offer) => (
-                <div key={offer._id || offer.id} className="border border-gray-200 rounded-xl p-4">
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="font-semibold text-gray-900">{offer.lenderName || 'Me'}</span>
-                    <span className="text-sm text-green-600">accepted</span>
-                  </div>
-                  <div className="text-sm text-gray-700">
-                    Amount: ৳{Number(offer.amount || 0).toLocaleString()} · {offer.interestRate || 0}% · {offer.tenureMonths || offer.tenure || 0} months
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
-    )}
-  </div>
-)
+      )}
+    </div>
+  )
+}
 
 const RepaymentsSection = () => (
   <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
