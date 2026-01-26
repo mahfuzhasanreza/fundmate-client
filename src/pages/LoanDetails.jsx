@@ -357,6 +357,29 @@ const LoanDetails = () => {
                 </div>
               </div>
 
+              {Array.isArray(loanData?.attachments) && loanData.attachments.length > 0 && (
+                <div className="mt-6">
+                  <p className="font-semibold text-gray-900 mb-2">Attachments</p>
+                  <div className="space-y-2">
+                    {loanData.attachments.map((file, idx) => {
+                      const name = file?.name || file?.originalName || file?.filename || `Attachment ${idx + 1}`
+                      const url = file?.url || file?.path || file
+                      return (
+                        <a
+                          key={`${name}-${idx}`}
+                          href={url}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="block text-sm text-primary-600 hover:text-primary-700 underline"
+                        >
+                          {name}
+                        </a>
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
+
               {derivedLoan.collateral && (
                 <div className="mt-6 p-4 bg-yellow-50 rounded-xl border border-yellow-200">
                   <div className="flex items-start space-x-3">

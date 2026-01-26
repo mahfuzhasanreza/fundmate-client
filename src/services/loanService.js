@@ -8,13 +8,14 @@ import API_BASE_URL from '../config/api'
 export const createLoanRequest = async (loanData) => {
   try {
     console.log('📤 Creating loan request...', loanData)
-    
+
+    const isFormData = typeof FormData !== 'undefined' && loanData instanceof FormData
     const response = await fetch(`${API_BASE_URL}/api/loan-requests`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
+        ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
       },
-      body: JSON.stringify(loanData),
+      body: isFormData ? loanData : JSON.stringify(loanData),
     })
 
     const data = await response.json()

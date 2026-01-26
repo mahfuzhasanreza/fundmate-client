@@ -168,6 +168,41 @@ const LoanRequest = () => {
     setIsSubmitting(true)
 
     try {
+      const resizeImage = (file) => {
+        return new Promise((resolve, reject) => {
+          const img = new Image()
+          const url = URL.createObjectURL(file)
+          img.onload = () => {
+            const maxWidth = 1280
+            const maxHeight = 1280
+            let { width, height } = img
+            const scale = Math.min(maxWidth / width, maxHeight / height, 1)
+            width = Math.floor(width * scale)
+            height = Math.floor(height * scale)
+
+            const canvas = document.createElement('canvas')
+            canvas.width = width
+            canvas.height = height
+            const ctx = canvas.getContext('2d')
+            ctx.drawImage(img, 0, 0, width, height)
+            canvas.toBlob(
+              (blob) => {
+                URL.revokeObjectURL(url)
+                if (!blob) return reject(new Error('Image resize failed'))
+                resolve(new File([blob], file.name, { type: blob.type }))
+              },
+              'image/jpeg',
+              0.7
+            )
+          }
+          img.onerror = (err) => {
+            URL.revokeObjectURL(url)
+            reject(err)
+          }
+          img.src = url
+        })
+      }
+
       // Calculate final tenure
       const finalTenure = formData.tenure === 'custom' 
         ? parseInt(formData.customTenure) 
@@ -178,22 +213,29 @@ const LoanRequest = () => {
         ? parseFloat(formData.customInterest)
         : 0
 
-      // Prepare loan request data according to API specification
-      const loanRequestData = {
-        loanTitle: formData.loanTitle,
-        loanAmount: parseFloat(formData.amount),
-        purpose: formData.purpose,
-        preferredTenure: `${finalTenure} months`,
-        interestRate: finalInterestRate,
-        repaymentSchedule: formData.repaymentSchedule,
-        collateralNotes: formData.collateralNotes || undefined,
-        attachments: formData.attachments.map(file => file.name) || undefined,
-        userEmail: user.email,
-        borrowerName: user.displayName || undefined,
-        borrowerAvatar: user.photoURL || undefined
+      // Prepare loan request data (multipart)
+      const loanRequestData = new FormData()
+      loanRequestData.append('loanTitle', formData.loanTitle)
+      loanRequestData.append('loanAmount', String(parseFloat(formData.amount)))
+      loanRequestData.append('purpose', formData.purpose)
+      loanRequestData.append('preferredTenure', `${finalTenure} months`)
+      loanRequestData.append('interestRate', String(finalInterestRate))
+      loanRequestData.append('repaymentSchedule', formData.repaymentSchedule)
+      if (formData.collateralNotes) loanRequestData.append('collateralNotes', formData.collateralNotes)
+      loanRequestData.append('userEmail', user.email)
+      if (user.displayName) loanRequestData.append('borrowerName', user.displayName)
+      if (user.photoURL) loanRequestData.append('borrowerAvatar', user.photoURL)
+
+      for (const file of formData.attachments) {
+        if (file.type.startsWith('image/')) {
+          const resized = await resizeImage(file)
+          loanRequestData.append('attachments', resized)
+        } else {
+          loanRequestData.append('attachments', file)
+        }
       }
 
-      console.log('📤 Submitting loan request:', loanRequestData)
+      console.log('📤 Submitting loan request with attachments:', formData.attachments.length)
 
       // Call API to create loan request
       const response = await createLoanRequest(loanRequestData)
