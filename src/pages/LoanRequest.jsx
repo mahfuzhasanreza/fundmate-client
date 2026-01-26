@@ -188,7 +188,9 @@ const LoanRequest = () => {
         repaymentSchedule: formData.repaymentSchedule,
         collateralNotes: formData.collateralNotes || undefined,
         attachments: formData.attachments.map(file => file.name) || undefined,
-        userEmail: user.email
+        userEmail: user.email,
+        borrowerName: user.displayName || undefined,
+        borrowerAvatar: user.photoURL || undefined
       }
 
       console.log('📤 Submitting loan request:', loanRequestData)

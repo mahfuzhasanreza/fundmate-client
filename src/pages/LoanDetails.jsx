@@ -122,13 +122,13 @@ const LoanDetails = () => {
       deadline: loanData.deadline || loanData.createdAt || Date.now(),
       currentOffers: loanData.offersCount || 0,
       borrower: {
-        name: loanData.borrower?.name || loanData.userEmail?.split('@')[0] || 'Unknown User',
-        avatar: loanData.borrower?.avatar || '👤',
+        name: loanData.borrower?.name || loanData.borrowerName || loanData.userName || loanData.userEmail?.split('@')[0] || 'Unknown User',
+        avatar: loanData.borrower?.avatar || loanData.borrowerAvatar || '👤',
         rating: loanData.borrower?.rating || 4.5,
         totalBorrowed: loanData.borrower?.totalBorrowed || 0,
         successfulLoans: loanData.borrower?.successfulLoans || 0,
         memberSince: loanData.borrower?.memberSince || 'N/A',
-        location: loanData.borrower?.location || 'Location not specified',
+        location: loanData.borrower?.location || loanData.borrowerLocation || 'Location not specified',
         occupation: loanData.borrower?.occupation || 'Borrower',
         verified: Boolean(loanData.borrower?.verified)
       }
