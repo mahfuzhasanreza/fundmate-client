@@ -25,6 +25,7 @@ import {
   Bell,
   Search
 } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 import { useAuthState } from 'react-firebase-hooks/auth'
 import { auth } from '../config/firebase'
 import { getOffersByLenderEmail, getUserLoanRequests } from '../services/loanService'
@@ -512,33 +513,67 @@ const OverviewSection = ({ stats, recentActivities, upcomingPayments, activeCamp
 }
 
 // Placeholder sections
-const LoanRequestsSection = ({ isAuthenticated, loading, error, loanRequests }) => (
-  <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
-    <h1 className="text-3xl font-bold text-gray-900 mb-4">My Loan Requests</h1>
-    {!isAuthenticated && <p className="text-gray-600">Please log in to view your loan requests.</p>}
-    {isAuthenticated && loading && <p className="text-gray-600 font-semibold">Loading loan requests...</p>}
-    {isAuthenticated && !loading && error && <p className="text-red-600 font-semibold">{error}</p>}
-    {isAuthenticated && !loading && !error && loanRequests.length === 0 && (
-      <p className="text-gray-600">No loan requests found.</p>
-    )}
-    {isAuthenticated && !loading && !error && loanRequests.length > 0 && (
-      <div className="space-y-4">
-        {loanRequests.map((loan) => (
-          <div key={loan._id || loan.id} className="border border-gray-200 rounded-xl p-4">
-            <div className="flex items-center justify-between mb-2">
-              <h3 className="font-semibold text-gray-900">{loan.loanTitle || loan.title || 'Loan Request'}</h3>
-              <span className="text-sm text-gray-500">{loan.status || 'pending'}</span>
-            </div>
-            <p className="text-sm text-gray-600">{loan.purpose || 'General'}</p>
-            <div className="mt-2 text-sm text-gray-700">
-              Amount: ৳{Number(loan.loanAmount || loan.amount || 0).toLocaleString()}
-            </div>
-          </div>
-        ))}
-      </div>
-    )}
-  </div>
-)
+const LoanRequestsSection = ({ isAuthenticated, loading, error, loanRequests }) => {
+  const navigate = useNavigate()
+
+  return (
+    <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
+      <h1 className="text-3xl font-bold text-gray-900 mb-4">My Loan Requests</h1>
+      {!isAuthenticated && <p className="text-gray-600">Please log in to view your loan requests.</p>}
+      {isAuthenticated && loading && <p className="text-gray-600 font-semibold">Loading loan requests...</p>}
+      {isAuthenticated && !loading && error && <p className="text-red-600 font-semibold">{error}</p>}
+      {isAuthenticated && !loading && !error && loanRequests.length === 0 && (
+        <p className="text-gray-600">No loan requests found.</p>
+      )}
+      {isAuthenticated && !loading && !error && loanRequests.length > 0 && (
+        <div className="space-y-4">
+          {loanRequests.map((loan) => {
+            const isAccepted =
+              loan?.status === 'accepted' ||
+              loan?.status === 'funded' ||
+              loan?.status === 'closed' ||
+              Boolean(loan?.agreementId || loan?.acceptedOfferId)
+
+            const agreementId = loan?.agreementId
+            const loanId = loan?._id || loan?.id
+
+            return (
+              <div key={loanId} className="border border-gray-200 rounded-xl p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="font-semibold text-gray-900">{loan.loanTitle || loan.title || 'Loan Request'}</h3>
+                  <span className="text-sm text-gray-500">{loan.status || 'pending'}</span>
+                </div>
+                <p className="text-sm text-gray-600">{loan.purpose || 'General'}</p>
+                <div className="mt-2 text-sm text-gray-700">
+                  Amount: ৳{Number(loan.loanAmount || loan.amount || 0).toLocaleString()}
+                </div>
+                <div className="mt-4 flex justify-end">
+                  {isAccepted ? (
+                    <button
+                      onClick={() => agreementId && navigate(`/agreement/${agreementId}`)}
+                      disabled={!agreementId}
+                      className="px-4 py-2 bg-primary-600 text-white rounded-lg font-semibold hover:bg-primary-700 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+                    >
+                      Agreement Details
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => loanId && navigate(`/loan/${loanId}`)}
+                      disabled={!loanId}
+                      className="px-4 py-2 bg-primary-600 text-white rounded-lg font-semibold hover:bg-primary-700 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+                    >
+                      Loan Details
+                    </button>
+                  )}
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      )}
+    </div>
+  )
+}
 
 const CampaignsSection = () => (
   <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
