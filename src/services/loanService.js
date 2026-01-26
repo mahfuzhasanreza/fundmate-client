@@ -356,6 +356,58 @@ export const uploadAgreementDocument = async (agreementId, file, uploadedBy) => 
 }
 
 /**
+ * Request document deletion (mutual confirmation)
+ * @param {string} agreementId - Agreement ID
+ * @param {string} documentId - Document ID
+ * @param {string} role - "borrower" | "lender"
+ */
+export const requestAgreementDocumentDelete = async (agreementId, documentId, role) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/loan-agreements/${agreementId}/documents/${documentId}/delete-request`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ role })
+    })
+    const data = await response.json()
+    if (!response.ok) {
+      throw new Error(data.message || 'Failed to request document deletion')
+    }
+    return data
+  } catch (error) {
+    console.error('Request document delete error:', error)
+    throw error
+  }
+}
+
+/**
+ * Request agreement deletion (mutual confirmation)
+ * @param {string} agreementId - Agreement ID
+ * @param {string} role - "borrower" | "lender"
+ */
+/**
+ * Request agreement deletion (mutual confirmation)
+ * @param {string} agreementId - Agreement ID
+ * @param {string} role - "borrower" | "lender"
+ */
+export const requestAgreementDelete = async (agreementId, role) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/loan-agreements/${agreementId}/delete-request`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ role })
+    })
+    const data = await response.json()
+    if (!response.ok) {
+      throw new Error(data.message || 'Failed to request agreement deletion')
+    }
+    return data
+  } catch (error) {
+    console.error('Request agreement delete error:', error)
+    throw error
+  }
+}
+
+/**
  * Reject a repayment installment (borrower)
  * @param {string} agreementId - Agreement ID
  * @param {string|number} paymentId - Payment ID

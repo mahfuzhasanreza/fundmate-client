@@ -29,7 +29,7 @@ import { io } from 'socket.io-client'
 import { useAuthState } from 'react-firebase-hooks/auth'
 import { auth } from '../config/firebase'
 import API_BASE_URL from '../config/api'
-import { getAgreementDocuments, getLoanAgreementById, markAgreementPaymentPaid, rejectAgreementPayment, uploadAgreementDocument, uploadPaymentReceipt } from '../services/loanService'
+import { getAgreementDocuments, getLoanAgreementById, markAgreementPaymentPaid, rejectAgreementPayment, requestAgreementDelete, requestAgreementDocumentDelete, uploadAgreementDocument, uploadPaymentReceipt } from '../services/loanService'
 import { jsPDF } from 'jspdf'
 import autoTable from 'jspdf-autotable'
 
@@ -52,6 +52,7 @@ const LoanAgreement = () => {
   const [documents, setDocuments] = useState([])
   const [documentsLoading, setDocumentsLoading] = useState(false)
   const [documentsError, setDocumentsError] = useState('')
+  const [agreementDeleteStatus, setAgreementDeleteStatus] = useState(null)
   const socketRef = useRef(null)
   const seenMessageIdsRef = useRef(new Set())
 
@@ -77,7 +78,7 @@ const LoanAgreement = () => {
   }, [agreementId])
 
   const agreement = useMemo(() => {
-    if (!agreementData) {
+    if (!agreementData || agreementData.status === 'deleted') {
       return null
     }
       return {
@@ -549,6 +550,46 @@ const LoanAgreement = () => {
     }
   }
 
+  const handleDocumentDeleteRequest = async (doc) => {
+    try {
+      setDocumentsError('')
+      const role = isBorrower ? 'borrower' : isLender ? 'lender' : 'user'
+      const response = await requestAgreementDocumentDelete(agreementId, doc._id || doc.id, role)
+      const data = response?.data ?? response
+      if (Array.isArray(data?.documents)) {
+        setDocuments(data.documents)
+      } else if (Array.isArray(data)) {
+        setDocuments(data)
+      } else {
+        // fallback: refetch
+        const refreshed = await getAgreementDocuments(agreementId)
+        const refreshedData = refreshed?.data ?? refreshed
+        setDocuments(Array.isArray(refreshedData) ? refreshedData : [])
+      }
+    } catch (err) {
+      console.error('Document delete request failed:', err)
+      setDocumentsError(err.message || 'Failed to request document deletion.')
+    }
+  }
+
+  const handleAgreementDeleteRequest = async () => {
+    try {
+      setError('')
+      const role = isBorrower ? 'borrower' : isLender ? 'lender' : 'user'
+      const response = await requestAgreementDelete(agreementId, role)
+      const data = response?.data ?? response
+      if (data?.status === 'deleted') {
+        navigate('/dashboard')
+        return
+      }
+      setAgreementDeleteStatus(data?.status || 'pending')
+    } catch (err) {
+      console.error('Agreement delete request failed:', err)
+      setError(err.message || 'Failed to request agreement deletion.')
+    }
+  }
+
+
   const handleDownloadPdf = () => {
     if (!agreement) return
 
@@ -677,6 +718,23 @@ const LoanAgreement = () => {
                 {getStatusIcon(agreement.status)}
                 <span className="font-semibold capitalize">{agreement.status}</span>
               </div>
+              {(isBorrower || isLender) && (
+                <button
+                  onClick={handleAgreementDeleteRequest}
+                  className="px-4 py-2 bg-red-50 text-red-700 rounded-lg font-semibold hover:bg-red-100 transition-all"
+                >
+                  {(() => {
+                    const deleteRequests = agreementData?.deleteRequests || {}
+                    const borrowerRequested = Boolean(deleteRequests?.borrower)
+                    const lenderRequested = Boolean(deleteRequests?.lender)
+                    const currentRequested = isBorrower ? borrowerRequested : isLender ? lenderRequested : false
+                    const otherRequested = isBorrower ? lenderRequested : isLender ? borrowerRequested : false
+                    if (otherRequested) return 'Confirm Deletion'
+                    if (currentRequested) return 'Waiting for Deletion'
+                    return 'Request for Deletion'
+                  })()}
+                </button>
+              )}
             </div>
           </div>
         </motion.div>
@@ -998,6 +1056,11 @@ const LoanAgreement = () => {
                     const type = doc?.type || ''
                     const uploadedBy = doc?.uploadedBy || doc?.uploader || 'user'
                     const uploadedAt = doc?.date || doc?.createdAt
+                    const deleteRequests = doc?.deleteRequests || {}
+                    const borrowerConfirmed = Boolean(deleteRequests?.borrower)
+                    const lenderConfirmed = Boolean(deleteRequests?.lender)
+                    const currentRequested = isBorrower ? borrowerConfirmed : isLender ? lenderConfirmed : false
+                    const otherRequested = isBorrower ? lenderConfirmed : isLender ? borrowerConfirmed : false
                     return (
                       <div key={`${name}-${idx}`} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:border-primary-300 transition-colors">
                         <div className="flex items-center space-x-3">
@@ -1011,14 +1074,24 @@ const LoanAgreement = () => {
                             </p>
                           </div>
                         </div>
-                        <a
-                          href={url}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="p-2 text-gray-600 hover:text-primary-600 transition-colors"
-                        >
-                          <Download className="h-5 w-5" />
-                        </a>
+                        <div className="flex items-center space-x-3">
+                          <a
+                            href={url}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="p-2 text-gray-600 hover:text-primary-600 transition-colors"
+                          >
+                            <Download className="h-5 w-5" />
+                          </a>
+                          {(isBorrower || isLender) && (
+                            <button
+                              onClick={() => handleDocumentDeleteRequest(doc)}
+                              className="px-3 py-1 text-xs bg-red-50 text-red-700 rounded-lg hover:bg-red-100"
+                            >
+                              {otherRequested ? 'Confirm Deletion' : currentRequested ? 'Waiting for Deletion' : 'Request for Deletion'}
+                            </button>
+                          )}
+                        </div>
                       </div>
                     )
                   })}

@@ -76,9 +76,9 @@ const Dashboard = () => {
         const campaignsResult = campaignsRes?.data ?? campaignsRes
         const loanList = Array.isArray(loans) ? loans : []
         const offerList = Array.isArray(offers) ? offers : []
-        const campaignList = Array.isArray(campaignsResult) ? campaignsResult : []
+        const campaignList = Array.isArray(campaignsResult) ? campaignsResult.filter((c) => c.status !== 'deleted') : []
 
-        setLoanRequests(loanList)
+        setLoanRequests(loanList.filter((loan) => loan.status !== 'deleted'))
         setOffersMade(offerList)
         setAcceptedOffers(offerList.filter((offer) => (offer.status || 'pending') === 'accepted'))
         setCampaigns(campaignList)
