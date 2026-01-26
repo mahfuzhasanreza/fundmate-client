@@ -29,7 +29,7 @@ import { io } from 'socket.io-client'
 import { useAuthState } from 'react-firebase-hooks/auth'
 import { auth } from '../config/firebase'
 import API_BASE_URL from '../config/api'
-import { getLoanAgreementById } from '../services/loanService'
+import { getLoanAgreementById, markAgreementPaymentPaid, uploadPaymentReceipt } from '../services/loanService'
 
 const LoanAgreement = () => {
   const { agreementId } = useParams()
@@ -42,6 +42,10 @@ const LoanAgreement = () => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [chatMessages, setChatMessages] = useState([])
+  const [repaymentPlan, setRepaymentPlan] = useState([])
+  const [paymentError, setPaymentError] = useState('')
+  const [paymentLoadingId, setPaymentLoadingId] = useState(null)
+  const [receiptUploadId, setReceiptUploadId] = useState(null)
   const socketRef = useRef(null)
   const seenMessageIdsRef = useRef(new Set())
 
@@ -70,11 +74,11 @@ const LoanAgreement = () => {
     if (!agreementData) {
       return null
     }
-    return {
-      id: agreementData._id || agreementData.id || agreementId,
-      status: agreementData.status || 'active',
-      createdDate: agreementData.createdAt || agreementData.createdDate || Date.now(),
-      loan: {
+      return {
+        id: agreementData._id || agreementData.id || agreementId,
+        status: agreementData.status || 'active',
+        createdDate: agreementData.createdAt || agreementData.createdDate || Date.now(),
+        loan: {
         originalAmount: agreementData.loan?.originalAmount ?? agreementData.originalAmount ?? 0,
         acceptedAmount: agreementData.loan?.acceptedAmount ?? agreementData.acceptedAmount ?? 0,
         interestRate: agreementData.loan?.interestRate ?? agreementData.interestRate ?? 0,
@@ -105,7 +109,11 @@ const LoanAgreement = () => {
         location: agreementData.lender?.location || 'Location not specified',
         phone: agreementData.lender?.phone || ''
       },
-      repaymentPlan: Array.isArray(agreementData.repaymentPlan) ? agreementData.repaymentPlan : [],
+      repaymentPlan:
+        (Array.isArray(agreementData.repaymentPlan) && agreementData.repaymentPlan) ||
+        (Array.isArray(agreementData.payments) && agreementData.payments) ||
+        (Array.isArray(agreementData.schedule) && agreementData.schedule) ||
+        [],
       attachments: Array.isArray(agreementData.attachments) ? agreementData.attachments : [],
       messages: Array.isArray(agreementData.messages) ? agreementData.messages : []
     }
@@ -114,6 +122,37 @@ const LoanAgreement = () => {
   useEffect(() => {
     if (!agreement) return
     setChatMessages(Array.isArray(agreement.messages) ? agreement.messages : [])
+    if (Array.isArray(agreement.repaymentPlan) && agreement.repaymentPlan.length > 0) {
+      setRepaymentPlan(agreement.repaymentPlan)
+      return
+    }
+
+    const principal = agreement.loan?.acceptedAmount || 0
+    const rate = agreement.loan?.interestRate || 0
+    const months = agreement.loan?.tenure || 0
+    if (!principal || !months) {
+      setRepaymentPlan([])
+      return
+    }
+
+    const monthlyRate = rate / 100 / 12
+    const payment =
+      rate === 0
+        ? principal / months
+        : principal * (monthlyRate * Math.pow(1 + monthlyRate, months)) / (Math.pow(1 + monthlyRate, months) - 1)
+    const agreementDate = agreement.createdDate ? new Date(agreement.createdDate) : new Date()
+    const plan = Array.from({ length: months }, (_, i) => {
+      const due = new Date(agreementDate)
+      due.setMonth(due.getMonth() + i + 1)
+      return {
+        id: i + 1,
+        amount: Number(payment.toFixed(2)),
+        dueDate: due.toISOString(),
+        status: 'pending',
+        paidDate: null
+      }
+    })
+    setRepaymentPlan(plan)
   }, [agreement])
 
   useEffect(() => {
@@ -291,6 +330,93 @@ const LoanAgreement = () => {
     send().catch((err) => {
       console.error('Message send failed:', err)
     })
+  }
+
+  const handleMarkPaid = async (payment) => {
+    try {
+      setPaymentError('')
+      setPaymentLoadingId(payment.id)
+      const response = await markAgreementPaymentPaid(agreementId, payment.id)
+      const updated = response?.data?.repaymentPlan || response?.repaymentPlan || null
+      if (updated && Array.isArray(updated)) {
+        setRepaymentPlan(updated)
+      } else {
+        setRepaymentPlan((prev) =>
+          prev.map((item) =>
+            item.id === payment.id
+              ? { ...item, status: 'paid', paidDate: new Date().toISOString() }
+              : item
+          )
+        )
+      }
+    } catch (err) {
+      console.error('Mark paid failed:', err)
+      setPaymentError(err.message || 'Failed to mark as paid.')
+    } finally {
+      setPaymentLoadingId(null)
+    }
+  }
+
+  const handleUploadReceipt = async (payment, file) => {
+    if (!file) return
+    try {
+      setPaymentError('')
+      setReceiptUploadId(payment.id)
+      const resizeImage = (imageFile) => {
+        return new Promise((resolve, reject) => {
+          const img = new Image()
+          const url = URL.createObjectURL(imageFile)
+          img.onload = () => {
+            const maxWidth = 1280
+            const maxHeight = 1280
+            let { width, height } = img
+            const scale = Math.min(maxWidth / width, maxHeight / height, 1)
+            width = Math.floor(width * scale)
+            height = Math.floor(height * scale)
+
+            const canvas = document.createElement('canvas')
+            canvas.width = width
+            canvas.height = height
+            const ctx = canvas.getContext('2d')
+            ctx.drawImage(img, 0, 0, width, height)
+            canvas.toBlob(
+              (blob) => {
+                URL.revokeObjectURL(url)
+                if (!blob) return reject(new Error('Image resize failed'))
+                resolve(new File([blob], imageFile.name, { type: blob.type }))
+              },
+              'image/jpeg',
+              0.7
+            )
+          }
+          img.onerror = (err) => {
+            URL.revokeObjectURL(url)
+            reject(err)
+          }
+          img.src = url
+        })
+      }
+
+      const fileToUpload = file.type.startsWith('image/') ? await resizeImage(file) : file
+      const response = await uploadPaymentReceipt(agreementId, payment.id, fileToUpload)
+      const receipt = response?.data || response
+      setRepaymentPlan((prev) =>
+        prev.map((item) =>
+          item.id === payment.id
+            ? {
+                ...item,
+                receiptUrl: receipt.url || item.receiptUrl,
+                receiptName: receipt.name || item.receiptName
+              }
+            : item
+        )
+      )
+    } catch (err) {
+      console.error('Upload receipt failed:', err)
+      setPaymentError(err.message || 'Failed to upload receipt.')
+    } finally {
+      setReceiptUploadId(null)
+    }
   }
 
   const handleFileUpload = (event) => {
@@ -530,7 +656,14 @@ const LoanAgreement = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
-                  {agreement.repaymentPlan.map((payment) => (
+                  {repaymentPlan.length === 0 && (
+                    <tr>
+                      <td colSpan="6" className="px-6 py-6 text-center text-sm text-gray-600">
+                        No repayment schedule found. Please generate it on the backend.
+                      </td>
+                    </tr>
+                  )}
+                  {repaymentPlan.map((payment) => (
                     <tr key={payment.id} className="hover:bg-gray-50">
                       <td className="px-6 py-4 text-sm text-gray-900">#{payment.id}</td>
                       <td className="px-6 py-4 text-sm font-semibold text-gray-900">${payment.amount}</td>
@@ -549,18 +682,40 @@ const LoanAgreement = () => {
                       <td className="px-6 py-4">
                         {payment.status === 'pending' && (
                           <div className="flex space-x-2">
-                            <button className="px-3 py-1 bg-primary-600 text-white text-xs rounded-lg hover:bg-primary-700 transition-colors">
-                              Mark Paid
+                            <button
+                              onClick={() => handleMarkPaid(payment)}
+                              disabled={paymentLoadingId === payment.id}
+                              className="px-3 py-1 bg-primary-600 text-white text-xs rounded-lg hover:bg-primary-700 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                            >
+                              {paymentLoadingId === payment.id ? 'Processing...' : 'Mark Paid'}
                             </button>
-                            <button className="px-3 py-1 bg-gray-100 text-gray-700 text-xs rounded-lg hover:bg-gray-200 transition-colors">
-                              Upload Receipt
-                            </button>
+                            <label className="px-3 py-1 bg-gray-100 text-gray-700 text-xs rounded-lg hover:bg-gray-200 transition-colors cursor-pointer">
+                              {receiptUploadId === payment.id ? 'Uploading...' : 'Upload Receipt'}
+                              <input
+                                type="file"
+                                className="hidden"
+                                accept=".pdf,.jpg,.jpeg,.png"
+                                onChange={(e) => handleUploadReceipt(payment, e.target.files?.[0])}
+                              />
+                            </label>
                           </div>
                         )}
                         {payment.status === 'paid' && (
-                          <button className="px-3 py-1 bg-primary-100 text-primary-700 text-xs rounded-lg">
-                            ✓ Confirmed
-                          </button>
+                          <div className="flex items-center space-x-2">
+                            <button className="px-3 py-1 bg-primary-100 text-primary-700 text-xs rounded-lg">
+                              ✓ Confirmed
+                            </button>
+                            {payment.receiptUrl && (
+                              <a
+                                href={payment.receiptUrl}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="text-xs text-primary-600 underline"
+                              >
+                                {payment.receiptName || 'Receipt'}
+                              </a>
+                            )}
+                          </div>
                         )}
                       </td>
                     </tr>
@@ -568,6 +723,11 @@ const LoanAgreement = () => {
                 </tbody>
               </table>
             </div>
+            {paymentError && (
+              <div className="p-4 text-sm text-red-600 font-semibold border-t border-gray-100">
+                {paymentError}
+              </div>
+            )}
           </motion.div>
         )}
 

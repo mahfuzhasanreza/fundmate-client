@@ -261,6 +261,55 @@ export const getLoanAgreementById = async (agreementId) => {
 }
 
 /**
+ * Mark a repayment installment as paid
+ * @param {string} agreementId - Agreement ID
+ * @param {string|number} paymentId - Payment ID
+ * @returns {Promise<Object>} Updated agreement or payment
+ */
+export const markAgreementPaymentPaid = async (agreementId, paymentId) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/loan-agreements/${agreementId}/payments/${paymentId}/mark-paid`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' }
+    })
+    const data = await response.json()
+    if (!response.ok) {
+      throw new Error(data.message || 'Failed to mark payment as paid')
+    }
+    return data
+  } catch (error) {
+    console.error('Mark payment paid error:', error)
+    throw error
+  }
+}
+
+/**
+ * Upload receipt for a payment installment
+ * @param {string} agreementId - Agreement ID
+ * @param {string|number} paymentId - Payment ID
+ * @param {File} file - Receipt file
+ * @returns {Promise<Object>} Uploaded receipt info
+ */
+export const uploadPaymentReceipt = async (agreementId, paymentId, file) => {
+  try {
+    const formData = new FormData()
+    formData.append('file', file)
+    const response = await fetch(`${API_BASE_URL}/api/loan-agreements/${agreementId}/payments/${paymentId}/receipt`, {
+      method: 'POST',
+      body: formData
+    })
+    const data = await response.json()
+    if (!response.ok) {
+      throw new Error(data.message || 'Failed to upload receipt')
+    }
+    return data
+  } catch (error) {
+    console.error('Upload receipt error:', error)
+    throw error
+  }
+}
+
+/**
  * Get offers by lender email
  * @param {string} lenderEmail - Lender email
  * @returns {Promise<Array>} Array of offers
