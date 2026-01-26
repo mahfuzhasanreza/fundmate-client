@@ -591,63 +591,71 @@ const LoanRequestsSection = ({ isAuthenticated, loading, error, loanRequests }) 
   )
 }
 
-const CampaignsSection = ({ loading, error, campaigns, completedCampaigns, incompleteCampaigns }) => (
-  <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
-    <h1 className="text-3xl font-bold text-gray-900 mb-4">My Campaigns</h1>
-    {loading && <p className="text-gray-600 font-semibold">Loading campaigns...</p>}
-    {!loading && error && <p className="text-red-600 font-semibold">{error}</p>}
-    {!loading && !error && campaigns.length === 0 && (
-      <p className="text-gray-600">No campaigns found.</p>
-    )}
-    {!loading && !error && campaigns.length > 0 && (
-      <div className="space-y-6">
-        <div>
-          <h2 className="text-lg font-semibold text-gray-900 mb-2">Incomplete Campaigns</h2>
-          {incompleteCampaigns.length === 0 && (
-            <p className="text-gray-600">No incomplete campaigns.</p>
-          )}
-          {incompleteCampaigns.length > 0 && (
-            <div className="space-y-3">
-              {incompleteCampaigns.map((campaign) => (
-                <div key={campaign._id || campaign.id} className="border border-gray-200 rounded-xl p-4">
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="font-semibold text-gray-900">{campaign.campaignTitle}</span>
-                    <span className="text-sm text-gray-500">{campaign.status || 'active'}</span>
-                  </div>
-                  <div className="text-sm text-gray-700">
-                    Raised: ৳{Number(campaign.raisedAmount || 0).toLocaleString()} / ৳{Number(campaign.targetAmount || 0).toLocaleString()}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+const CampaignsSection = ({ loading, error, campaigns, completedCampaigns, incompleteCampaigns }) => {
+  const navigate = useNavigate()
 
-        <div>
-          <h2 className="text-lg font-semibold text-gray-900 mb-2">Completed Campaigns</h2>
-          {completedCampaigns.length === 0 && (
-            <p className="text-gray-600">No completed campaigns.</p>
-          )}
-          {completedCampaigns.length > 0 && (
-            <div className="space-y-3">
-              {completedCampaigns.map((campaign) => (
-                <div key={campaign._id || campaign.id} className="border border-gray-200 rounded-xl p-4">
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="font-semibold text-gray-900">{campaign.campaignTitle}</span>
-                    <span className="text-sm text-green-600">completed</span>
-                  </div>
-                  <div className="text-sm text-gray-700">
-                    Raised: ৳{Number(campaign.raisedAmount || 0).toLocaleString()} / ৳{Number(campaign.targetAmount || 0).toLocaleString()}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+  const renderCampaignRow = (campaign, statusLabel, statusClass) => (
+    <div key={campaign._id || campaign.id} className="border border-gray-200 rounded-xl p-4">
+      <div className="flex items-center justify-between mb-1">
+        <span className="font-semibold text-gray-900">{campaign.campaignTitle}</span>
+        <span className={`text-sm ${statusClass}`}>{statusLabel}</span>
       </div>
-    )}
-  </div>
-)
+      <div className="text-sm text-gray-700">
+        Raised: ৳{Number(campaign.raisedAmount || 0).toLocaleString()} / ৳{Number(campaign.targetAmount || 0).toLocaleString()}
+      </div>
+      <div className="mt-3 text-right">
+        <button
+          onClick={() => navigate(`/campaign/${campaign._id || campaign.id}`)}
+          className="px-4 py-2 bg-primary-600 text-white rounded-lg font-semibold hover:bg-primary-700 transition-all"
+        >
+          View Details
+        </button>
+      </div>
+    </div>
+  )
+
+  return (
+    <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
+      <h1 className="text-3xl font-bold text-gray-900 mb-4">My Campaigns</h1>
+      {loading && <p className="text-gray-600 font-semibold">Loading campaigns...</p>}
+      {!loading && error && <p className="text-red-600 font-semibold">{error}</p>}
+      {!loading && !error && campaigns.length === 0 && (
+        <p className="text-gray-600">No campaigns found.</p>
+      )}
+      {!loading && !error && campaigns.length > 0 && (
+        <div className="space-y-6">
+          <div>
+            <h2 className="text-lg font-semibold text-gray-900 mb-2">Incomplete Campaigns</h2>
+            {incompleteCampaigns.length === 0 && (
+              <p className="text-gray-600">No incomplete campaigns.</p>
+            )}
+            {incompleteCampaigns.length > 0 && (
+              <div className="space-y-3">
+                {incompleteCampaigns.map((campaign) =>
+                  renderCampaignRow(campaign, campaign.status || 'active', 'text-gray-500')
+                )}
+              </div>
+            )}
+          </div>
+
+          <div>
+            <h2 className="text-lg font-semibold text-gray-900 mb-2">Completed Campaigns</h2>
+            {completedCampaigns.length === 0 && (
+              <p className="text-gray-600">No completed campaigns.</p>
+            )}
+            {completedCampaigns.length > 0 && (
+              <div className="space-y-3">
+                {completedCampaigns.map((campaign) =>
+                  renderCampaignRow(campaign, 'completed', 'text-green-600')
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
 
 const OffersSection = ({ isAuthenticated, loading, error, offers, acceptedOffers }) => (
   <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
