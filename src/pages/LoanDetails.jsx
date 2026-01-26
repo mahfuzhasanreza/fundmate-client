@@ -20,18 +20,25 @@ import {
   Percent
 } from 'lucide-react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { getLoanRequestById } from '../services/loanService'
+import { useAuthState } from 'react-firebase-hooks/auth'
+import { auth } from '../config/firebase'
+import { createLoanOffer, getLoanOffersByLoanId, getLoanRequestById } from '../services/loanService'
 
 const LoanDetails = () => {
   const navigate = useNavigate()
   const { id } = useParams()
+  const [user, authLoading] = useAuthState(auth)
   const [showOfferModal, setShowOfferModal] = useState(false)
   const [offerAmount, setOfferAmount] = useState('')
   const [offerInterest, setOfferInterest] = useState('')
+  const [offerTenure, setOfferTenure] = useState('')
   const [offerMessage, setOfferMessage] = useState('')
   const [loanData, setLoanData] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [offers, setOffers] = useState([])
+  const [offersLoading, setOffersLoading] = useState(true)
+  const [offersError, setOffersError] = useState('')
 
   useEffect(() => {
     const fetchLoan = async () => {
@@ -52,6 +59,37 @@ const LoanDetails = () => {
     }
 
     fetchLoan()
+  }, [id])
+
+  useEffect(() => {
+    const fetchOffers = async () => {
+      if (!id) return
+      try {
+        setOffersLoading(true)
+        setOffersError('')
+        const response = await getLoanOffersByLoanId(id)
+        const data = response?.data ?? response
+        const list = Array.isArray(data) ? data : []
+        const seen = new Set()
+        const unique = []
+        for (const offer of list) {
+          const key = offer?._id || offer?.id || `${offer?.lenderEmail}-${offer?.amount}-${offer?.createdAt || offer?.submittedDate}`
+          if (!seen.has(key)) {
+            seen.add(key)
+            unique.push(offer)
+          }
+        }
+        setOffers(unique)
+      } catch (err) {
+        console.error('Failed to load offers:', err)
+        setOffersError('Failed to load offers.')
+        setOffers([])
+      } finally {
+        setOffersLoading(false)
+      }
+    }
+
+    fetchOffers()
   }, [id])
 
   const derivedLoan = useMemo(() => {
@@ -129,64 +167,50 @@ const LoanDetails = () => {
   ]
 
   // Offers data
-  const offers = [
-    {
-      id: 1,
-      lenderName: 'John Martinez',
-      lenderAvatar: '👨‍💼',
-      lenderRating: 4.9,
-      amount: 15000,
-      interestRate: 7.5,
-      tenure: 24,
-      message: 'Great business plan! I\'ve reviewed your financials and I\'m confident in your success.',
-      submittedDate: '2024-11-16',
-      status: 'pending'
-    },
-    {
-      id: 2,
-      lenderName: 'Emily Chen',
-      lenderAvatar: '👩‍🎓',
-      lenderRating: 4.7,
-      amount: 12000,
-      interestRate: 8.0,
-      tenure: 24,
-      message: 'Your bakery has excellent reviews! Happy to support local businesses.',
-      submittedDate: '2024-11-18',
-      status: 'pending'
-    },
-    {
-      id: 3,
-      lenderName: 'Michael Davis',
-      lenderAvatar: '👨‍💻',
-      lenderRating: 4.8,
-      amount: 15000,
-      interestRate: 7.8,
-      tenure: 20,
-      message: 'Shorter tenure with competitive rate. Let\'s discuss terms.',
-      submittedDate: '2024-11-20',
-      status: 'pending'
-    },
-    {
-      id: 4,
-      lenderName: 'Lisa Rodriguez',
-      lenderAvatar: '👩‍💼',
-      lenderRating: 5.0,
-      amount: 10000,
-      interestRate: 6.5,
-      tenure: 24,
-      message: 'Partial funding available at excellent rate. Can combine with other lenders.',
-      submittedDate: '2024-11-22',
-      status: 'pending'
-    }
-  ]
-
   const handleSubmitOffer = (e) => {
     e.preventDefault()
-    console.log('Offer submitted:', { offerAmount, offerInterest, offerMessage })
-    setShowOfferModal(false)
-    setOfferAmount('')
-    setOfferInterest('')
-    setOfferMessage('')
+    if (!user || !user.email) {
+      setOffersError('Please log in to submit an offer.')
+      return
+    }
+
+    const payload = {
+      lenderName: user.displayName || user.email.split('@')[0] || 'User',
+      lenderEmail: user.email,
+      amount: Number(offerAmount),
+      interestRate: Number(offerInterest),
+      tenureMonths: Number(offerTenure),
+      message: offerMessage.trim()
+    }
+
+    const submit = async () => {
+      try {
+        await createLoanOffer(id, payload)
+        const response = await getLoanOffersByLoanId(id)
+        const data = response?.data ?? response
+        const list = Array.isArray(data) ? data : []
+        const seen = new Set()
+        const unique = []
+        for (const offer of list) {
+          const key = offer?._id || offer?.id || `${offer?.lenderEmail}-${offer?.amount}-${offer?.createdAt || offer?.submittedDate}`
+          if (!seen.has(key)) {
+            seen.add(key)
+            unique.push(offer)
+          }
+        }
+        setOffers(unique)
+        setShowOfferModal(false)
+        setOfferAmount('')
+        setOfferInterest('')
+        setOfferTenure('')
+        setOfferMessage('')
+      } catch (err) {
+        console.error('Offer submit failed:', err)
+        setOffersError('Failed to submit offer.')
+      }
+    }
+
+    submit()
   }
 
   const calculateMonthlyPayment = (principal, rate, months) => {
@@ -376,10 +400,20 @@ const LoanDetails = () => {
                 </motion.button>
               </div>
 
+              {offersLoading && (
+                <div className="text-gray-600 font-semibold">Loading offers...</div>
+              )}
+              {offersError && !offersLoading && (
+                <div className="text-red-600 font-semibold">{offersError}</div>
+              )}
+              {!offersLoading && !offersError && offers.length === 0 && (
+                <div className="text-gray-600">No offers yet. Be the first to submit an offer.</div>
+              )}
+              {!offersLoading && !offersError && offers.length > 0 && (
               <div className="space-y-4">
                 {offers.map((offer, index) => (
                   <motion.div
-                    key={offer.id}
+                    key={offer._id || offer.id || index}
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.1 }}
@@ -387,47 +421,47 @@ const LoanDetails = () => {
                   >
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex items-center space-x-4">
-                        <div className="text-3xl">{offer.lenderAvatar}</div>
+                        <div className="text-3xl">{offer.lenderAvatar || '👤'}</div>
                         <div>
-                          <h3 className="font-semibold text-gray-900">{offer.lenderName}</h3>
+                          <h3 className="font-semibold text-gray-900">{offer.lenderName || 'Anonymous Lender'}</h3>
                           <div className="flex items-center space-x-2">
                             <div className="flex items-center">
                               <Star className="h-4 w-4 text-yellow-400 mr-1" />
-                              <span className="text-sm font-medium text-gray-700">{offer.lenderRating}</span>
+                              <span className="text-sm font-medium text-gray-700">{offer.lenderRating || '4.5'}</span>
                             </div>
                             <span className="text-gray-300">•</span>
                             <span className="text-sm text-gray-500">
-                              {new Date(offer.submittedDate).toLocaleDateString()}
+                              {new Date(offer.submittedDate || offer.createdAt || Date.now()).toLocaleDateString()}
                             </span>
                           </div>
                         </div>
                       </div>
                       <span className={`px-3 py-1 rounded-full text-sm font-semibold ${
-                        offer.status === 'pending' 
+                        (offer.status || 'pending') === 'pending' 
                           ? 'bg-yellow-100 text-yellow-700' 
                           : 'bg-primary-100 text-primary-700'
                       }`}>
-                        {offer.status === 'pending' ? 'Pending' : 'Accepted'}
+                        {(offer.status || 'pending') === 'pending' ? 'Pending' : 'Accepted'}
                       </span>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
                       <div>
                         <p className="text-xs text-gray-500 mb-1">Amount</p>
-                        <p className="font-bold text-gray-900">৳{offer.amount.toLocaleString()}</p>
+                        <p className="font-bold text-gray-900">৳{Number(offer.amount || 0).toLocaleString()}</p>
                       </div>
                       <div>
                         <p className="text-xs text-gray-500 mb-1">Interest Rate</p>
-                        <p className="font-bold text-gray-900">{offer.interestRate}%</p>
+                        <p className="font-bold text-gray-900">{offer.interestRate || 0}%</p>
                       </div>
                       <div>
                         <p className="text-xs text-gray-500 mb-1">Tenure</p>
-                        <p className="font-bold text-gray-900">{offer.tenure} months</p>
+                        <p className="font-bold text-gray-900">{offer.tenure || offer.tenureMonths || 0} months</p>
                       </div>
                       <div>
                         <p className="text-xs text-gray-500 mb-1">Monthly Payment</p>
                         <p className="font-bold text-primary-600">
-                          ৳{calculateMonthlyPayment(offer.amount, offer.interestRate, offer.tenure)}
+                          ৳{calculateMonthlyPayment(offer.amount, offer.interestRate, offer.tenure || offer.tenureMonths)}
                         </p>
                       </div>
                     </div>
@@ -443,6 +477,7 @@ const LoanDetails = () => {
                   </motion.div>
                 ))}
               </div>
+              )}
             </motion.div>
           </div>
 
@@ -500,7 +535,7 @@ const LoanDetails = () => {
               <div className="mt-6 pt-4 border-t border-gray-200">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-gray-600">Current Offers</span>
-                  <span className="font-semibold text-primary-600">{derivedLoan.currentOffers}</span>
+                  <span className="font-semibold text-primary-600">{offers.length}</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-gray-600 flex items-center">
@@ -650,6 +685,27 @@ const LoanDetails = () => {
               <form onSubmit={handleSubmitOffer} className="space-y-4">
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Lender
+                  </label>
+                  <div className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl bg-gray-50 text-gray-700">
+                    {authLoading ? 'Loading user...' : (user?.displayName || user?.email?.split('@')[0] || 'Guest')}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Email
+                  </label>
+                  <div className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl bg-gray-50 text-gray-700">
+                    {authLoading ? 'Loading user...' : (user?.email || 'Not signed in')}
+                  </div>
+                </div>
+                {!authLoading && !user?.email && (
+                  <p className="text-sm text-red-600 font-semibold">Please log in to submit an offer.</p>
+                )}
+
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
                     Offer Amount (৳)
                   </label>
                   <input
@@ -680,6 +736,20 @@ const LoanDetails = () => {
 
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Tenure (months)
+                  </label>
+                  <input
+                    type="number"
+                    value={offerTenure}
+                    onChange={(e) => setOfferTenure(e.target.value)}
+                    placeholder="Enter tenure in months"
+                    required
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-primary-500 outline-none transition-all"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
                     Message to Borrower (Optional)
                   </label>
                   <textarea
@@ -701,7 +771,8 @@ const LoanDetails = () => {
                   </button>
                   <button
                     type="submit"
-                    className="flex-1 px-6 py-3 bg-primary-600 text-white rounded-xl font-semibold hover:bg-primary-700 transition-all"
+                    disabled={authLoading || !user?.email}
+                    className="flex-1 px-6 py-3 bg-primary-600 text-white rounded-xl font-semibold hover:bg-primary-700 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
                   >
                     Submit Offer
                   </button>

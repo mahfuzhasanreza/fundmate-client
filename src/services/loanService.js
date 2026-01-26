@@ -106,6 +106,99 @@ export const getLoanRequestById = async (id) => {
 }
 
 /**
+ * Create a new loan offer for a loan request
+ * @param {string} loanRequestId - Loan request ID
+ * @param {Object} offerData - Offer payload
+ * @returns {Promise<Object>} Created offer response
+ */
+export const createLoanOffer = async (loanRequestId, offerData) => {
+  try {
+    console.log('📤 Creating loan offer...', loanRequestId, offerData)
+
+    const response = await fetch(`${API_BASE_URL}/api/loan-requests/${loanRequestId}/offers`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(offerData),
+    })
+
+    const data = await response.json()
+
+    if (!response.ok) {
+      throw new Error(data.message || 'Failed to create loan offer')
+    }
+
+    console.log('✅ Loan offer created successfully:', data)
+    return data
+  } catch (error) {
+    console.error('❌ Create loan offer error:', error)
+    throw error
+  }
+}
+
+/**
+ * Get offers for a loan request
+ * @param {string} loanRequestId - Loan request ID
+ * @returns {Promise<Array>} Array of offers
+ */
+export const getLoanOffersByLoanId = async (loanRequestId) => {
+  try {
+    console.log('📥 Fetching loan offers for loan:', loanRequestId)
+
+    const response = await fetch(`${API_BASE_URL}/api/loan-requests/${loanRequestId}/offers`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+
+    const data = await response.json()
+
+    if (!response.ok) {
+      throw new Error(data.message || 'Failed to fetch loan offers')
+    }
+
+    console.log('✅ Loan offers fetched successfully:', data)
+    return data
+  } catch (error) {
+    console.error('❌ Fetch loan offers error:', error)
+    throw error
+  }
+}
+
+/**
+ * Delete a loan offer
+ * @param {string} loanRequestId - Loan request ID
+ * @param {string} offerId - Offer ID
+ * @returns {Promise<Object>} Delete response
+ */
+export const deleteLoanOffer = async (loanRequestId, offerId) => {
+  try {
+    console.log('🗑️ Deleting loan offer:', loanRequestId, offerId)
+
+    const response = await fetch(`${API_BASE_URL}/api/loan-requests/${loanRequestId}/offers/${offerId}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+
+    const data = await response.json()
+
+    if (!response.ok) {
+      throw new Error(data.message || 'Failed to delete loan offer')
+    }
+
+    console.log('✅ Loan offer deleted successfully:', data)
+    return data
+  } catch (error) {
+    console.error('❌ Delete loan offer error:', error)
+    throw error
+  }
+}
+
+/**
  * Get loan requests for the current user
  * @param {string} userEmail - User's email address
  * @returns {Promise<Array>} Array of user's loan requests
