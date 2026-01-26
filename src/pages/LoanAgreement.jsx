@@ -723,7 +723,7 @@ const LoanAgreement = () => {
                         {payment.paidDate ? formatDate(payment.paidDate) : '-'}
                       </td>
                       <td className="px-6 py-4">
-                        {payment.status === 'pending' && (
+                        {(payment.status === 'pending' || payment.status === 'rejected') && (
                           <div className="flex space-x-2">
                             {isBorrower && (
                               <button
@@ -781,13 +781,6 @@ const LoanAgreement = () => {
                                 {payment.receiptName || 'Receipt'}
                               </a>
                             )}
-                          </div>
-                        )}
-                        {payment.status === 'rejected' && (
-                          <div className="flex items-center space-x-2">
-                            <button className="px-3 py-1 bg-red-100 text-red-700 text-xs rounded-lg">
-                              Rejected
-                            </button>
                           </div>
                         )}
                       </td>
