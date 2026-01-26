@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { 
   LayoutDashboard, 
@@ -25,18 +25,66 @@ import {
   Bell,
   Search
 } from 'lucide-react'
+import { useAuthState } from 'react-firebase-hooks/auth'
+import { auth } from '../config/firebase'
+import { getOffersByLenderEmail, getUserLoanRequests } from '../services/loanService'
 
 const Dashboard = () => {
   const [activeSection, setActiveSection] = useState('overview')
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [authUser, authLoading] = useAuthState(auth)
+  const [loanRequests, setLoanRequests] = useState([])
+  const [offersMade, setOffersMade] = useState([])
+  const [acceptedOffers, setAcceptedOffers] = useState([])
+  const [dataLoading, setDataLoading] = useState(true)
+  const [dataError, setDataError] = useState('')
   
   // Dummy user data
   const user = {
-    name: 'Mahfuz',
+    name: authUser?.displayName || authUser?.email?.split('@')[0] || 'User',
     avatar: '👤',
     role: 'Borrower, Lender & Donor',
-    memberSince: 'Jan 2024'
+    memberSince: '—'
   }
+
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      if (!authUser?.email) {
+        setLoanRequests([])
+        setOffersMade([])
+        setAcceptedOffers([])
+        setDataLoading(false)
+        return
+      }
+
+      try {
+        setDataLoading(true)
+        setDataError('')
+        const [loanRes, offersRes] = await Promise.all([
+          getUserLoanRequests(authUser.email),
+          getOffersByLenderEmail(authUser.email)
+        ])
+
+        const loans = loanRes?.data ?? loanRes
+        const offers = offersRes?.data ?? offersRes
+        const loanList = Array.isArray(loans) ? loans : []
+        const offerList = Array.isArray(offers) ? offers : []
+
+        setLoanRequests(loanList)
+        setOffersMade(offerList)
+        setAcceptedOffers(offerList.filter((offer) => (offer.status || 'pending') === 'accepted'))
+      } catch (err) {
+        console.error('Dashboard data error:', err)
+        setDataError('Failed to load dashboard data.')
+      } finally {
+        setDataLoading(false)
+      }
+    }
+
+    if (!authLoading) {
+      fetchDashboardData()
+    }
+  }, [authUser?.email, authLoading])
 
   // Dashboard statistics
   const stats = [
@@ -200,11 +248,11 @@ const Dashboard = () => {
       case 'overview':
         return <OverviewSection stats={stats} recentActivities={recentActivities} upcomingPayments={upcomingPayments} activeCampaigns={activeCampaigns} />
       case 'loan-requests':
-        return <LoanRequestsSection />
+        return <LoanRequestsSection isAuthenticated={Boolean(authUser?.email)} loading={dataLoading} error={dataError} loanRequests={loanRequests} />
       case 'campaigns':
         return <CampaignsSection />
       case 'offers':
-        return <OffersSection />
+        return <OffersSection isAuthenticated={Boolean(authUser?.email)} loading={dataLoading} error={dataError} offers={offersMade} acceptedOffers={acceptedOffers} />
       case 'repayments':
         return <RepaymentsSection />
       case 'donations':
@@ -294,6 +342,28 @@ const Dashboard = () => {
             </button>
             <h1 className="text-xl font-bold text-gray-900">Dashboard</h1>
             <div className="text-2xl">{user.avatar}</div>
+          </div>
+
+          {/* Section Tabs */}
+          <div className="mb-6 flex flex-wrap gap-2">
+            {sidebarItems.map((item) => {
+              const Icon = item.icon
+              const isActive = activeSection === item.id
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => setActiveSection(item.id)}
+                  className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-semibold transition-all ${
+                    isActive
+                      ? 'bg-primary-600 text-white border-primary-600'
+                      : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'
+                  }`}
+                >
+                  <Icon className="h-4 w-4" />
+                  {item.label}
+                </button>
+              )
+            })}
           </div>
 
           <motion.div
@@ -442,11 +512,31 @@ const OverviewSection = ({ stats, recentActivities, upcomingPayments, activeCamp
 }
 
 // Placeholder sections
-const LoanRequestsSection = () => (
+const LoanRequestsSection = ({ isAuthenticated, loading, error, loanRequests }) => (
   <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
     <h1 className="text-3xl font-bold text-gray-900 mb-4">My Loan Requests</h1>
-    <p className="text-gray-600">View and manage all your loan requests here.</p>
-    {/* Add loan requests content */}
+    {!isAuthenticated && <p className="text-gray-600">Please log in to view your loan requests.</p>}
+    {isAuthenticated && loading && <p className="text-gray-600 font-semibold">Loading loan requests...</p>}
+    {isAuthenticated && !loading && error && <p className="text-red-600 font-semibold">{error}</p>}
+    {isAuthenticated && !loading && !error && loanRequests.length === 0 && (
+      <p className="text-gray-600">No loan requests found.</p>
+    )}
+    {isAuthenticated && !loading && !error && loanRequests.length > 0 && (
+      <div className="space-y-4">
+        {loanRequests.map((loan) => (
+          <div key={loan._id || loan.id} className="border border-gray-200 rounded-xl p-4">
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="font-semibold text-gray-900">{loan.loanTitle || loan.title || 'Loan Request'}</h3>
+              <span className="text-sm text-gray-500">{loan.status || 'pending'}</span>
+            </div>
+            <p className="text-sm text-gray-600">{loan.purpose || 'General'}</p>
+            <div className="mt-2 text-sm text-gray-700">
+              Amount: ৳{Number(loan.loanAmount || loan.amount || 0).toLocaleString()}
+            </div>
+          </div>
+        ))}
+      </div>
+    )}
   </div>
 )
 
@@ -458,11 +548,58 @@ const CampaignsSection = () => (
   </div>
 )
 
-const OffersSection = () => (
+const OffersSection = ({ isAuthenticated, loading, error, offers, acceptedOffers }) => (
   <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
     <h1 className="text-3xl font-bold text-gray-900 mb-4">Offers</h1>
-    <p className="text-gray-600">View offers made and received.</p>
-    {/* Add offers content */}
+    {!isAuthenticated && <p className="text-gray-600">Please log in to view your offers.</p>}
+    {isAuthenticated && loading && <p className="text-gray-600 font-semibold">Loading offers...</p>}
+    {isAuthenticated && !loading && error && <p className="text-red-600 font-semibold">{error}</p>}
+    {isAuthenticated && !loading && !error && offers.length === 0 && (
+      <p className="text-gray-600">No offers found.</p>
+    )}
+    {isAuthenticated && !loading && !error && offers.length > 0 && (
+      <div className="space-y-6">
+        <div>
+          <h2 className="text-lg font-semibold text-gray-900 mb-2">Offers I Created</h2>
+          <div className="space-y-3">
+            {offers.map((offer) => (
+              <div key={offer._id || offer.id} className="border border-gray-200 rounded-xl p-4">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="font-semibold text-gray-900">{offer.lenderName || 'Me'}</span>
+                  <span className="text-sm text-gray-500">{offer.status || 'pending'}</span>
+                </div>
+                <div className="text-sm text-gray-700">
+                  Amount: ৳{Number(offer.amount || 0).toLocaleString()} · {offer.interestRate || 0}% · {offer.tenureMonths || offer.tenure || 0} months
+                </div>
+                {offer.message && <p className="text-sm text-gray-600 mt-1">{offer.message}</p>}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <h2 className="text-lg font-semibold text-gray-900 mb-2">Accepted Offers</h2>
+          {acceptedOffers.length === 0 && (
+            <p className="text-gray-600">No accepted offers yet.</p>
+          )}
+          {acceptedOffers.length > 0 && (
+            <div className="space-y-3">
+              {acceptedOffers.map((offer) => (
+                <div key={offer._id || offer.id} className="border border-gray-200 rounded-xl p-4">
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="font-semibold text-gray-900">{offer.lenderName || 'Me'}</span>
+                    <span className="text-sm text-green-600">accepted</span>
+                  </div>
+                  <div className="text-sm text-gray-700">
+                    Amount: ৳{Number(offer.amount || 0).toLocaleString()} · {offer.interestRate || 0}% · {offer.tenureMonths || offer.tenure || 0} months
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    )}
   </div>
 )
 

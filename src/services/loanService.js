@@ -260,6 +260,36 @@ export const getLoanAgreementById = async (agreementId) => {
 }
 
 /**
+ * Get offers by lender email
+ * @param {string} lenderEmail - Lender email
+ * @returns {Promise<Array>} Array of offers
+ */
+export const getOffersByLenderEmail = async (lenderEmail) => {
+  try {
+    const queryParams = new URLSearchParams()
+    if (lenderEmail) queryParams.append('lenderEmail', lenderEmail)
+    const url = `${API_BASE_URL}/api/offers${queryParams.toString() ? `?${queryParams.toString()}` : ''}`
+
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    })
+
+    const data = await response.json()
+    if (!response.ok) {
+      throw new Error(data.message || 'Failed to fetch offers')
+    }
+    return data
+  } catch (error) {
+    console.error('❌ Fetch offers by lender error:', error)
+    throw error
+  }
+}
+
+
+/**
  * Get loan requests for the current user
  * @param {string} userEmail - User's email address
  * @returns {Promise<Array>} Array of user's loan requests

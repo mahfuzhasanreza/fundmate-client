@@ -270,6 +270,12 @@ const AllLoanPost = () => {
     const title = loan?.loanTitle || loan?.title || ''
     const purpose = loan?.purpose || ''
     const borrowerName = loan?.userEmail || loan?.borrower?.name || ''
+
+    const isAccepted =
+      loan?.status === 'accepted' ||
+      loan?.status === 'funded' ||
+      loan?.status === 'closed' ||
+      Boolean(loan?.agreementId || loan?.acceptedOfferId)
     
     const matchesSearch = title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          purpose.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -277,7 +283,7 @@ const AllLoanPost = () => {
     
     const matchesCategory = selectedCategory === 'all' || purpose === selectedCategory
     
-    return matchesSearch && matchesCategory
+    return !isAccepted && matchesSearch && matchesCategory
   }).sort((a, b) => {
     switch (sortBy) {
       case 'recent':
