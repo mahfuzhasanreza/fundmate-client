@@ -121,6 +121,14 @@ const LoanAgreement = () => {
   }, [agreementData, agreementId])
 
   useEffect(() => {
+    if (!repaymentPlan.length || !agreement) return
+    const allPaid = repaymentPlan.every((p) => p.status === 'paid')
+    if (allPaid && agreement.status !== 'completed') {
+      setAgreementData((prev) => (prev ? { ...prev, status: 'completed' } : prev))
+    }
+  }, [repaymentPlan, agreement])
+
+  useEffect(() => {
     if (!agreement) return
     setChatMessages(Array.isArray(agreement.messages) ? agreement.messages : [])
     if (Array.isArray(agreement.repaymentPlan) && agreement.repaymentPlan.length > 0) {
@@ -1040,18 +1048,7 @@ const LoanAgreement = () => {
             <Download className="h-5 w-5" />
             <span>Download PDF</span>
           </button>
-          <button className="flex items-center space-x-2 px-6 py-3 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition-all shadow-lg">
-            <TrendingUp className="h-5 w-5" />
-            <span>Transaction History</span>
-          </button>
-          <button className="flex items-center space-x-2 px-6 py-3 bg-primary-600 text-white rounded-xl font-semibold hover:bg-primary-700 transition-all shadow-lg">
-            <Receipt className="h-5 w-5" />
-            <span>Mark Payment Done</span>
-          </button>
-          <button className="flex items-center space-x-2 px-6 py-3 bg-orange-600 text-white rounded-xl font-semibold hover:bg-orange-700 transition-all shadow-lg">
-            <CheckCheck className="h-5 w-5" />
-            <span>Acknowledge Payment</span>
-          </button>
+         
         </motion.div>
       </div>
     </div>
