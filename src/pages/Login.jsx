@@ -25,6 +25,9 @@ const Login = () => {
       // Login with Firebase
       const user = await loginWithFirebase(formData.email, formData.password)
       console.log('Login successful:', user)
+      if (user?.reload) {
+        await user.reload()
+      }
 
       if (!user?.emailVerified) {
         await sendEmailVerification(user)
@@ -49,14 +52,6 @@ const Login = () => {
     try {
       const user = await signInWithGoogle()
       console.log('Google sign-in successful:', user)
-
-      if (!user?.emailVerified) {
-        await sendEmailVerification(user)
-        await logoutFromFirebase()
-        setError('Verification email sent. Please verify your email before logging in.')
-        return
-      }
-
       navigate('/dashboard')
     } catch (err) {
       setError(err.message || 'Google sign-in failed.')

@@ -2,13 +2,15 @@ import React, { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Mail, Lock, Eye, EyeOff, ArrowRight, Github, Chrome, User, Phone, Check } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
-import { registerWithFirebase, signInWithGoogle, signInWithGithub } from '../services/firebaseAuthService'
+import { sendEmailVerification } from 'firebase/auth'
+import { registerWithFirebase, signInWithGoogle, signInWithGithub, logoutFromFirebase } from '../services/firebaseAuthService'
 
 const Register = () => {
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
+  const [info, setInfo] = useState('')
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
@@ -22,6 +24,7 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
+    setInfo('')
     
     // Validate passwords match
     if (formData.password !== formData.confirmPassword) {
@@ -40,8 +43,9 @@ const Register = () => {
       )
       
       console.log('Registration successful:', user)
-      
-      // Navigate to login after successful registration
+      await sendEmailVerification(user)
+      await logoutFromFirebase()
+      setInfo('Verification email sent. Please verify your email and then log in.')
       navigate('/login')
     } catch (err) {
       setError(err.message || 'Registration failed. Please try again.')
@@ -53,6 +57,7 @@ const Register = () => {
 
   const handleGoogleSignIn = async () => {
     setError('')
+    setInfo('')
     setIsLoading(true)
     
     try {
@@ -69,12 +74,15 @@ const Register = () => {
 
   const handleGithubSignIn = async () => {
     setError('')
+    setInfo('')
     setIsLoading(true)
     
     try {
       const user = await signInWithGithub()
       console.log('GitHub sign-in successful:', user)
-      navigate('/dashboard')
+      await logoutFromFirebase()
+      setInfo('Registration completed. Please log in to continue.')
+      navigate('/login')
     } catch (err) {
       setError(err.message || 'GitHub sign-in failed.')
       console.error('GitHub sign-in error:', err)
@@ -251,6 +259,15 @@ const Register = () => {
               className="p-4 bg-red-50 border border-red-200 rounded-xl"
             >
               <p className="text-sm text-red-600 font-medium">{error}</p>
+            </motion.div>
+          )}
+          {info && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="p-4 bg-green-50 border border-green-200 rounded-xl"
+            >
+              <p className="text-sm text-green-700 font-medium">{info}</p>
             </motion.div>
           )}
 
