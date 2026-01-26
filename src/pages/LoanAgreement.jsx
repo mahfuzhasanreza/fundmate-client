@@ -29,7 +29,7 @@ import { io } from 'socket.io-client'
 import { useAuthState } from 'react-firebase-hooks/auth'
 import { auth } from '../config/firebase'
 import API_BASE_URL from '../config/api'
-import { getLoanAgreementById, markAgreementPaymentPaid, rejectAgreementPayment, uploadPaymentReceipt } from '../services/loanService'
+import { getAgreementDocuments, getLoanAgreementById, markAgreementPaymentPaid, rejectAgreementPayment, uploadAgreementDocument, uploadPaymentReceipt } from '../services/loanService'
 import { jsPDF } from 'jspdf'
 import autoTable from 'jspdf-autotable'
 
@@ -49,6 +49,9 @@ const LoanAgreement = () => {
   const [paymentLoadingId, setPaymentLoadingId] = useState(null)
   const [receiptUploadId, setReceiptUploadId] = useState(null)
   const [rejectLoadingId, setRejectLoadingId] = useState(null)
+  const [documents, setDocuments] = useState([])
+  const [documentsLoading, setDocumentsLoading] = useState(false)
+  const [documentsError, setDocumentsError] = useState('')
   const socketRef = useRef(null)
   const seenMessageIdsRef = useRef(new Set())
 
@@ -165,6 +168,26 @@ const LoanAgreement = () => {
     })
     setRepaymentPlan(plan)
   }, [agreement])
+
+  useEffect(() => {
+    const fetchDocuments = async () => {
+      if (!agreementId) return
+      try {
+        setDocumentsLoading(true)
+        setDocumentsError('')
+        const response = await getAgreementDocuments(agreementId)
+        const data = response?.data ?? response
+        setDocuments(Array.isArray(data) ? data : [])
+      } catch (err) {
+        console.error('Failed to load documents:', err)
+        setDocumentsError('Failed to load documents.')
+      } finally {
+        setDocumentsLoading(false)
+      }
+    }
+
+    fetchDocuments()
+  }, [agreementId])
 
   useEffect(() => {
     if (!agreementId) return
@@ -469,6 +492,60 @@ const LoanAgreement = () => {
       setPaymentError(err.message || 'Failed to reject payment.')
     } finally {
       setRejectLoadingId(null)
+    }
+  }
+
+  const handleDocumentUpload = async (file) => {
+    if (!file) return
+    try {
+      setDocumentsError('')
+      setDocumentsLoading(true)
+      const uploadedBy = isBorrower ? 'borrower' : isLender ? 'lender' : 'user'
+
+      const resizeImage = (imageFile) => {
+        return new Promise((resolve, reject) => {
+          const img = new Image()
+          const url = URL.createObjectURL(imageFile)
+          img.onload = () => {
+            const maxWidth = 1280
+            const maxHeight = 1280
+            let { width, height } = img
+            const scale = Math.min(maxWidth / width, maxHeight / height, 1)
+            width = Math.floor(width * scale)
+            height = Math.floor(height * scale)
+
+            const canvas = document.createElement('canvas')
+            canvas.width = width
+            canvas.height = height
+            const ctx = canvas.getContext('2d')
+            ctx.drawImage(img, 0, 0, width, height)
+            canvas.toBlob(
+              (blob) => {
+                URL.revokeObjectURL(url)
+                if (!blob) return reject(new Error('Image resize failed'))
+                resolve(new File([blob], imageFile.name, { type: blob.type }))
+              },
+              'image/jpeg',
+              0.7
+            )
+          }
+          img.onerror = (err) => {
+            URL.revokeObjectURL(url)
+            reject(err)
+          }
+          img.src = url
+        })
+      }
+
+      const fileToUpload = file.type.startsWith('image/') ? await resizeImage(file) : file
+      const response = await uploadAgreementDocument(agreementId, fileToUpload, uploadedBy)
+      const data = response?.data ?? response
+      setDocuments((prev) => [data, ...prev])
+    } catch (err) {
+      console.error('Document upload failed:', err)
+      setDocumentsError(err.message || 'Failed to upload document.')
+    } finally {
+      setDocumentsLoading(false)
     }
   }
 
@@ -896,31 +973,57 @@ const LoanAgreement = () => {
                   <FileText className="h-5 w-5 mr-2 text-primary-600" />
                   Agreement Documents
                 </h3>
-                <button className="flex items-center space-x-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors">
-                  <Upload className="h-4 w-4" />
-                  <span>Upload Document</span>
-                </button>
+                {(isBorrower || isLender) && (
+                  <label className="flex items-center space-x-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors cursor-pointer">
+                    <Upload className="h-4 w-4" />
+                    <span>{documentsLoading ? 'Uploading...' : 'Upload Document'}</span>
+                    <input
+                      type="file"
+                      className="hidden"
+                      accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+                      onChange={(e) => handleDocumentUpload(e.target.files?.[0])}
+                    />
+                  </label>
+                )}
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {agreement.attachments.map((doc) => (
-                  <div key={doc.id} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:border-primary-300 transition-colors">
-                    <div className="flex items-center space-x-3">
-                      <div className={`p-2 rounded-lg ${doc.type === 'document' ? 'bg-blue-100' : 'bg-primary-100'}`}>
-                        <FileText className={`h-5 w-5 ${doc.type === 'document' ? 'text-blue-600' : 'text-primary-600'}`} />
+              {documentsError && <p className="text-sm text-red-600 font-semibold">{documentsError}</p>}
+              {!documentsError && documents.length === 0 && (
+                <p className="text-sm text-gray-600">No documents uploaded yet.</p>
+              )}
+              {documents.length > 0 && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {documents.map((doc, idx) => {
+                    const name = doc?.name || doc?.originalName || doc?.filename || `Document ${idx + 1}`
+                    const url = doc?.url || doc?.path || doc
+                    const type = doc?.type || ''
+                    const uploadedBy = doc?.uploadedBy || doc?.uploader || 'user'
+                    const uploadedAt = doc?.date || doc?.createdAt
+                    return (
+                      <div key={`${name}-${idx}`} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:border-primary-300 transition-colors">
+                        <div className="flex items-center space-x-3">
+                          <div className={`p-2 rounded-lg ${type.includes('pdf') || type.includes('doc') ? 'bg-blue-100' : 'bg-primary-100'}`}>
+                            <FileText className={`h-5 w-5 ${type.includes('pdf') || type.includes('doc') ? 'text-blue-600' : 'text-primary-600'}`} />
+                          </div>
+                          <div>
+                            <p className="font-semibold text-gray-900">{name}</p>
+                            <p className="text-sm text-gray-600">
+                              Uploaded by {uploadedBy} • {uploadedAt ? formatDate(uploadedAt) : '—'}
+                            </p>
+                          </div>
+                        </div>
+                        <a
+                          href={url}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="p-2 text-gray-600 hover:text-primary-600 transition-colors"
+                        >
+                          <Download className="h-5 w-5" />
+                        </a>
                       </div>
-                      <div>
-                        <p className="font-semibold text-gray-900">{doc.name}</p>
-                        <p className="text-sm text-gray-600">
-                          Uploaded by {doc.uploadedBy} • {formatDate(doc.date)}
-                        </p>
-                      </div>
-                    </div>
-                    <button className="p-2 text-gray-600 hover:text-primary-600 transition-colors">
-                      <Download className="h-5 w-5" />
-                    </button>
-                  </div>
-                ))}
-              </div>
+                    )
+                  })}
+                </div>
+              )}
             </div>
           </motion.div>
         )}

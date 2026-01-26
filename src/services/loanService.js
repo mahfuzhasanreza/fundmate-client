@@ -310,6 +310,52 @@ export const uploadPaymentReceipt = async (agreementId, paymentId, file) => {
 }
 
 /**
+ * Get agreement documents
+ * @param {string} agreementId - Agreement ID
+ * @returns {Promise<Array>} Documents list
+ */
+export const getAgreementDocuments = async (agreementId) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/loan-agreements/${agreementId}/documents`)
+    const data = await response.json()
+    if (!response.ok) {
+      throw new Error(data.message || 'Failed to fetch documents')
+    }
+    return data
+  } catch (error) {
+    console.error('Get agreement documents error:', error)
+    throw error
+  }
+}
+
+/**
+ * Upload agreement document
+ * @param {string} agreementId - Agreement ID
+ * @param {File} file - Document file
+ * @param {string} uploadedBy - "borrower" | "lender"
+ * @returns {Promise<Object>} Upload response
+ */
+export const uploadAgreementDocument = async (agreementId, file, uploadedBy) => {
+  try {
+    const formData = new FormData()
+    formData.append('file', file)
+    if (uploadedBy) formData.append('uploadedBy', uploadedBy)
+    const response = await fetch(`${API_BASE_URL}/api/loan-agreements/${agreementId}/documents`, {
+      method: 'POST',
+      body: formData
+    })
+    const data = await response.json()
+    if (!response.ok) {
+      throw new Error(data.message || 'Failed to upload document')
+    }
+    return data
+  } catch (error) {
+    console.error('Upload agreement document error:', error)
+    throw error
+  }
+}
+
+/**
  * Reject a repayment installment (borrower)
  * @param {string} agreementId - Agreement ID
  * @param {string|number} paymentId - Payment ID
