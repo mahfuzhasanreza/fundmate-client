@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react'
-import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react'
+import { ArrowRight, ChevronLeft, ChevronRight, X } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
 
 const Hero = () => {
   const [currentSlide, setCurrentSlide] = useState(0)
+  const [showVideoModal, setShowVideoModal] = useState(false)
   const navigate = useNavigate()
 
   // Background slider images - using placeholder images for now
@@ -221,7 +222,7 @@ const Hero = () => {
               variants={itemVariants}
             >
               <motion.button 
-                onClick={() => navigate('/loan-request')}
+                onClick={() => setShowVideoModal(true)}
                 className="px-8 py-4 bg-gradient-to-r from-primary-600 to-primary-500 text-white rounded-2xl font-bold text-lg flex items-center justify-center space-x-3 group shadow-2xl"
                 whileHover={{ 
                   scale: 1.05, 
@@ -230,7 +231,7 @@ const Hero = () => {
                 }}
                 whileTap={{ scale: 0.95 }}
               >
-                <span>Request Loan</span>
+                <span>Show Demo</span>
                 <motion.div
                   animate={{ x: [0, 5, 0] }}
                   transition={{ duration: 1.5, repeat: Infinity }}
@@ -239,7 +240,7 @@ const Hero = () => {
                 </motion.div>
               </motion.button>
               <motion.button 
-                onClick={() => navigate('/campaigns')}
+                onClick={() => navigate('/login')}
                 className="px-8 py-4 bg-white/10 backdrop-blur-md text-white border-2 border-white/30 rounded-2xl font-bold text-lg flex items-center justify-center space-x-3 group shadow-2xl"
                 whileHover={{ 
                   scale: 1.05, 
@@ -248,7 +249,7 @@ const Hero = () => {
                 }}
                 whileTap={{ scale: 0.95 }}
               >
-                <span>Start Campaign</span>
+                <span>Start Now</span>
                 <motion.div
                   animate={{ x: [0, 5, 0] }}
                   transition={{ duration: 1.5, repeat: Infinity, delay: 0.2 }}
@@ -263,7 +264,7 @@ const Hero = () => {
               className="flex flex-wrap gap-8 justify-center pt-12"
               variants={itemVariants}
             >
-              <motion.div 
+              {/* <motion.div 
                 className="flex items-center space-x-3 bg-white/10 backdrop-blur-md px-6 py-3 rounded-2xl border border-white/20"
                 whileHover={{ scale: 1.05, backgroundColor: "rgba(255,255,255,0.15)" }}
               >
@@ -282,7 +283,7 @@ const Hero = () => {
                   ></motion.div>
                 </div>
                 <span className="text-white font-bold text-lg">4.9/5 Rating</span>
-              </motion.div>
+              </motion.div> */}
               
               <motion.div 
                 className="flex items-center space-x-3 bg-white/10 backdrop-blur-md px-6 py-3 rounded-2xl border border-white/20"
@@ -310,14 +311,65 @@ const Hero = () => {
                   💰
                 </motion.span>
                 <div className="text-white">
-                  <p className="font-bold text-lg">৳2.5M+</p>
-                  <p className="text-sm opacity-80">Funded</p>
+                  <p className="font-bold text-lg">৳2.5M+ Funded</p>
+                  {/* <p className="text-sm opacity-80">Funded</p> */}
                 </div>
               </motion.div>
             </motion.div>
           </motion.div>
         </div>
       </div>
+
+      {/* Video Modal */}
+      <AnimatePresence>
+        {showVideoModal && (
+          <motion.div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setShowVideoModal(false)}
+          >
+            <motion.div
+              className="relative w-full max-w-5xl bg-gray-900 rounded-2xl overflow-hidden shadow-2xl"
+              initial={{ scale: 0.8, opacity: 0, y: 50 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.8, opacity: 0, y: 50 }}
+              transition={{ type: "spring", duration: 0.5 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Close Button */}
+              <motion.button
+                onClick={() => setShowVideoModal(false)}
+                className="absolute top-4 right-4 z-10 bg-white/10 hover:bg-white/20 text-white p-2 rounded-full backdrop-blur-sm transition-all"
+                whileHover={{ scale: 1.1, rotate: 90 }}
+                whileTap={{ scale: 0.9 }}
+              >
+                <X className="h-6 w-6" />
+              </motion.button>
+
+              {/* Video Container */}
+              <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
+                <iframe
+                  className="absolute top-0 left-0 w-full h-full"
+                  src="https://www.youtube.com/embed/vKupj4y46gU?si=oWE1l8bBph1r_nRN&autoplay=1"
+                  title="FundMate Demo Video"
+                  frameBorder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  referrerPolicy="strict-origin-when-cross-origin"
+                  allowFullScreen
+                />
+              </div>
+
+              {/* Video Info */}
+              <div className="p-6 bg-gray-800">
+                <h3 className="text-2xl font-bold text-white mb-2">FundMate Platform Demo</h3>
+                <p className="text-gray-300">See how FundMate connects people for peer-to-peer loans and crowdfunding campaigns.</p>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </section>
   )
 }
