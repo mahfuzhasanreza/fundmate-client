@@ -660,7 +660,14 @@ const CampaignsSection = ({ loading, error, campaigns, completedCampaigns, incom
 const OffersSection = ({ isAuthenticated, loading, error, offers, acceptedOffers }) => {
   const navigate = useNavigate()
 
-  const renderOfferRow = (offer, statusLabel, statusClass) => (
+  const getAgreementId = (offer) =>
+    offer?.agreementId || offer?.acceptedAgreementId || offer?.agreement?._id || offer?.agreement?.id
+
+  const renderOfferRow = (offer, statusLabel, statusClass, actionLabel) => {
+    const agreementId = getAgreementId(offer)
+    const loanRequestId = offer?.loanRequestId
+
+    return (
     <div key={offer._id || offer.id} className="border border-gray-200 rounded-xl p-4">
       <div className="flex items-center justify-between mb-1">
         <span className="font-semibold text-gray-900">{offer.lenderName || 'Me'}</span>
@@ -672,15 +679,22 @@ const OffersSection = ({ isAuthenticated, loading, error, offers, acceptedOffers
       {offer.message && <p className="text-sm text-gray-600 mt-1">{offer.message}</p>}
       <div className="mt-3 text-right">
         <button
-          onClick={() => offer.loanRequestId && navigate(`/loan/${offer.loanRequestId}`)}
-          disabled={!offer.loanRequestId}
+          onClick={() => {
+            if (offer.status === 'accepted' && agreementId) {
+              navigate(`/agreement/${agreementId}`)
+            } else if (offer.loanRequestId) {
+              navigate(`/loan/${offer.loanRequestId}`)
+            }
+          }}
+          disabled={offer.status === 'accepted' ? !agreementId : !loanRequestId}
           className="px-4 py-2 bg-primary-600 text-white rounded-lg font-semibold hover:bg-primary-700 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
         >
-          View Details
+          {actionLabel || 'View Details'}
         </button>
       </div>
     </div>
   )
+  }
 
   return (
     <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
@@ -697,7 +711,7 @@ const OffersSection = ({ isAuthenticated, loading, error, offers, acceptedOffers
             <h2 className="text-lg font-semibold text-gray-900 mb-2">Offers I Created</h2>
             <div className="space-y-3">
               {offers.map((offer) =>
-                renderOfferRow(offer, offer.status || 'pending', 'text-gray-500')
+                renderOfferRow(offer, offer.status || 'pending', 'text-gray-500', 'View Details')
               )}
             </div>
           </div>
@@ -710,7 +724,7 @@ const OffersSection = ({ isAuthenticated, loading, error, offers, acceptedOffers
             {acceptedOffers.length > 0 && (
               <div className="space-y-3">
                 {acceptedOffers.map((offer) =>
-                  renderOfferRow(offer, 'accepted', 'text-green-600')
+                  renderOfferRow(offer, 'accepted', 'text-green-600', 'View Agreement')
                 )}
               </div>
             )}
