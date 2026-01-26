@@ -2,10 +2,11 @@ import API_BASE_URL from '../config/api'
 
 export const createCampaign = async (campaignData) => {
   try {
+    const isFormData = typeof FormData !== 'undefined' && campaignData instanceof FormData
     const response = await fetch(`${API_BASE_URL}/api/campaigns`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(campaignData),
+      headers: isFormData ? {} : { 'Content-Type': 'application/json' },
+      body: isFormData ? campaignData : JSON.stringify(campaignData),
     })
     if (!response.ok) throw new Error('Failed to create campaign')
     return await response.json()
@@ -22,7 +23,8 @@ export const getAllCampaigns = async (filters = {}) => {
     const response = await fetch(url)
     if (!response.ok) throw new Error('Failed to fetch campaigns')
     const result = await response.json()
-    return Array.isArray(result) ? result : (result.campaigns || [])
+    if (Array.isArray(result)) return result
+    return result.data || result.campaigns || []
   } catch (error) {
     console.error('Get campaigns error:', error)
     throw error

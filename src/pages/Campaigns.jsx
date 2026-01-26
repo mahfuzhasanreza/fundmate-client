@@ -250,10 +250,16 @@ const Campaigns = () => {
                   className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden hover:shadow-xl transition-all duration-300 group"
                 >
                   <div className="relative h-48 bg-gray-200">
-                    {campaign.campaignImages && campaign.campaignImages.length > 0 ? (
-                      <div className="flex items-center justify-center h-full bg-primary-50">
-                        <Target className="h-16 w-16 text-primary-300" />
-                      </div>
+                    {campaign.campaignImage || (campaign.campaignImages && campaign.campaignImages.length > 0) ? (
+                      <img
+                        src={campaign.campaignImage || campaign.campaignImages[0]}
+                        alt={campaign.campaignTitle || 'Campaign'}
+                        className="h-full w-full object-cover"
+                        loading="lazy"
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none'
+                        }}
+                      />
                     ) : (
                       <div className="flex items-center justify-center h-full">
                         <Target className="h-16 w-16 text-gray-400" />

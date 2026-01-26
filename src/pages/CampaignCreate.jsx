@@ -198,6 +198,61 @@ const CampaignCreate = () => {
     setSubmitMessage('')
 
     try {
+      const resizeImageToDataUrl = (file, options = {}) => {
+        const {
+          maxWidth = 1024,
+          maxHeight = 1024,
+          quality = 0.7,
+          maxBytes = 300 * 1024
+        } = options
+
+        return new Promise((resolve, reject) => {
+          const img = new Image()
+          const url = URL.createObjectURL(file)
+          img.onload = () => {
+            let { width, height } = img
+            const scale = Math.min(maxWidth / width, maxHeight / height, 1)
+            width = Math.floor(width * scale)
+            height = Math.floor(height * scale)
+
+            const canvas = document.createElement('canvas')
+            canvas.width = width
+            canvas.height = height
+            const ctx = canvas.getContext('2d')
+            ctx.drawImage(img, 0, 0, width, height)
+
+            let currentQuality = quality
+            let dataUrl = canvas.toDataURL('image/jpeg', currentQuality)
+
+            while (dataUrl.length > maxBytes * 1.37 && currentQuality > 0.4) {
+              currentQuality -= 0.1
+              dataUrl = canvas.toDataURL('image/jpeg', currentQuality)
+            }
+
+            URL.revokeObjectURL(url)
+            resolve(dataUrl)
+          }
+          img.onerror = (err) => {
+            URL.revokeObjectURL(url)
+            reject(err)
+          }
+          img.src = url
+        })
+      }
+
+      const readFileAsDataUrl = (file) => {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader()
+          reader.onload = () => resolve(reader.result)
+          reader.onerror = reject
+          reader.readAsDataURL(file)
+        })
+      }
+
+      const campaignImage = imageFiles[0]
+        ? await resizeImageToDataUrl(imageFiles[0])
+        : ''
+
       const campaignData = {
         campaignTitle: formData.title,
         category: formData.category,
@@ -207,12 +262,15 @@ const CampaignCreate = () => {
         shortDescription: formData.shortDescription,
         campaignStory: formData.fullStory,
         urgencyLevel: formData.urgency,
-        campaignImages: formData.images.map(img => img.name),
+        campaignImage,
         campaignTags: formData.tags,
         creatorEmail: user?.email || ''
       }
 
-      console.log('Submitting campaign:', campaignData)
+      console.log('Submitting campaign:', {
+        title: formData.title,
+        hasImage: Boolean(campaignImage)
+      })
 
       const result = await createCampaign(campaignData)
       
