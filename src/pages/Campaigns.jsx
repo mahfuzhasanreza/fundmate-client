@@ -72,6 +72,14 @@ const Campaigns = () => {
   const applyFilters = () => {
     let filtered = campaigns
 
+    // Hide completed campaigns (100% funded or status completed)
+    filtered = filtered.filter(campaign => {
+      const raised = campaign.raisedAmount || 0
+      const target = campaign.targetAmount || 0
+      const isComplete = (target > 0 && raised >= target) || campaign.status === 'completed'
+      return !isComplete
+    })
+
     if (searchTerm) {
       filtered = filtered.filter(campaign =>
         campaign.campaignTitle?.toLowerCase().includes(searchTerm.toLowerCase()) ||

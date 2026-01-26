@@ -29,6 +29,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAuthState } from 'react-firebase-hooks/auth'
 import { auth } from '../config/firebase'
 import { getOffersByLenderEmail, getUserLoanRequests } from '../services/loanService'
+import { getAllCampaigns } from '../services/campaignService'
 
 const Dashboard = () => {
   const [activeSection, setActiveSection] = useState('overview')
@@ -37,6 +38,9 @@ const Dashboard = () => {
   const [loanRequests, setLoanRequests] = useState([])
   const [offersMade, setOffersMade] = useState([])
   const [acceptedOffers, setAcceptedOffers] = useState([])
+  const [campaigns, setCampaigns] = useState([])
+  const [completedCampaigns, setCompletedCampaigns] = useState([])
+  const [incompleteCampaigns, setIncompleteCampaigns] = useState([])
   const [dataLoading, setDataLoading] = useState(true)
   const [dataError, setDataError] = useState('')
   
@@ -61,19 +65,31 @@ const Dashboard = () => {
       try {
         setDataLoading(true)
         setDataError('')
-        const [loanRes, offersRes] = await Promise.all([
+        const [loanRes, offersRes, campaignsRes] = await Promise.all([
           getUserLoanRequests(authUser.email),
-          getOffersByLenderEmail(authUser.email)
+          getOffersByLenderEmail(authUser.email),
+          getAllCampaigns({ creatorEmail: authUser.email })
         ])
 
         const loans = loanRes?.data ?? loanRes
         const offers = offersRes?.data ?? offersRes
+        const campaignsResult = campaignsRes?.data ?? campaignsRes
         const loanList = Array.isArray(loans) ? loans : []
         const offerList = Array.isArray(offers) ? offers : []
+        const campaignList = Array.isArray(campaignsResult) ? campaignsResult : []
 
         setLoanRequests(loanList)
         setOffersMade(offerList)
         setAcceptedOffers(offerList.filter((offer) => (offer.status || 'pending') === 'accepted'))
+        setCampaigns(campaignList)
+        const completed = campaignList.filter((campaign) => {
+          const raised = campaign.raisedAmount || 0
+          const target = campaign.targetAmount || 0
+          return (target > 0 && raised >= target) || campaign.status === 'completed'
+        })
+        const incomplete = campaignList.filter((campaign) => !completed.includes(campaign))
+        setCompletedCampaigns(completed)
+        setIncompleteCampaigns(incomplete)
       } catch (err) {
         console.error('Dashboard data error:', err)
         setDataError('Failed to load dashboard data.')
@@ -251,7 +267,7 @@ const Dashboard = () => {
       case 'loan-requests':
         return <LoanRequestsSection isAuthenticated={Boolean(authUser?.email)} loading={dataLoading} error={dataError} loanRequests={loanRequests} />
       case 'campaigns':
-        return <CampaignsSection />
+        return <CampaignsSection loading={dataLoading} error={dataError} campaigns={campaigns} completedCampaigns={completedCampaigns} incompleteCampaigns={incompleteCampaigns} />
       case 'offers':
         return <OffersSection isAuthenticated={Boolean(authUser?.email)} loading={dataLoading} error={dataError} offers={offersMade} acceptedOffers={acceptedOffers} />
       case 'repayments':
@@ -575,11 +591,61 @@ const LoanRequestsSection = ({ isAuthenticated, loading, error, loanRequests }) 
   )
 }
 
-const CampaignsSection = () => (
+const CampaignsSection = ({ loading, error, campaigns, completedCampaigns, incompleteCampaigns }) => (
   <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
     <h1 className="text-3xl font-bold text-gray-900 mb-4">My Campaigns</h1>
-    <p className="text-gray-600">Manage your crowdfunding campaigns.</p>
-    {/* Add campaigns content */}
+    {loading && <p className="text-gray-600 font-semibold">Loading campaigns...</p>}
+    {!loading && error && <p className="text-red-600 font-semibold">{error}</p>}
+    {!loading && !error && campaigns.length === 0 && (
+      <p className="text-gray-600">No campaigns found.</p>
+    )}
+    {!loading && !error && campaigns.length > 0 && (
+      <div className="space-y-6">
+        <div>
+          <h2 className="text-lg font-semibold text-gray-900 mb-2">Incomplete Campaigns</h2>
+          {incompleteCampaigns.length === 0 && (
+            <p className="text-gray-600">No incomplete campaigns.</p>
+          )}
+          {incompleteCampaigns.length > 0 && (
+            <div className="space-y-3">
+              {incompleteCampaigns.map((campaign) => (
+                <div key={campaign._id || campaign.id} className="border border-gray-200 rounded-xl p-4">
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="font-semibold text-gray-900">{campaign.campaignTitle}</span>
+                    <span className="text-sm text-gray-500">{campaign.status || 'active'}</span>
+                  </div>
+                  <div className="text-sm text-gray-700">
+                    Raised: ৳{Number(campaign.raisedAmount || 0).toLocaleString()} / ৳{Number(campaign.targetAmount || 0).toLocaleString()}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div>
+          <h2 className="text-lg font-semibold text-gray-900 mb-2">Completed Campaigns</h2>
+          {completedCampaigns.length === 0 && (
+            <p className="text-gray-600">No completed campaigns.</p>
+          )}
+          {completedCampaigns.length > 0 && (
+            <div className="space-y-3">
+              {completedCampaigns.map((campaign) => (
+                <div key={campaign._id || campaign.id} className="border border-gray-200 rounded-xl p-4">
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="font-semibold text-gray-900">{campaign.campaignTitle}</span>
+                    <span className="text-sm text-green-600">completed</span>
+                  </div>
+                  <div className="text-sm text-gray-700">
+                    Raised: ৳{Number(campaign.raisedAmount || 0).toLocaleString()} / ৳{Number(campaign.targetAmount || 0).toLocaleString()}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    )}
   </div>
 )
 
