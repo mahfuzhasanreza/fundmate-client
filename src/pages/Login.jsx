@@ -2,7 +2,8 @@ import React, { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Mail, Lock, Eye, EyeOff, ArrowRight, Github, Chrome } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
-import { loginWithFirebase, signInWithGoogle, signInWithGithub } from '../services/firebaseAuthService'
+import { sendEmailVerification } from 'firebase/auth'
+import { loginWithFirebase, signInWithGoogle, signInWithGithub, logoutFromFirebase } from '../services/firebaseAuthService'
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false)
@@ -24,8 +25,14 @@ const Login = () => {
       // Login with Firebase
       const user = await loginWithFirebase(formData.email, formData.password)
       console.log('Login successful:', user)
-      
-      // Navigate to dashboard after successful login
+
+      if (!user?.emailVerified) {
+        await sendEmailVerification(user)
+        await logoutFromFirebase()
+        setError('Verification email sent. Please verify your email before logging in.')
+        return
+      }
+
       navigate('/dashboard')
     } catch (err) {
       setError(err.message || 'Login failed. Please check your credentials.')
@@ -42,6 +49,14 @@ const Login = () => {
     try {
       const user = await signInWithGoogle()
       console.log('Google sign-in successful:', user)
+
+      if (!user?.emailVerified) {
+        await sendEmailVerification(user)
+        await logoutFromFirebase()
+        setError('Verification email sent. Please verify your email before logging in.')
+        return
+      }
+
       navigate('/dashboard')
     } catch (err) {
       setError(err.message || 'Google sign-in failed.')
@@ -58,6 +73,14 @@ const Login = () => {
     try {
       const user = await signInWithGithub()
       console.log('GitHub sign-in successful:', user)
+
+      if (!user?.emailVerified) {
+        await sendEmailVerification(user)
+        await logoutFromFirebase()
+        setError('Verification email sent. Please verify your email before logging in.')
+        return
+      }
+
       navigate('/dashboard')
     } catch (err) {
       setError(err.message || 'GitHub sign-in failed.')

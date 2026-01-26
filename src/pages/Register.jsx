@@ -41,8 +41,8 @@ const Register = () => {
       
       console.log('Registration successful:', user)
       
-      // Navigate to dashboard after successful registration
-      navigate('/dashboard')
+      // Navigate to login after successful registration
+      navigate('/login')
     } catch (err) {
       setError(err.message || 'Registration failed. Please try again.')
       console.error('Registration error:', err)
