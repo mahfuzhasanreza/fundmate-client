@@ -29,7 +29,7 @@ import { io } from 'socket.io-client'
 import { useAuthState } from 'react-firebase-hooks/auth'
 import { auth } from '../config/firebase'
 import API_BASE_URL from '../config/api'
-import { getLoanAgreementById, markAgreementPaymentPaid, uploadPaymentReceipt } from '../services/loanService'
+import { getLoanAgreementById, markAgreementPaymentPaid, rejectAgreementPayment, uploadPaymentReceipt } from '../services/loanService'
 
 const LoanAgreement = () => {
   const { agreementId } = useParams()
@@ -46,6 +46,7 @@ const LoanAgreement = () => {
   const [paymentError, setPaymentError] = useState('')
   const [paymentLoadingId, setPaymentLoadingId] = useState(null)
   const [receiptUploadId, setReceiptUploadId] = useState(null)
+  const [rejectLoadingId, setRejectLoadingId] = useState(null)
   const socketRef = useRef(null)
   const seenMessageIdsRef = useRef(new Set())
 
@@ -205,6 +206,7 @@ const LoanAgreement = () => {
       case 'paid': return 'bg-primary-100 text-primary-700'
       case 'pending': return 'bg-yellow-100 text-yellow-700'
       case 'overdue': return 'bg-red-100 text-red-700'
+      case 'rejected': return 'bg-red-100 text-red-700'
       default: return 'bg-gray-100 text-gray-700'
     }
   }
@@ -411,11 +413,52 @@ const LoanAgreement = () => {
             : item
         )
       )
+      // Re-fetch agreement so both sides see persisted receipt
+      const refreshed = await getLoanAgreementById(agreementId)
+      const refreshedData = refreshed?.data ?? refreshed
+      if (refreshedData) {
+        setAgreementData(refreshedData)
+      }
     } catch (err) {
       console.error('Upload receipt failed:', err)
       setPaymentError(err.message || 'Failed to upload receipt.')
     } finally {
       setReceiptUploadId(null)
+    }
+  }
+
+  const borrowerEmail = agreement?.borrower?.email || agreementData?.borrowerEmail || agreementData?.userEmail
+  const lenderEmail = agreement?.lender?.email || agreementData?.lenderEmail
+  const isBorrower = Boolean(user?.email && borrowerEmail && user.email === borrowerEmail)
+  const isLender = Boolean(user?.email && lenderEmail && user.email === lenderEmail)
+
+  const handleRejectPayment = async (payment) => {
+    try {
+      setPaymentError('')
+      setRejectLoadingId(payment.id)
+      const response = await rejectAgreementPayment(agreementId, payment.id)
+      const updated = response?.data?.repaymentPlan || response?.repaymentPlan || null
+      if (updated && Array.isArray(updated)) {
+        setRepaymentPlan(updated)
+      } else {
+        setRepaymentPlan((prev) =>
+          prev.map((item) =>
+            item.id === payment.id
+              ? { ...item, status: 'rejected', rejectedAt: new Date().toISOString() }
+              : item
+          )
+        )
+      }
+      const refreshed = await getLoanAgreementById(agreementId)
+      const refreshedData = refreshed?.data ?? refreshed
+      if (refreshedData) {
+        setAgreementData(refreshedData)
+      }
+    } catch (err) {
+      console.error('Reject payment failed:', err)
+      setPaymentError(err.message || 'Failed to reject payment.')
+    } finally {
+      setRejectLoadingId(null)
     }
   }
 
@@ -682,22 +725,45 @@ const LoanAgreement = () => {
                       <td className="px-6 py-4">
                         {payment.status === 'pending' && (
                           <div className="flex space-x-2">
-                            <button
-                              onClick={() => handleMarkPaid(payment)}
-                              disabled={paymentLoadingId === payment.id}
-                              className="px-3 py-1 bg-primary-600 text-white text-xs rounded-lg hover:bg-primary-700 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
-                            >
-                              {paymentLoadingId === payment.id ? 'Processing...' : 'Mark Paid'}
-                            </button>
-                            <label className="px-3 py-1 bg-gray-100 text-gray-700 text-xs rounded-lg hover:bg-gray-200 transition-colors cursor-pointer">
-                              {receiptUploadId === payment.id ? 'Uploading...' : 'Upload Receipt'}
-                              <input
-                                type="file"
-                                className="hidden"
-                                accept=".pdf,.jpg,.jpeg,.png"
-                                onChange={(e) => handleUploadReceipt(payment, e.target.files?.[0])}
-                              />
-                            </label>
+                            {isBorrower && (
+                              <button
+                                onClick={() => handleMarkPaid(payment)}
+                                disabled={paymentLoadingId === payment.id}
+                                className="px-3 py-1 bg-primary-600 text-white text-xs rounded-lg hover:bg-primary-700 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                              >
+                                {paymentLoadingId === payment.id ? 'Processing...' : 'Mark Paid'}
+                              </button>
+                            )}
+                            {isLender && (
+                              <label className="px-3 py-1 bg-gray-100 text-gray-700 text-xs rounded-lg hover:bg-gray-200 transition-colors cursor-pointer">
+                                {receiptUploadId === payment.id ? 'Uploading...' : 'Upload Receipt'}
+                                <input
+                                  type="file"
+                                  className="hidden"
+                                  accept=".pdf,.jpg,.jpeg,.png"
+                                  onChange={(e) => handleUploadReceipt(payment, e.target.files?.[0])}
+                                />
+                              </label>
+                            )}
+                            {isBorrower && payment.receiptUrl && (
+                              <button
+                                onClick={() => handleRejectPayment(payment)}
+                                disabled={rejectLoadingId === payment.id}
+                                className="px-3 py-1 bg-red-50 text-red-700 text-xs rounded-lg hover:bg-red-100 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                              >
+                                {rejectLoadingId === payment.id ? 'Rejecting...' : 'Reject'}
+                              </button>
+                            )}
+                            {payment.receiptUrl && (
+                              <a
+                                href={payment.receiptUrl}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="px-3 py-1 text-xs text-primary-600 underline"
+                              >
+                                {payment.receiptName || 'Receipt'}
+                              </a>
+                            )}
                           </div>
                         )}
                         {payment.status === 'paid' && (
@@ -715,6 +781,13 @@ const LoanAgreement = () => {
                                 {payment.receiptName || 'Receipt'}
                               </a>
                             )}
+                          </div>
+                        )}
+                        {payment.status === 'rejected' && (
+                          <div className="flex items-center space-x-2">
+                            <button className="px-3 py-1 bg-red-100 text-red-700 text-xs rounded-lg">
+                              Rejected
+                            </button>
                           </div>
                         )}
                       </td>

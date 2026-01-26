@@ -310,6 +310,29 @@ export const uploadPaymentReceipt = async (agreementId, paymentId, file) => {
 }
 
 /**
+ * Reject a repayment installment (borrower)
+ * @param {string} agreementId - Agreement ID
+ * @param {string|number} paymentId - Payment ID
+ * @returns {Promise<Object>} Updated agreement or payment
+ */
+export const rejectAgreementPayment = async (agreementId, paymentId) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/loan-agreements/${agreementId}/payments/${paymentId}/reject`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' }
+    })
+    const data = await response.json()
+    if (!response.ok) {
+      throw new Error(data.message || 'Failed to reject payment')
+    }
+    return data
+  } catch (error) {
+    console.error('Reject payment error:', error)
+    throw error
+  }
+}
+
+/**
  * Get offers by lender email
  * @param {string} lenderEmail - Lender email
  * @returns {Promise<Array>} Array of offers
