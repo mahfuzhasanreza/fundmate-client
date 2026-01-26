@@ -75,12 +75,17 @@ const LoanAgreement = () => {
         monthlyPayment: agreementData.loan?.monthlyPayment ?? agreementData.monthlyPayment ?? 0
       },
       borrower: {
-        name: agreementData.borrower?.name || 'Borrower',
-        email: agreementData.borrower?.email || '',
-        avatar: agreementData.borrower?.avatar || '👤',
+        name:
+          agreementData.borrower?.name ||
+          agreementData.borrowerName ||
+          agreementData.userName ||
+          agreementData.userEmail?.split('@')[0] ||
+          'Borrower',
+        email: agreementData.borrower?.email || agreementData.userEmail || '',
+        avatar: agreementData.borrower?.avatar || agreementData.borrowerAvatar || '👤',
         rating: agreementData.borrower?.rating || 4.5,
         verified: Boolean(agreementData.borrower?.verified),
-        location: agreementData.borrower?.location || 'Location not specified',
+        location: agreementData.borrower?.location || agreementData.borrowerLocation || 'Location not specified',
         phone: agreementData.borrower?.phone || ''
       },
       lender: {
