@@ -19,9 +19,11 @@ import {
 import { useNavigate } from 'react-router-dom'
 import { createLoanRequest } from '../services/loanService'
 import { getCurrentFirebaseUser } from '../services/firebaseAuthService'
+import { useToast } from '../components/common/ToastProvider'
 
 const LoanRequest = () => {
   const navigate = useNavigate()
+  const { addToast } = useToast()
   const [currentStep, setCurrentStep] = useState(1)
   const [user, setUser] = useState(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -242,14 +244,13 @@ const LoanRequest = () => {
 
       console.log('✅ Loan request created successfully:', response)
 
-      // Show success message (you can add a toast notification here)
-      alert('Loan request submitted successfully!')
+      addToast('Loan request submitted successfully!', 'success')
 
       // Navigate to dashboard after successful submission
       navigate('/dashboard')
     } catch (error) {
       console.error('❌ Failed to submit loan request:', error)
-      setErrors({ submit: error.message || 'Failed to submit loan request. Please try again.' })
+      addToast(error.message || 'Failed to submit loan request. Please try again.', 'error')
     } finally {
       setIsSubmitting(false)
     }

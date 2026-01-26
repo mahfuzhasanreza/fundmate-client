@@ -13,6 +13,7 @@ import LoanAgreement from './pages/LoanAgreement'
 import Campaigns from './pages/Campaigns'
 import CampaignCreate from './pages/CampaignCreate'
 import CampaignDetails from './pages/CampaignDetails'
+import { ToastProvider } from './components/common/ToastProvider'
 
 function AppContent() {
   const location = useLocation()
@@ -44,7 +45,9 @@ function AppContent() {
 function App() {
   return (
     <Router>
-      <AppContent />
+      <ToastProvider>
+        <AppContent />
+      </ToastProvider>
     </Router>
   )
 }
