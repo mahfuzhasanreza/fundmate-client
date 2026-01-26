@@ -40,6 +40,28 @@ const LoanDetails = () => {
   const [offersLoading, setOffersLoading] = useState(true)
   const [offersError, setOffersError] = useState('')
 
+  const dedupeOffers = (items) => {
+    const list = Array.isArray(items) ? items : []
+    const seen = new Set()
+    const unique = []
+    for (const offer of list) {
+      const key = [
+        offer?.lenderEmail,
+        offer?.lenderName,
+        offer?.amount,
+        offer?.interestRate,
+        offer?.tenure || offer?.tenureMonths,
+        offer?.message,
+        offer?.status
+      ].join('|')
+      if (!seen.has(key)) {
+        seen.add(key)
+        unique.push(offer)
+      }
+    }
+    return unique
+  }
+
   useEffect(() => {
     const fetchLoan = async () => {
       if (!id) return
@@ -69,17 +91,7 @@ const LoanDetails = () => {
         setOffersError('')
         const response = await getLoanOffersByLoanId(id)
         const data = response?.data ?? response
-        const list = Array.isArray(data) ? data : []
-        const seen = new Set()
-        const unique = []
-        for (const offer of list) {
-          const key = offer?._id || offer?.id || `${offer?.lenderEmail}-${offer?.amount}-${offer?.createdAt || offer?.submittedDate}`
-          if (!seen.has(key)) {
-            seen.add(key)
-            unique.push(offer)
-          }
-        }
-        setOffers(unique)
+        setOffers(dedupeOffers(data))
       } catch (err) {
         console.error('Failed to load offers:', err)
         setOffersError('Failed to load offers.')
@@ -188,17 +200,7 @@ const LoanDetails = () => {
         await createLoanOffer(id, payload)
         const response = await getLoanOffersByLoanId(id)
         const data = response?.data ?? response
-        const list = Array.isArray(data) ? data : []
-        const seen = new Set()
-        const unique = []
-        for (const offer of list) {
-          const key = offer?._id || offer?.id || `${offer?.lenderEmail}-${offer?.amount}-${offer?.createdAt || offer?.submittedDate}`
-          if (!seen.has(key)) {
-            seen.add(key)
-            unique.push(offer)
-          }
-        }
-        setOffers(unique)
+        setOffers(dedupeOffers(data))
         setShowOfferModal(false)
         setOfferAmount('')
         setOfferInterest('')
