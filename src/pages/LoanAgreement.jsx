@@ -31,6 +31,7 @@ import { auth } from '../config/firebase'
 import API_BASE_URL from '../config/api'
 import { getLoanAgreementById, markAgreementPaymentPaid, rejectAgreementPayment, uploadPaymentReceipt } from '../services/loanService'
 import { jsPDF } from 'jspdf'
+import autoTable from 'jspdf-autotable'
 
 const LoanAgreement = () => {
   const { agreementId } = useParams()
@@ -475,74 +476,72 @@ const LoanAgreement = () => {
     if (!agreement) return
 
     const doc = new jsPDF()
-    let y = 16
+    const pageWidth = doc.internal.pageSize.getWidth()
+    const primary = [147, 74, 215]
 
+    // Header band
+    doc.setFillColor(...primary)
+    doc.rect(0, 0, pageWidth, 28, 'F')
+    doc.setTextColor(255, 255, 255)
     doc.setFontSize(18)
-    doc.text('Loan Agreement', 14, y)
-    y += 10
+    doc.text('FundMate — Loan Agreement', 14, 18)
 
+    // Meta
+    doc.setTextColor(40, 40, 40)
+    doc.setFontSize(10)
+    doc.text(`Agreement ID: ${agreement.id}`, 14, 36)
+    doc.text(`Status: ${agreement.status}`, 14, 42)
+    doc.text(`Agreement Date: ${formatDate(agreement.createdDate)}`, 14, 48)
+
+    // Parties cards
+    doc.setDrawColor(230, 230, 230)
+    doc.roundedRect(14, 56, 86, 30, 3, 3)
+    doc.roundedRect(110, 56, 86, 30, 3, 3)
     doc.setFontSize(11)
-    doc.text(`Agreement ID: ${agreement.id}`, 14, y)
-    y += 8
-    doc.text(`Status: ${agreement.status}`, 14, y)
-    y += 8
-    doc.text(`Agreement Date: ${formatDate(agreement.createdDate)}`, 14, y)
-    y += 10
-
-    doc.setFontSize(13)
-    doc.text('Borrower', 14, y)
-    y += 7
-    doc.setFontSize(10)
-    doc.text(`${agreement.borrower.name} (${agreement.borrower.email})`, 14, y)
-    y += 6
-    doc.text(`Location: ${agreement.borrower.location}`, 14, y)
-    y += 8
-
-    doc.setFontSize(13)
-    doc.text('Lender', 14, y)
-    y += 7
-    doc.setFontSize(10)
-    doc.text(`${agreement.lender.name} (${agreement.lender.email})`, 14, y)
-    y += 8
-
-    doc.setFontSize(13)
-    doc.text('Loan Overview', 14, y)
-    y += 7
-    doc.setFontSize(10)
-    doc.text(`Original Amount: ${agreement.loan.originalAmount}`, 14, y)
-    y += 6
-    doc.text(`Accepted Amount: ${agreement.loan.acceptedAmount}`, 14, y)
-    y += 6
-    doc.text(`Interest Rate: ${agreement.loan.interestRate}%`, 14, y)
-    y += 6
-    doc.text(`Tenure: ${agreement.loan.tenure} months`, 14, y)
-    y += 6
-    doc.text(`Purpose: ${agreement.loan.purpose}`, 14, y)
-    y += 10
-
-    doc.setFontSize(13)
-    doc.text('Payment Details', 14, y)
-    y += 7
-
+    doc.text('Borrower', 18, 64)
+    doc.text('Lender', 114, 64)
     doc.setFontSize(9)
-    const headers = ['#', 'Amount', 'Due Date', 'Status', 'Paid Date']
-    doc.text(headers.join('   '), 14, y)
-    y += 6
+    doc.text(agreement.borrower.name, 18, 71)
+    doc.text(agreement.borrower.email, 18, 76)
+    doc.text(agreement.lender.name, 114, 71)
+    doc.text(agreement.lender.email, 114, 76)
 
-    repaymentPlan.forEach((p) => {
-      const row = [
-        String(p.id),
-        String(p.amount),
-        p.dueDate ? formatDate(p.dueDate) : '-',
-        p.status || '-',
-        p.paidDate ? formatDate(p.paidDate) : '-'
-      ]
-      if (y > 280) {
-        doc.addPage()
-        y = 16
-      }
-      doc.text(row.join('   '), 14, y)
-      y += 6
+    // Loan overview
+    doc.setFontSize(12)
+    doc.text('Loan Overview', 14, 98)
+    doc.setFontSize(9)
+    const overviewRows = [
+      ['Original Amount', `৳${agreement.loan.originalAmount}`],
+      ['Accepted Amount', `৳${agreement.loan.acceptedAmount}`],
+      ['Interest Rate', `${agreement.loan.interestRate}%`],
+      ['Tenure', `${agreement.loan.tenure} months`],
+      ['Purpose', agreement.loan.purpose]
+    ]
+    autoTable(doc, {
+      startY: 102,
+      head: [['Field', 'Value']],
+      body: overviewRows,
+      theme: 'striped',
+      headStyles: { fillColor: primary, textColor: [255, 255, 255] },
+      styles: { fontSize: 9 }
+    })
+
+    // Payment table
+    const paymentRows = repaymentPlan.map((p) => ([
+      String(p.id),
+      `৳${p.amount}`,
+      p.dueDate ? formatDate(p.dueDate) : '-',
+      p.status || '-',
+      p.paidDate ? formatDate(p.paidDate) : '-'
+    ]))
+
+    autoTable(doc, {
+      startY: doc.lastAutoTable.finalY + 8,
+      head: [['#', 'Amount', 'Due Date', 'Status', 'Paid Date']],
+      body: paymentRows,
+      theme: 'grid',
+      headStyles: { fillColor: primary, textColor: [255, 255, 255] },
+      styles: { fontSize: 9 }
     })
 
     doc.save(`loan-agreement-${agreement.id}.pdf`)
