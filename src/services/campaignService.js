@@ -41,3 +41,43 @@ export const getCampaignById = async (campaignId) => {
     throw error
   }
 }
+
+export const getCampaignDonations = async (campaignId) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/campaigns/${campaignId}/donations`)
+    if (!response.ok) throw new Error('Failed to fetch donations')
+    const result = await response.json()
+    return result.data || result.donations || result
+  } catch (error) {
+    console.error('Get donations error:', error)
+    throw error
+  }
+}
+
+export const createCampaignDonation = async (campaignId, donationData) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/campaigns/${campaignId}/donations`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(donationData),
+    })
+    if (!response.ok) throw new Error('Failed to create donation')
+    return await response.json()
+  } catch (error) {
+    console.error('Create donation error:', error)
+    throw error
+  }
+}
+
+export const deleteCampaignDonation = async (campaignId, donationId) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/campaigns/${campaignId}/donations/${donationId}`, {
+      method: 'DELETE'
+    })
+    if (!response.ok) throw new Error('Failed to delete donation')
+    return await response.json()
+  } catch (error) {
+    console.error('Delete donation error:', error)
+    throw error
+  }
+}

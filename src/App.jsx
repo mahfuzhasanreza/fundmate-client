@@ -12,6 +12,7 @@ import AllLoanPost from './pages/AllLoanPost'
 import LoanAgreement from './pages/LoanAgreement'
 import Campaigns from './pages/Campaigns'
 import CampaignCreate from './pages/CampaignCreate'
+import CampaignDetails from './pages/CampaignDetails'
 
 function AppContent() {
   const location = useLocation()
@@ -31,6 +32,7 @@ function AppContent() {
           <Route path="/agreement/:agreementId" element={<LoanAgreement />} />
           <Route path="/campaigns" element={<Campaigns />} />
           <Route path="/create-campaign" element={<CampaignCreate />} />
+          <Route path="/campaign/:id" element={<CampaignDetails />} />
           <Route path="/" element={<LandingPage />} />
         </Routes>
       </main>
