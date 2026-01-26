@@ -360,20 +360,34 @@ const LoanDetails = () => {
               {Array.isArray(loanData?.attachments) && loanData.attachments.length > 0 && (
                 <div className="mt-6">
                   <p className="font-semibold text-gray-900 mb-2">Attachments</p>
-                  <div className="space-y-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {loanData.attachments.map((file, idx) => {
                       const name = file?.name || file?.originalName || file?.filename || `Attachment ${idx + 1}`
                       const url = file?.url || file?.path || file
+                      const type = file?.type || ''
+                      const isImage = type.startsWith('image/') || /\.(png|jpe?g|gif|webp)$/i.test(url)
+
                       return (
-                        <a
-                          key={`${name}-${idx}`}
-                          href={url}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="block text-sm text-primary-600 hover:text-primary-700 underline"
-                        >
-                          {name}
-                        </a>
+                        <div key={`${name}-${idx}`} className="border border-gray-200 rounded-xl p-3">
+                          {isImage && (
+                            <a href={url} target="_blank" rel="noreferrer">
+                              <img
+                                src={url}
+                                alt={name}
+                                className="w-full h-40 object-cover rounded-lg mb-2"
+                                loading="lazy"
+                              />
+                            </a>
+                          )}
+                          <a
+                            href={url}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="block text-sm text-primary-600 hover:text-primary-700 underline"
+                          >
+                            {name}
+                          </a>
+                        </div>
                       )
                     })}
                   </div>
