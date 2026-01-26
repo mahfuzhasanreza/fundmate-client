@@ -28,6 +28,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { io } from 'socket.io-client'
 import { useAuthState } from 'react-firebase-hooks/auth'
 import { auth } from '../config/firebase'
+import API_BASE_URL from '../config/api'
 import { getLoanAgreementById } from '../services/loanService'
 
 const LoanAgreement = () => {
@@ -188,31 +189,108 @@ const LoanAgreement = () => {
   }
 
   const handleSendMessage = () => {
-    if (!newMessage.trim()) return
+    if (!newMessage.trim() && !selectedFile) return
     const senderRole =
       user?.email && agreement?.borrower?.email && user.email === agreement.borrower.email
         ? 'borrower'
         : 'lender'
 
-    const message = {
-      id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-      sender: senderRole,
-      message: newMessage.trim(),
-      timestamp: new Date().toISOString(),
-      attachments: []
+    const send = async () => {
+      let attachments = []
+
+      if (selectedFile) {
+        const uploadAttachment = async (file) => {
+          const isImage = file.type.startsWith('image/')
+          let fileToUpload = file
+
+          if (isImage) {
+            const resizeImage = (imageFile) => {
+              return new Promise((resolve, reject) => {
+                const img = new Image()
+                const url = URL.createObjectURL(imageFile)
+                img.onload = () => {
+                  const maxWidth = 1280
+                  const maxHeight = 1280
+                  let { width, height } = img
+                  const scale = Math.min(maxWidth / width, maxHeight / height, 1)
+                  width = Math.floor(width * scale)
+                  height = Math.floor(height * scale)
+
+                  const canvas = document.createElement('canvas')
+                  canvas.width = width
+                  canvas.height = height
+                  const ctx = canvas.getContext('2d')
+                  ctx.drawImage(img, 0, 0, width, height)
+
+                  canvas.toBlob(
+                    (blob) => {
+                      URL.revokeObjectURL(url)
+                      if (!blob) return reject(new Error('Image resize failed'))
+                      resolve(new File([blob], imageFile.name, { type: blob.type }))
+                    },
+                    'image/jpeg',
+                    0.7
+                  )
+                }
+                img.onerror = (err) => {
+                  URL.revokeObjectURL(url)
+                  reject(err)
+                }
+                img.src = url
+              })
+            }
+
+            fileToUpload = await resizeImage(file)
+          }
+
+          const formData = new FormData()
+          formData.append('file', fileToUpload)
+
+          const response = await fetch(`${API_BASE_URL}/api/loan-agreements/${agreementId}/attachments`, {
+            method: 'POST',
+            body: formData
+          })
+          const data = await response.json()
+          if (!response.ok) {
+            throw new Error(data.message || 'Failed to upload attachment')
+          }
+          return data.data || data
+        }
+
+        const uploaded = await uploadAttachment(selectedFile)
+        attachments = [
+          {
+            name: uploaded.name || selectedFile.name,
+            url: uploaded.url,
+            type: uploaded.type || selectedFile.type
+          }
+        ]
+      }
+
+      const message = {
+        id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+        sender: senderRole,
+        message: newMessage.trim(),
+        timestamp: new Date().toISOString(),
+        attachments
+      }
+
+      seenMessageIdsRef.current.add(message.id)
+      socketRef.current?.emit('agreement:message', {
+        agreementId,
+        message,
+        senderEmail: user?.email || '',
+        senderName: user?.displayName || ''
+      })
+
+      setChatMessages((prev) => [...prev, message])
+      setNewMessage('')
+      setSelectedFile(null)
     }
 
-    seenMessageIdsRef.current.add(message.id)
-    socketRef.current?.emit('agreement:message', {
-      agreementId,
-      message,
-      senderEmail: user?.email || '',
-      senderName: user?.displayName || ''
+    send().catch((err) => {
+      console.error('Message send failed:', err)
     })
-
-    setChatMessages((prev) => [...prev, message])
-    setNewMessage('')
-    setSelectedFile(null)
   }
 
   const handleFileUpload = (event) => {
@@ -620,7 +698,14 @@ const LoanAgreement = () => {
                                 }`}
                               >
                                 <Paperclip className="h-4 w-4" />
-                                <span className="text-xs font-medium">{attachment.name}</span>
+                                <a
+                                  href={attachment.url}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="text-xs font-medium underline"
+                                >
+                                  {attachment.name}
+                                </a>
                                 <Download className="h-3 w-3 ml-auto opacity-70" />
                               </motion.div>
                             ))}
