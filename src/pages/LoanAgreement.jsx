@@ -30,6 +30,7 @@ import { useAuthState } from 'react-firebase-hooks/auth'
 import { auth } from '../config/firebase'
 import API_BASE_URL from '../config/api'
 import { getLoanAgreementById, markAgreementPaymentPaid, rejectAgreementPayment, uploadPaymentReceipt } from '../services/loanService'
+import { jsPDF } from 'jspdf'
 
 const LoanAgreement = () => {
   const { agreementId } = useParams()
@@ -468,6 +469,83 @@ const LoanAgreement = () => {
     } finally {
       setRejectLoadingId(null)
     }
+  }
+
+  const handleDownloadPdf = () => {
+    if (!agreement) return
+
+    const doc = new jsPDF()
+    let y = 16
+
+    doc.setFontSize(18)
+    doc.text('Loan Agreement', 14, y)
+    y += 10
+
+    doc.setFontSize(11)
+    doc.text(`Agreement ID: ${agreement.id}`, 14, y)
+    y += 8
+    doc.text(`Status: ${agreement.status}`, 14, y)
+    y += 8
+    doc.text(`Agreement Date: ${formatDate(agreement.createdDate)}`, 14, y)
+    y += 10
+
+    doc.setFontSize(13)
+    doc.text('Borrower', 14, y)
+    y += 7
+    doc.setFontSize(10)
+    doc.text(`${agreement.borrower.name} (${agreement.borrower.email})`, 14, y)
+    y += 6
+    doc.text(`Location: ${agreement.borrower.location}`, 14, y)
+    y += 8
+
+    doc.setFontSize(13)
+    doc.text('Lender', 14, y)
+    y += 7
+    doc.setFontSize(10)
+    doc.text(`${agreement.lender.name} (${agreement.lender.email})`, 14, y)
+    y += 8
+
+    doc.setFontSize(13)
+    doc.text('Loan Overview', 14, y)
+    y += 7
+    doc.setFontSize(10)
+    doc.text(`Original Amount: ${agreement.loan.originalAmount}`, 14, y)
+    y += 6
+    doc.text(`Accepted Amount: ${agreement.loan.acceptedAmount}`, 14, y)
+    y += 6
+    doc.text(`Interest Rate: ${agreement.loan.interestRate}%`, 14, y)
+    y += 6
+    doc.text(`Tenure: ${agreement.loan.tenure} months`, 14, y)
+    y += 6
+    doc.text(`Purpose: ${agreement.loan.purpose}`, 14, y)
+    y += 10
+
+    doc.setFontSize(13)
+    doc.text('Payment Details', 14, y)
+    y += 7
+
+    doc.setFontSize(9)
+    const headers = ['#', 'Amount', 'Due Date', 'Status', 'Paid Date']
+    doc.text(headers.join('   '), 14, y)
+    y += 6
+
+    repaymentPlan.forEach((p) => {
+      const row = [
+        String(p.id),
+        String(p.amount),
+        p.dueDate ? formatDate(p.dueDate) : '-',
+        p.status || '-',
+        p.paidDate ? formatDate(p.paidDate) : '-'
+      ]
+      if (y > 280) {
+        doc.addPage()
+        y = 16
+      }
+      doc.text(row.join('   '), 14, y)
+      y += 6
+    })
+
+    doc.save(`loan-agreement-${agreement.id}.pdf`)
   }
 
   const handleFileUpload = (event) => {
@@ -1044,7 +1122,10 @@ const LoanAgreement = () => {
           transition={{ delay: 0.4 }}
           className="mt-8 flex flex-wrap gap-4 justify-center"
         >
-          <button className="flex items-center space-x-2 px-6 py-3 bg-primary-600 text-white rounded-xl font-semibold hover:bg-primary-700 transition-all shadow-lg">
+          <button
+            onClick={handleDownloadPdf}
+            className="flex items-center space-x-2 px-6 py-3 bg-primary-600 text-white rounded-xl font-semibold hover:bg-primary-700 transition-all shadow-lg"
+          >
             <Download className="h-5 w-5" />
             <span>Download PDF</span>
           </button>
