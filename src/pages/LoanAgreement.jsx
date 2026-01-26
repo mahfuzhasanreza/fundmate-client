@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
 import { 
   CheckCircle, 
@@ -25,17 +25,24 @@ import {
   Home
 } from 'lucide-react'
 import { useParams, useNavigate } from 'react-router-dom'
+import { io } from 'socket.io-client'
+import { useAuthState } from 'react-firebase-hooks/auth'
+import { auth } from '../config/firebase'
 import { getLoanAgreementById } from '../services/loanService'
 
 const LoanAgreement = () => {
   const { agreementId } = useParams()
   const navigate = useNavigate()
+  const [user] = useAuthState(auth)
   const [activeTab, setActiveTab] = useState('overview')
   const [newMessage, setNewMessage] = useState('')
   const [selectedFile, setSelectedFile] = useState(null)
   const [agreementData, setAgreementData] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [chatMessages, setChatMessages] = useState([])
+  const socketRef = useRef(null)
+  const seenMessageIdsRef = useRef(new Set())
 
   useEffect(() => {
     const fetchAgreement = async () => {
@@ -58,7 +65,7 @@ const LoanAgreement = () => {
     fetchAgreement()
   }, [agreementId])
 
-  const agreement = React.useMemo(() => {
+  const agreement = useMemo(() => {
     if (!agreementData) {
       return null
     }
@@ -102,6 +109,36 @@ const LoanAgreement = () => {
       messages: Array.isArray(agreementData.messages) ? agreementData.messages : []
     }
   }, [agreementData, agreementId])
+
+  useEffect(() => {
+    if (!agreement) return
+    setChatMessages(Array.isArray(agreement.messages) ? agreement.messages : [])
+  }, [agreement])
+
+  useEffect(() => {
+    if (!agreementId) return
+    const socketUrl = import.meta.env.VITE_SOCKET_URL || 'http://localhost:5000'
+    const socket = io(socketUrl, { transports: ['websocket'] })
+    socketRef.current = socket
+
+    socket.on('connect', () => {
+      socket.emit('agreement:join', { agreementId })
+    })
+
+    socket.on('agreement:message', (payload) => {
+      if (payload?.agreementId !== agreementId) return
+      const incoming = payload.message
+      if (!incoming?.id) return
+      if (seenMessageIdsRef.current.has(incoming.id)) return
+      seenMessageIdsRef.current.add(incoming.id)
+      setChatMessages((prev) => [...prev, incoming])
+    })
+
+    return () => {
+      socket.emit('agreement:leave', { agreementId })
+      socket.disconnect()
+    }
+  }, [agreementId])
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -151,12 +188,31 @@ const LoanAgreement = () => {
   }
 
   const handleSendMessage = () => {
-    if (newMessage.trim() || selectedFile) {
-      // Handle message sending logic here
-      console.log('Sending message:', newMessage)
-      setNewMessage('')
-      setSelectedFile(null)
+    if (!newMessage.trim()) return
+    const senderRole =
+      user?.email && agreement?.borrower?.email && user.email === agreement.borrower.email
+        ? 'borrower'
+        : 'lender'
+
+    const message = {
+      id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+      sender: senderRole,
+      message: newMessage.trim(),
+      timestamp: new Date().toISOString(),
+      attachments: []
     }
+
+    seenMessageIdsRef.current.add(message.id)
+    socketRef.current?.emit('agreement:message', {
+      agreementId,
+      message,
+      senderEmail: user?.email || '',
+      senderName: user?.displayName || ''
+    })
+
+    setChatMessages((prev) => [...prev, message])
+    setNewMessage('')
+    setSelectedFile(null)
   }
 
   const handleFileUpload = (event) => {
@@ -509,7 +565,10 @@ const LoanAgreement = () => {
             
             {/* Messages Container */}
             <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-gradient-to-b from-gray-50 to-white">
-              {agreement.messages.map((message, index) => (
+              {chatMessages.length === 0 && (
+                <div className="text-center text-gray-500">No messages yet. Start the conversation.</div>
+              )}
+              {chatMessages.map((message, index) => (
                 <motion.div
                   key={message.id}
                   initial={{ opacity: 0, y: 20 }}
@@ -573,21 +632,6 @@ const LoanAgreement = () => {
                 </motion.div>
               ))}
               
-              {/* Typing Indicator */}
-              <div className="flex justify-start">
-                <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
-                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-                  </div>
-                  <div className="bg-gray-200 rounded-2xl rounded-bl-md px-4 py-3">
-                    <div className="flex space-x-1">
-                      <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                      <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-                      <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
-                    </div>
-                  </div>
-                </div>
-              </div>
             </div>
             
             {/* Message Input */}
