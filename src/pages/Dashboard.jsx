@@ -253,8 +253,7 @@ const Dashboard = () => {
     { id: 'overview', icon: LayoutDashboard, label: 'Overview' },
     { id: 'loan-requests', icon: FileText, label: 'My Loan Requests' },
     { id: 'campaigns', icon: Target, label: 'My Campaigns' },
-    { id: 'offers', icon: UserCheck, label: 'Offers' },
-    { id: 'settings', icon: Settings, label: 'Settings' }
+    { id: 'offers', icon: UserCheck, label: 'Offers' }
   ]
 
   const renderContent = () => {
@@ -287,8 +286,6 @@ const Dashboard = () => {
         return <DonationsSection />
       case 'messages':
         return <MessagesSection />
-      case 'settings':
-        return <SettingsSection user={user} />
       default:
         return (
           <OverviewSection
@@ -450,26 +447,37 @@ const OverviewSection = ({
         <p className="text-gray-600">Here's what's happening with your account today.</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
-          <p className="text-sm font-semibold text-gray-500">My Loan Requests</p>
-          <p className="text-2xl font-bold text-gray-900 mt-2">{loanCount}</p>
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+        <div className="relative overflow-hidden bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
+          <div className="absolute -top-6 -right-6 h-20 w-20 rounded-full bg-primary-50" />
+          <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">My Loan Requests</p>
+          <p className="text-3xl font-bold text-gray-900 mt-3">{loanCount}</p>
           <p className="text-xs text-gray-500 mt-1">Total requests</p>
         </div>
-        <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
-          <p className="text-sm font-semibold text-gray-500">My Campaigns</p>
-          <p className="text-2xl font-bold text-gray-900 mt-2">{campaignCount}</p>
+        <div className="relative overflow-hidden bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
+          <div className="absolute -top-6 -right-6 h-20 w-20 rounded-full bg-emerald-50" />
+          <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">My Campaigns</p>
+          <p className="text-3xl font-bold text-gray-900 mt-3">{campaignCount}</p>
           <p className="text-xs text-gray-500 mt-1">{completedCount} completed · {incompleteCount} active</p>
         </div>
-        <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
-          <p className="text-sm font-semibold text-gray-500">Offers</p>
-          <p className="text-2xl font-bold text-gray-900 mt-2">{offersCount}</p>
+        <div className="relative overflow-hidden bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
+          <div className="absolute -top-6 -right-6 h-20 w-20 rounded-full bg-amber-50" />
+          <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Offers</p>
+          <p className="text-3xl font-bold text-gray-900 mt-3">{offersCount}</p>
           <p className="text-xs text-gray-500 mt-1">{acceptedCount} accepted</p>
         </div>
-        <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
-          <p className="text-sm font-semibold text-gray-500">Profile</p>
-          <p className="text-base font-semibold text-gray-900 mt-2">{user.name}</p>
-          <p className="text-xs text-gray-500 mt-1">{user.role}</p>
+        <div className="relative overflow-hidden bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl p-5 shadow-sm text-white">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-full bg-white/15 flex items-center justify-center text-lg">
+              {user.avatar}
+            </div>
+            <div>
+              <p className="text-xs uppercase tracking-wide text-white/70">Profile</p>
+              <p className="text-base font-semibold">{user.name}</p>
+            </div>
+          </div>
+          <div className="mt-4 text-xs text-white/70">{user.role}</div>
+          <div className="text-xs text-white/60">Member since {user.memberSince}</div>
         </div>
       </div>
 
@@ -700,20 +708,6 @@ const MessagesSection = () => (
     <h1 className="text-3xl font-bold text-gray-900 mb-4">Messages</h1>
     <p className="text-gray-600">Your messages and notifications.</p>
     {/* Add messages content */}
-  </div>
-)
-
-const SettingsSection = ({ user }) => (
-  <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
-    <h1 className="text-3xl font-bold text-gray-900 mb-4">Settings</h1>
-    <div className="space-y-4">
-      <div>
-        <h3 className="font-semibold text-gray-900">Profile Information</h3>
-        <p className="text-gray-600">Name: {user.name}</p>
-        <p className="text-gray-600">Role: {user.role}</p>
-        <p className="text-gray-600">Member Since: {user.memberSince}</p>
-      </div>
-    </div>
   </div>
 )
 

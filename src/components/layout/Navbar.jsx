@@ -177,17 +177,7 @@ const Navbar = () => {
                           <span>Dashboard</span>
                         </motion.button>
 
-                        <motion.button
-                          onClick={() => {
-                            navigate('/dashboard')
-                            setShowProfileDropdown(false)
-                          }}
-                          className="w-full px-4 py-2 text-left text-gray-700 hover:bg-primary-50 flex items-center space-x-3 transition-colors"
-                          whileHover={{ x: 5 }}
-                        >
-                          <Settings className="h-4 w-4" />
-                          <span>Settings</span>
-                        </motion.button>
+                        
 
                         <div className="border-t border-gray-100 my-2"></div>
 
