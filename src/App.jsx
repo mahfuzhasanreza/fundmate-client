@@ -13,6 +13,8 @@ import LoanAgreement from './pages/LoanAgreement'
 import Campaigns from './pages/Campaigns'
 import CampaignCreate from './pages/CampaignCreate'
 import CampaignDetails from './pages/CampaignDetails'
+import PaymentSuccess from './pages/PaymentSuccess'
+import PaymentFail from './pages/PaymentFail'
 import { ToastProvider } from './components/common/ToastProvider'
 
 function AppContent() {
@@ -34,6 +36,9 @@ function AppContent() {
           <Route path="/campaigns" element={<Campaigns />} />
           <Route path="/create-campaign" element={<CampaignCreate />} />
           <Route path="/campaign/:id" element={<CampaignDetails />} />
+          <Route path="/success" element={<PaymentSuccess />} />
+          <Route path="/fail" element={<PaymentFail />} />
+          <Route path="/cancel" element={<PaymentFail />} />
           <Route path="/" element={<LandingPage />} />
         </Routes>
       </main>

@@ -1,15 +1,19 @@
 import React, { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { Calendar, DollarSign, Loader, MapPin, Target, Users } from 'lucide-react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { useAuthState } from 'react-firebase-hooks/auth'
 import { auth } from '../config/firebase'
 import { createCampaignDonation, deleteCampaignDonation, getCampaignById, getCampaignDonations } from '../services/campaignService'
+import API_BASE_URL from '../config/api'
+import { useToast } from '../components/common/ToastProvider'
 
 const CampaignDetails = () => {
   const { id } = useParams()
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
   const [user, authLoading] = useAuthState(auth)
+  const { addToast } = useToast()
   const [campaign, setCampaign] = useState(null)
   const [donations, setDonations] = useState([])
   const [amount, setAmount] = useState('')
@@ -59,6 +63,77 @@ const CampaignDetails = () => {
     fetchDonations()
   }, [id])
 
+  useEffect(() => {
+    const handlePaymentReturn = async () => {
+      const status = searchParams.get('payment') || searchParams.get('status')
+      if (!id) return
+
+      const raw = localStorage.getItem('sslcom_pending_donation')
+      if (!raw) {
+        if (status === 'success') {
+          addToast('Payment completed, but no pending donation found.', 'error')
+        }
+        if (status) {
+          navigate(`/campaign/${id}`, { replace: true })
+        }
+        return
+      }
+
+      let pending
+      try {
+        pending = JSON.parse(raw)
+      } catch (err) {
+        console.error('Invalid pending donation payload:', err)
+        localStorage.removeItem('sslcom_pending_donation')
+        addToast('Payment completed, but donation data is invalid.', 'error')
+        navigate(`/campaign/${id}`, { replace: true })
+        return
+      }
+
+      if (pending?.campaignId !== id) {
+        navigate(`/campaign/${id}`, { replace: true })
+        return
+      }
+
+      const pendingAt = Number(localStorage.getItem('sslcom_pending_at') || 0)
+      const isRecent = pendingAt && Date.now() - pendingAt < 15 * 60 * 1000
+      const shouldProcess = status ? status === 'success' : isRecent
+
+      if (shouldProcess) {
+        try {
+          await createCampaignDonation(id, {
+            donorName: pending.donorName,
+            donorEmail: pending.donorEmail,
+            amount: pending.amount,
+            message: pending.message
+          })
+          const refreshed = await getCampaignDonations(id)
+          const data = refreshed?.data ?? refreshed
+          setDonations(Array.isArray(data) ? data : [])
+          setAmount('')
+          setMessage('')
+          addToast('Donation successful!', 'success')
+        } catch (err) {
+          console.error('Create donation failed:', err)
+          addToast('Donation creation failed.', 'error')
+        } finally {
+          localStorage.removeItem('sslcom_pending_donation')
+          localStorage.removeItem('sslcom_pending_at')
+        }
+      } else if (status === 'fail' || status === 'cancel') {
+        localStorage.removeItem('sslcom_pending_donation')
+        localStorage.removeItem('sslcom_pending_at')
+        addToast('Payment failed or cancelled.', 'error')
+      }
+
+      if (status) {
+        navigate(`/campaign/${id}`, { replace: true })
+      }
+    }
+
+    handlePaymentReturn()
+  }, [addToast, id, navigate, searchParams])
+
   const handleDonate = async (e) => {
     e.preventDefault()
     if (!user?.email) {
@@ -73,36 +148,35 @@ const CampaignDetails = () => {
     try {
       setSubmitting(true)
       setSubmitError('')
-      await createCampaignDonation(id, {
-        donorName: user.displayName || user.email.split('@')[0],
+      const donorName = user.displayName || user.email.split('@')[0]
+      const pendingDonation = {
+        campaignId: id,
+        donorName,
         donorEmail: user.email,
         amount: Number(amount),
-        message: message.trim()
-      })
-      const refreshed = await getCampaignDonations(id)
-      const data = refreshed?.data ?? refreshed
-      setDonations(Array.isArray(data) ? data : [])
-      setAmount('')
-      setMessage('')
+        message: message.trim(),
+        createdAt: Date.now()
+      }
+      localStorage.setItem('sslcom_pending_donation', JSON.stringify(pendingDonation))
+      localStorage.setItem('sslcom_pending_at', String(Date.now()))
+      const initUrl = new URL(`${API_BASE_URL}/init`)
+      initUrl.searchParams.set('total_amount', String(Number(amount)))
+      initUrl.searchParams.set('currency', 'BDT')
+      initUrl.searchParams.set('cus_name', donorName)
+      initUrl.searchParams.set('cus_email', user.email)
+      initUrl.searchParams.set('cus_phone', user.phoneNumber || '01700000000')
+      initUrl.searchParams.set('product_name', campaign?.campaignTitle || 'Campaign Donation')
+      initUrl.searchParams.set('message', message || '')
+      initUrl.searchParams.set('campaignId', id || '')
+      window.location.href = initUrl.toString()
     } catch (err) {
-      console.error('Donation failed:', err)
-      setSubmitError('Failed to donate.')
+      console.error('Donation init failed:', err)
+      setSubmitError('Payment init failed.')
     } finally {
       setSubmitting(false)
     }
   }
 
-  const handleDeleteDonation = async (donationId) => {
-    if (!donationId) return
-    try {
-      await deleteCampaignDonation(id, donationId)
-      const refreshed = await getCampaignDonations(id)
-      const data = refreshed?.data ?? refreshed
-      setDonations(Array.isArray(data) ? data : [])
-    } catch (err) {
-      console.error('Delete donation failed:', err)
-    }
-  }
 
   if (loading) {
     return (
