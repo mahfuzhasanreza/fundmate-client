@@ -247,7 +247,7 @@ const LoanRequest = () => {
       addToast('Loan request submitted successfully!', 'success')
 
       // Navigate to dashboard after successful submission
-      navigate('/dashboard')
+      navigate('/all-loans')
     } catch (error) {
       console.error('❌ Failed to submit loan request:', error)
       addToast(error.message || 'Failed to submit loan request. Please try again.', 'error')

@@ -510,12 +510,18 @@ const LoanRequestsSection = ({ isAuthenticated, loading, error, loanRequests }) 
 
             const agreementId = loan?.agreementId
             const loanId = loan?._id || loan?.id
+            const deadline = loan?.deadline || loan?.createdAt
+            const daysLeft = deadline ? Math.ceil((new Date(deadline) - new Date()) / (1000 * 60 * 60 * 24)) : null
+            const isExpired = typeof daysLeft === 'number' && daysLeft < 0 && !isAccepted
+            const statusLabel = isExpired ? 'Expired' : (loan.status || 'pending')
 
             return (
               <div key={loanId} className="border border-gray-200 rounded-xl p-4">
                 <div className="flex items-center justify-between mb-2">
                   <h3 className="font-semibold text-gray-900">{loan.loanTitle || loan.title || 'Loan Request'}</h3>
-                  <span className="text-sm text-gray-500">{loan.status || 'pending'}</span>
+                  <span className={`text-sm ${isExpired ? 'text-red-600 font-semibold' : 'text-gray-500'}`}>
+                    {statusLabel}
+                  </span>
                 </div>
                 <p className="text-sm text-gray-600">{loan.purpose || 'General'}</p>
                 <div className="mt-2 text-sm text-gray-700">

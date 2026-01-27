@@ -558,10 +558,12 @@ const AllLoanPost = () => {
                       <span>{loan.offersCount || 0} offers</span>
                     </div>
                   </div>
-                  <div className="flex items-center text-orange-600">
-                    <Clock className="h-4 w-4 mr-1" />
-                    <span>{getDaysLeft(loan.deadline || loan.createdAt)} days ago</span>
-                  </div>
+                  {getDaysLeft(loan.deadline || loan.createdAt) > 0 && (
+                    <div className="flex items-center text-orange-600">
+                      <Clock className="h-4 w-4 mr-1" />
+                      <span>{getDaysLeft(loan.deadline || loan.createdAt)} days left</span>
+                    </div>
+                  )}
                 </div>
 
                 {/* Purpose Badge */}
