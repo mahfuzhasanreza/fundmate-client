@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
 import { Calendar, DollarSign, Loader, MapPin, Target, Users } from 'lucide-react'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
@@ -23,6 +23,8 @@ const CampaignDetails = () => {
   const [error, setError] = useState('')
   const [submitError, setSubmitError] = useState('')
   const [submitting, setSubmitting] = useState(false)
+  const [openDonorReviewEmail, setOpenDonorReviewEmail] = useState(null)
+  const donateLock = useRef(false)
 
   useEffect(() => {
     const fetchCampaign = async () => {
@@ -51,7 +53,20 @@ const CampaignDetails = () => {
         setDonationsLoading(true)
         const response = await getCampaignDonations(id)
         const data = response?.data ?? response
-        setDonations(Array.isArray(data) ? data : [])
+        const list = Array.isArray(data) ? data : []
+        const seen = new Set()
+        const unique = []
+        for (const donation of list) {
+          const key = donation?._id || donation?.id || [
+            donation?.donorName,
+            donation?.amount,
+            donation?.message
+          ].join('|')
+          if (seen.has(key)) continue
+          seen.add(key)
+          unique.push(donation)
+        }
+        setDonations(unique)
       } catch (err) {
         console.error('Failed to load donations:', err)
         setDonations([])
@@ -136,6 +151,7 @@ const CampaignDetails = () => {
 
   const handleDonate = async (e) => {
     e.preventDefault()
+    if (donateLock.current || submitting) return
     if (!user?.email) {
       setSubmitError('Please log in to donate.')
       return
@@ -146,6 +162,7 @@ const CampaignDetails = () => {
     }
 
     try {
+      donateLock.current = true
       setSubmitting(true)
       setSubmitError('')
       const donorName = user.displayName || user.email.split('@')[0]
@@ -174,6 +191,7 @@ const CampaignDetails = () => {
       setSubmitError('Payment init failed.')
     } finally {
       setSubmitting(false)
+      donateLock.current = false
     }
   }
 

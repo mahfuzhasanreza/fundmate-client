@@ -47,12 +47,24 @@ export const getCampaignDonations = async (campaignId) => {
     const response = await fetch(`${API_BASE_URL}/api/campaigns/${campaignId}/donations`)
     if (!response.ok) throw new Error('Failed to fetch donations')
     const result = await response.json()
-    return result.data || result.donations || result
+    console.log(result.data);
+    const data = result.data || result.donations || result
+    const list = Array.isArray(data) ? data : []
+    const seen = new Set()
+    const unique = []
+    for (const donation of list) {
+      const key = donation?.message || ''
+      if (seen.has(key)) continue
+      seen.add(key)
+      unique.push(donation)
+    }
+    return unique
   } catch (error) {
     console.error('Get donations error:', error)
     throw error
   }
 }
+
 
 export const createCampaignDonation = async (campaignId, donationData) => {
   try {

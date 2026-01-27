@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { createCampaignDonation } from '../services/campaignService'
 import { useToast } from '../components/common/ToastProvider'
 
 const PaymentSuccess = () => {
@@ -28,22 +27,7 @@ const PaymentSuccess = () => {
         return
       }
 
-      try {
-        setMessage('Creating your donation...')
-        await createCampaignDonation(pending.campaignId, {
-          donorName: pending.donorName,
-          donorEmail: pending.donorEmail,
-          amount: pending.amount,
-          message: pending.message
-        })
-        localStorage.removeItem('sslcom_pending_donation')
-        addToast('Donation successful!', 'success')
-        navigate(`/campaign/${pending.campaignId}`)
-      } catch (err) {
-        console.error('Create donation failed:', err)
-        addToast('Payment succeeded, but donation creation failed.', 'error')
-        navigate(`/campaign/${pending.campaignId}`)
-      }
+      
     }
 
     finalizeDonation()

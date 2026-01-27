@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { 
   LayoutDashboard, 
@@ -43,6 +43,7 @@ const Dashboard = () => {
   const [incompleteCampaigns, setIncompleteCampaigns] = useState([])
   const [dataLoading, setDataLoading] = useState(true)
   const [dataError, setDataError] = useState('')
+  const hasFetchedRef = useRef(false)
   
   // Dummy user data
   const user = {
@@ -99,6 +100,8 @@ const Dashboard = () => {
     }
 
     if (!authLoading) {
+      if (hasFetchedRef.current) return
+      hasFetchedRef.current = true
       fetchDashboardData()
     }
   }, [authUser?.email, authLoading])
