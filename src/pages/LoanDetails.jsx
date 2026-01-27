@@ -169,49 +169,107 @@ const LoanDetails = () => {
 
   const isCreator = Boolean(user?.email && loanData?.userEmail && user.email === loanData.userEmail)
 
-  // Timeline data
-  const timeline = [
-    {
-      id: 1,
-      date: '2024-11-15',
-      time: '10:30 AM',
+  const timeline = useMemo(() => {
+    if (!loanData) return []
+    const events = []
+    const formatEvent = (dateValue, data) => {
+      if (!dateValue) return null
+      const dateObj = new Date(dateValue)
+      if (Number.isNaN(dateObj.getTime())) return null
+      return {
+        ...data,
+        date: dateObj,
+        time: dateObj.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })
+      }
+    }
+
+    const createdEvent = formatEvent(loanData.createdAt || loanData.postedDate, {
+      id: 'created',
       type: 'created',
       title: 'Loan Request Created',
-      description: 'Sarah posted this loan request for business expansion',
+      description: 'Loan request submitted',
       icon: Target,
       color: 'text-blue-600'
-    },
-    {
-      id: 2,
-      date: '2024-11-16',
-      time: '2:15 PM',
-      type: 'offer',
-      title: 'First Offer Received',
-      description: 'John D. offered ৳10,000 at 7.5% interest',
-      icon: DollarSign,
-      color: 'text-primary-600'
-    },
-    {
-      id: 3,
-      date: '2024-11-18',
-      time: '9:45 AM',
-      type: 'update',
-      title: 'Additional Information Added',
-      description: 'Borrower uploaded business financial statements',
-      icon: CheckCircle,
-      color: 'text-primary-600'
-    },
-    {
-      id: 4,
-      date: '2024-11-20',
-      time: '4:20 PM',
-      type: 'offer',
-      title: 'New Competitive Offer',
-      description: 'Multiple lenders submitted offers',
-      icon: TrendingUp,
-      color: 'text-purple-600'
+    })
+    if (createdEvent) events.push(createdEvent)
+
+    const deadlineEvent = formatEvent(loanData.deadline, {
+      id: 'deadline',
+      type: 'deadline',
+      title: 'Request Deadline',
+      description: 'Deadline for receiving offers',
+      icon: Calendar,
+      color: 'text-orange-600'
+    })
+    if (deadlineEvent) events.push(deadlineEvent)
+
+    const offersWithDates = (Array.isArray(offers) ? offers : []).filter((offer) => offer?.createdAt || offer?.submittedDate)
+    if (offersWithDates.length > 0) {
+      const firstOffer = offersWithDates.reduce((earliest, offer) => {
+        const currentDate = new Date(offer.submittedDate || offer.createdAt)
+        if (!earliest) return offer
+        const earliestDate = new Date(earliest.submittedDate || earliest.createdAt)
+        return currentDate < earliestDate ? offer : earliest
+      }, null)
+
+      const firstOfferEvent = formatEvent(firstOffer?.submittedDate || firstOffer?.createdAt, {
+        id: 'first-offer',
+        type: 'offer',
+        title: 'First Offer Received',
+        description: `Offer from ${firstOffer?.lenderName || 'a lender'}`,
+        icon: DollarSign,
+        color: 'text-primary-600'
+      })
+      if (firstOfferEvent) events.push(firstOfferEvent)
+
+      if (offersWithDates.length > 1) {
+        const latestOffer = offersWithDates.reduce((latest, offer) => {
+          const currentDate = new Date(offer.submittedDate || offer.createdAt)
+          if (!latest) return offer
+          const latestDate = new Date(latest.submittedDate || latest.createdAt)
+          return currentDate > latestDate ? offer : latest
+        }, null)
+
+        const latestOfferEvent = formatEvent(latestOffer?.submittedDate || latestOffer?.createdAt, {
+          id: 'latest-offer',
+          type: 'offer',
+          title: 'Latest Offer Received',
+          description: `Most recent offer from ${latestOffer?.lenderName || 'a lender'}`,
+          icon: TrendingUp,
+          color: 'text-purple-600'
+        })
+        if (latestOfferEvent) events.push(latestOfferEvent)
+      }
     }
-  ]
+
+    const acceptedOffer = (Array.isArray(offers) ? offers : []).find((offer) => (offer?.status || '').toLowerCase() === 'accepted')
+    const acceptedEvent = formatEvent(acceptedOffer?.acceptedAt || acceptedOffer?.updatedAt || acceptedOffer?.createdAt, {
+      id: 'accepted',
+      type: 'accepted',
+      title: 'Offer Accepted',
+      description: `Accepted ${acceptedOffer?.lenderName || 'an offer'}`,
+      icon: CheckCircle,
+      color: 'text-emerald-600'
+    })
+    if (acceptedEvent) events.push(acceptedEvent)
+
+    const statusValue = (loanData.status || '').toLowerCase()
+    if (statusValue && statusValue !== 'pending') {
+      const statusEvent = formatEvent(loanData.updatedAt || loanData.modifiedAt || loanData.createdAt, {
+        id: `status-${statusValue}`,
+        type: 'status',
+        title: `Status Updated: ${statusValue}`,
+        description: `Loan is now ${statusValue}`,
+        icon: Shield,
+        color: 'text-indigo-600'
+      })
+      if (statusEvent) events.push(statusEvent)
+    }
+
+    return events
+      .filter(Boolean)
+      .sort((a, b) => a.date - b.date)
+  }, [loanData, offers])
 
   // Offers data
   const handleSubmitOffer = (e) => {
@@ -447,33 +505,37 @@ const LoanDetails = () => {
               className="bg-white rounded-2xl p-8 shadow-lg border border-gray-100"
             >
               <h2 className="text-2xl font-bold text-gray-900 mb-6">Timeline</h2>
-              <div className="space-y-4">
-                {timeline.map((event, index) => {
-                  const Icon = event.icon
-                  return (
-                    <motion.div
-                      key={event.id}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: index * 0.1 }}
-                      className="flex items-start space-x-4 p-4 rounded-lg hover:bg-gray-50 transition-all"
-                    >
-                      <div className={`p-2 rounded-lg bg-opacity-10 ${event.color.replace('text-', 'bg-')}`}>
-                        <Icon className={`h-5 w-5 ${event.color}`} />
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex items-center justify-between mb-1">
-                          <h3 className="font-semibold text-gray-900">{event.title}</h3>
-                          <span className="text-xs text-gray-500">
-                            {new Date(event.date).toLocaleDateString()} {event.time}
-                          </span>
+              {timeline.length === 0 ? (
+                <div className="text-gray-600">No timeline events available yet.</div>
+              ) : (
+                <div className="space-y-4">
+                  {timeline.map((event, index) => {
+                    const Icon = event.icon
+                    return (
+                      <motion.div
+                        key={event.id}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: index * 0.1 }}
+                        className="flex items-start space-x-4 p-4 rounded-lg hover:bg-gray-50 transition-all"
+                      >
+                        <div className={`p-2 rounded-lg bg-opacity-10 ${event.color.replace('text-', 'bg-')}`}>
+                          <Icon className={`h-5 w-5 ${event.color}`} />
                         </div>
-                        <p className="text-gray-600">{event.description}</p>
-                      </div>
-                    </motion.div>
-                  )
-                })}
-              </div>
+                        <div className="flex-1">
+                          <div className="flex items-center justify-between mb-1">
+                            <h3 className="font-semibold text-gray-900">{event.title}</h3>
+                            <span className="text-xs text-gray-500">
+                              {new Date(event.date).toLocaleDateString()} {event.time}
+                            </span>
+                          </div>
+                          {event.description && <p className="text-gray-600">{event.description}</p>}
+                        </div>
+                      </motion.div>
+                    )
+                  })}
+                </div>
+              )}
             </motion.div>
 
             {/* Offers */}
