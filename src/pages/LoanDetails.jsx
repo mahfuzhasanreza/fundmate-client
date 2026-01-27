@@ -455,14 +455,16 @@ const LoanDetails = () => {
                 <h2 className="text-2xl font-bold text-gray-900">
                   Loan Offers ({offers.length})
                 </h2>
-                <motion.button
-                  onClick={() => setShowOfferModal(true)}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="bg-primary-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-primary-700 transition-all"
-                >
-                  Submit Loan Offer
-                </motion.button>
+                {!isCreator && (
+                  <motion.button
+                    onClick={() => setShowOfferModal(true)}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="bg-primary-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-primary-700 transition-all"
+                  >
+                    Submit Loan Offer
+                  </motion.button>
+                )}
               </div>
 
               {offersLoading && (
@@ -637,8 +639,8 @@ const LoanDetails = () => {
 
       {/* Offer Modal */}
       <AnimatePresence>
-        {showOfferModal && (
-          <motion.div
+      {!isCreator && showOfferModal && (
+        <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
