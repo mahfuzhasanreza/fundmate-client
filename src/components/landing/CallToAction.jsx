@@ -1,6 +1,7 @@
 import React from 'react'
 import { ArrowRight, Sparkles } from 'lucide-react'
 import { motion } from 'framer-motion'
+import { Link } from 'react-router-dom'
 
 const CallToAction = () => {
   return (
@@ -78,7 +79,7 @@ const CallToAction = () => {
               whileHover={{ scale: 1.05, boxShadow: "0 20px 40px rgba(255, 255, 255, 0.3)" }}
               whileTap={{ scale: 0.95 }}
             >
-              <span>Create Free Account</span>
+              <Link to="/register">Create Free Account</Link>
               <motion.div
                 animate={{ x: [0, 5, 0] }}
                 transition={{ duration: 1, repeat: Infinity }}
@@ -86,13 +87,7 @@ const CallToAction = () => {
                 <ArrowRight className="h-5 w-5" />
               </motion.div>
             </motion.button>
-            <motion.button 
-              className="bg-transparent hover:bg-white/10 text-white font-semibold py-4 px-8 rounded-lg border-2 border-white transition-all duration-200"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              Schedule a Demo
-            </motion.button>
+            
           </motion.div>
 
           {/* Trust Indicators */}

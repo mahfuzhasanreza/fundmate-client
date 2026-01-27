@@ -1,6 +1,7 @@
 import React from 'react'
 import { FileText, UserCheck, CreditCard, CheckCircle } from 'lucide-react'
 import { motion } from 'framer-motion'
+import { Link } from 'react-router-dom'
 
 const HowItWorks = () => {
   const steps = [
@@ -57,7 +58,7 @@ const HowItWorks = () => {
           {/* Connection Line - Desktop */}
           <div className="hidden lg:block absolute top-20 left-0 right-0 h-1 bg-gradient-to-r from-primary-200 via-primary-300 to-primary-200 mx-auto" style={{ width: '80%', left: '10%' }}></div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 relative">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 relative ">
             {steps.map((step, index) => (
               <motion.div 
                 key={index} 
@@ -68,7 +69,7 @@ const HowItWorks = () => {
                 transition={{ duration: 0.5, delay: index * 0.1 }}
               >
                 {/* Step Number */}
-                <div className="relative inline-block mb-6">
+                <div className="relative inline-block mb-6  mr-2 ">
                 <motion.div 
                   className="w-20 h-20 bg-white border-4 border-primary-200 rounded-full flex items-center justify-center text-2xl font-bold text-primary-600 relative z-10"
                   whileHover={{ scale: 1.1, borderColor: '#16a34a' }}
@@ -117,7 +118,7 @@ const HowItWorks = () => {
             whileHover={{ scale: 1.05, boxShadow: "0 20px 40px rgba(22, 163, 74, 0.3)" }}
             whileTap={{ scale: 0.95 }}
           >
-            Start Your Journey Today
+            <Link to="/login">Start Your Journey Today</Link>
           </motion.button>
         </motion.div>
       </div>

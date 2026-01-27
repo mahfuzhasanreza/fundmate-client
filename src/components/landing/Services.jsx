@@ -6,7 +6,7 @@ const Services = () => {
   const services = [
     {
       icon: <Wallet className="h-12 w-12" />,
-      title: 'Peer-to-Peer Loans',
+      title: 'Loan Support',
       description: 'Access personal loans from your trusted community with competitive interest rates.',
       features: [
         'Flexible loan amounts',

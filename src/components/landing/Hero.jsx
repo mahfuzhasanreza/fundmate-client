@@ -78,41 +78,9 @@ const Hero = () => {
           </motion.div>
         </AnimatePresence>
 
-        {/* Slider Controls */}
-        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex space-x-3 z-20">
-          {backgroundImages.map((_, index) => (
-            <motion.button
-              key={index}
-              onClick={() => setCurrentSlide(index)}
-              className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                currentSlide === index 
-                  ? 'bg-white shadow-lg scale-125' 
-                  : 'bg-white/50 hover:bg-white/75'
-              }`}
-              whileHover={{ scale: 1.2 }}
-              whileTap={{ scale: 0.9 }}
-            />
-          ))}
-        </div>
+       
 
-        {/* Navigation Arrows */}
-        <motion.button
-          onClick={prevSlide}
-          className="absolute left-6 top-1/2 transform -translate-y-1/2 z-20 bg-white/20 backdrop-blur-sm text-white p-3 rounded-full hover:bg-white/30 transition-all duration-300"
-          whileHover={{ scale: 1.1, x: -2 }}
-          whileTap={{ scale: 0.95 }}
-        >
-          <ChevronLeft className="h-6 w-6" />
-        </motion.button>
-
-        <motion.button
-          onClick={nextSlide}
-          className="absolute right-6 top-1/2 transform -translate-y-1/2 z-20 bg-white/20 backdrop-blur-sm text-white p-3 rounded-full hover:bg-white/30 transition-all duration-300"
-          whileHover={{ scale: 1.1, x: 2 }}
-          whileTap={{ scale: 0.95 }}
-        >
-          <ChevronRight className="h-6 w-6" />
-        </motion.button>
+        
       </div>
 
       {/* Enhanced Animated Elements */}

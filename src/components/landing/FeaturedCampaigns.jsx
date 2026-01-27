@@ -104,7 +104,7 @@ const FeaturedCampaigns = () => {
 
         {/* Impact Strip */}
         <motion.div 
-          className="mt-12 bg-gray-900 rounded-3xl px-6 py-8 md:px-10 flex flex-col md:flex-row items-center justify-between gap-6 text-white"
+          className="mt-12 bg-secondary-900 rounded-3xl px-6 py-8 md:px-10 flex flex-col md:flex-row items-center justify-between gap-6 text-white"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
