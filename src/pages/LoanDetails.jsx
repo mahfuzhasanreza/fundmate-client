@@ -627,38 +627,7 @@ const LoanDetails = () => {
               </div>
             </motion.div>
 
-            {/* Quick Stats */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
-              className="bg-gradient-to-br from-primary-500 to-primary-600 rounded-2xl p-6 text-white"
-            >
-              <h3 className="text-lg font-bold mb-4">Loan Summary</h3>
-              <div className="space-y-3">
-                <div className="flex justify-between">
-                  <span className="opacity-90">Monthly Payment*</span>
-                  <span className="font-bold">
-                    ৳{calculateMonthlyPayment(derivedLoan.amount, derivedLoan.preferredInterest, derivedLoan.tenure)}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="opacity-90">Total Interest</span>
-                  <span className="font-bold">
-                    ৳{(calculateMonthlyPayment(derivedLoan.amount, derivedLoan.preferredInterest, derivedLoan.tenure) * derivedLoan.tenure - derivedLoan.amount).toFixed(2)}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="opacity-90">Total Repayment</span>
-                  <span className="font-bold">
-                    ৳{(calculateMonthlyPayment(derivedLoan.amount, derivedLoan.preferredInterest, derivedLoan.tenure) * derivedLoan.tenure).toFixed(2)}
-                  </span>
-                </div>
-              </div>
-              <p className="text-xs opacity-75 mt-3">
-                *Based on preferred interest rate
-              </p>
-            </motion.div>
+           
           </div>
         </div>
         )}
