@@ -40,6 +40,7 @@ const LoanDetails = () => {
   const [offersLoading, setOffersLoading] = useState(true)
   const [offersError, setOffersError] = useState('')
   const [acceptingOfferId, setAcceptingOfferId] = useState(null)
+  const [offerSort, setOfferSort] = useState('newest')
 
   const dedupeOffers = (items) => {
     const list = Array.isArray(items) ? items : []
@@ -83,6 +84,37 @@ const LoanDetails = () => {
 
     fetchLoan()
   }, [id])
+
+  const sortedOffers = useMemo(() => {
+    const list = Array.isArray(offers) ? [...offers] : []
+    const getDate = (offer) => new Date(offer?.submittedDate || offer?.createdAt || 0).getTime()
+    const getAmount = (offer) => Number(offer?.amount || 0)
+    const getInterest = (offer) => Number(offer?.interestRate || 0)
+    const getTenure = (offer) => Number(offer?.tenure || offer?.tenureMonths || 0)
+    const getStatus = (offer) => (offer?.status || 'pending').toString().toLowerCase()
+
+    switch (offerSort) {
+      case 'oldest':
+        return list.sort((a, b) => getDate(a) - getDate(b))
+      case 'amount-high':
+        return list.sort((a, b) => getAmount(b) - getAmount(a))
+      case 'amount-low':
+        return list.sort((a, b) => getAmount(a) - getAmount(b))
+      case 'interest-high':
+        return list.sort((a, b) => getInterest(b) - getInterest(a))
+      case 'interest-low':
+        return list.sort((a, b) => getInterest(a) - getInterest(b))
+      case 'tenure-high':
+        return list.sort((a, b) => getTenure(b) - getTenure(a))
+      case 'tenure-low':
+        return list.sort((a, b) => getTenure(a) - getTenure(b))
+      case 'status':
+        return list.sort((a, b) => getStatus(a).localeCompare(getStatus(b)))
+      case 'newest':
+      default:
+        return list.sort((a, b) => getDate(b) - getDate(a))
+    }
+  }, [offers, offerSort])
 
   useEffect(() => {
     const fetchOffers = async () => {
@@ -451,20 +483,40 @@ const LoanDetails = () => {
               transition={{ delay: 0.2 }}
               className="bg-white rounded-2xl p-8 shadow-lg border border-gray-100"
             >
-              <div className="flex items-center justify-between mb-6">
+              <div className="flex flex-col gap-4 mb-6 sm:flex-row sm:items-center sm:justify-between">
                 <h2 className="text-2xl font-bold text-gray-900">
                   Loan Offers ({offers.length})
                 </h2>
-                {!isCreator && (
-                  <motion.button
-                    onClick={() => setShowOfferModal(true)}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    className="bg-primary-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-primary-700 transition-all"
-                  >
-                    Submit Loan Offer
-                  </motion.button>
-                )}
+                <div className="flex flex-wrap items-center gap-3">
+                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                    <span className="font-semibold">Sort by</span>
+                    <select
+                      value={offerSort}
+                      onChange={(e) => setOfferSort(e.target.value)}
+                      className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-100 focus:border-primary-500"
+                    >
+                      <option value="newest">Newest</option>
+                      <option value="oldest">Oldest</option>
+                      <option value="amount-high">Amount: High to Low</option>
+                      <option value="amount-low">Amount: Low to High</option>
+                      <option value="interest-high">Interest: High to Low</option>
+                      <option value="interest-low">Interest: Low to High</option>
+                      <option value="tenure-high">Tenure: Longest</option>
+                      <option value="tenure-low">Tenure: Shortest</option>
+                      <option value="status">Status</option>
+                    </select>
+                  </div>
+                  {!isCreator && (
+                    <motion.button
+                      onClick={() => setShowOfferModal(true)}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      className="bg-primary-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-primary-700 transition-all"
+                    >
+                      Submit Loan Offer
+                    </motion.button>
+                  )}
+                </div>
               </div>
 
               {offersLoading && (
@@ -476,9 +528,9 @@ const LoanDetails = () => {
               {!offersLoading && !offersError && offers.length === 0 && (
                 <div className="text-gray-600">No offers yet. Be the first to submit an offer.</div>
               )}
-              {!offersLoading && !offersError && offers.length > 0 && (
+              {!offersLoading && !offersError && sortedOffers.length > 0 && (
               <div className="space-y-4">
-                {offers.map((offer, index) => (
+                {sortedOffers.map((offer, index) => (
                   <motion.div
                     key={offer._id || offer.id || index}
                     initial={{ opacity: 0, y: 10 }}
