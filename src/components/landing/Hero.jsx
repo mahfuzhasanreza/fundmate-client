@@ -73,9 +73,10 @@ const Hero = () => {
               style={{ backgroundImage: `url(${backgroundImages[currentSlide].url})` }}
             />
             {/* Gradient overlays for better text readability */}
-            <div className="absolute inset-0 bg-gradient-to-r from-black/10 via-black/50 to-transparent" />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent" />
-            <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-black/40" />
+            {/* <div className="absolute inset-0 bg-gradient-to-r from-black/30 via-black/50 to-transparent" /> */}
+            <div className="absolute inset-0 bg-black/50" />
+            {/* <div className="absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent" /> */}
+            {/* <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-black/25" /> */}
           </motion.div>
         </AnimatePresence>
 
