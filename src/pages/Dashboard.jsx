@@ -254,16 +254,13 @@ const Dashboard = () => {
     { id: 'loan-requests', icon: FileText, label: 'My Loan Requests' },
     { id: 'campaigns', icon: Target, label: 'My Campaigns' },
     { id: 'offers', icon: UserCheck, label: 'Offers' },
-    { id: 'repayments', icon: CreditCard, label: 'Repayments' },
-    { id: 'donations', icon: Heart, label: 'Donations History' },
-    { id: 'messages', icon: MessageSquare, label: 'Messages' },
     { id: 'settings', icon: Settings, label: 'Settings' }
   ]
 
   const renderContent = () => {
     switch (activeSection) {
       case 'overview':
-        return <OverviewSection stats={stats} recentActivities={recentActivities} upcomingPayments={upcomingPayments} activeCampaigns={activeCampaigns} />
+        return <OverviewSection user={user} stats={stats} recentActivities={recentActivities} upcomingPayments={upcomingPayments} activeCampaigns={activeCampaigns} />
       case 'loan-requests':
         return <LoanRequestsSection isAuthenticated={Boolean(authUser?.email)} loading={dataLoading} error={dataError} loanRequests={loanRequests} />
       case 'campaigns':
@@ -279,7 +276,7 @@ const Dashboard = () => {
       case 'settings':
         return <SettingsSection user={user} />
       default:
-        return <OverviewSection stats={stats} recentActivities={recentActivities} upcomingPayments={upcomingPayments} activeCampaigns={activeCampaigns} />
+        return <OverviewSection user={user} stats={stats} recentActivities={recentActivities} upcomingPayments={upcomingPayments} activeCampaigns={activeCampaigns} />
     }
   }
 
@@ -398,11 +395,11 @@ const Dashboard = () => {
 }
 
 // Overview Section Component
-const OverviewSection = ({ stats, recentActivities, upcomingPayments, activeCampaigns }) => {
+const OverviewSection = ({ user, stats, recentActivities, upcomingPayments, activeCampaigns }) => {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome back, Mahfuz! 👋</h1>
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome back, {user.name}! 👋</h1>
         <p className="text-gray-600">Here's what's happening with your account today.</p>
       </div>
 
@@ -735,13 +732,7 @@ const OffersSection = ({ isAuthenticated, loading, error, offers, acceptedOffers
   )
 }
 
-const RepaymentsSection = () => (
-  <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
-    <h1 className="text-3xl font-bold text-gray-900 mb-4">Repayments</h1>
-    <p className="text-gray-600">Track your loan repayments.</p>
-    {/* Add repayments content */}
-  </div>
-)
+
 
 const DonationsSection = () => (
   <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
