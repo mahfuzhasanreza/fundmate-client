@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { Menu, X, Wallet, User, LogOut, Settings, ChevronDown } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import NotificationBell from '../NotificationBell'
 import { onAuthStateChange, logoutFromFirebase } from '../../services/firebaseAuthService'
 import logo from '../../../assets/logo.png'
@@ -71,18 +71,20 @@ const Navbar = () => {
       <div className="container-custom">
         <div className="flex justify-between items-center h-16 md:h-20">
           {/* Logo */}
-          <motion.div 
+         <Link to="/"> <motion.div 
             className="flex items-center space-x-2"
             whileHover={{ scale: 1.05 }}
             transition={{ type: "spring", stiffness: 400 }}
           >
             
-            <img src={logo} alt="FundMate Logo" className="w-8 h-8 md:w-10 md:h-10" />
+            
+             <img src={logo} alt="FundMate Logo" className="w-8 h-8 md:w-10 md:h-10" />
 
             <span className="text-2xl md:text-3xl font-bold bg-primary-500 bg-clip-text text-transparent">
               FundMate
             </span>
-          </motion.div>
+          
+          </motion.div>  </Link>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">

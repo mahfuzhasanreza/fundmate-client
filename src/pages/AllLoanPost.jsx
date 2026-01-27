@@ -40,7 +40,7 @@ const AllLoanPost = () => {
     const testDirectFetch = async () => {
       try {
         console.log('🧪 Direct API test...')
-        const response = await fetch('http://localhost:5000/api/loan-requests')
+        const response = await fetch('https://fundmate-server-six.vercel.app/api/loan-requests')
         const data = await response.json()
         console.log('🧪 Direct fetch result:', {
           status: response.status,

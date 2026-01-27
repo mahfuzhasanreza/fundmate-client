@@ -41,6 +41,8 @@ const LoanDetails = () => {
   const [offersError, setOffersError] = useState('')
   const [acceptingOfferId, setAcceptingOfferId] = useState(null)
   const [offerSort, setOfferSort] = useState('newest')
+  const defaultAvatarUrl =
+    'https://lh3.googleusercontent.com/a/ACg8ocKi2g47Hdzf9x6DIsejB55Q02JMG9Bumyu_MB2ww671xVXk1-Q=s96-c'
 
   const dedupeOffers = (items) => {
     const list = Array.isArray(items) ? items : []
@@ -166,6 +168,10 @@ const LoanDetails = () => {
       }
     }
   }, [loanData])
+
+  useEffect(() => {
+    // keep for future avatar changes; no-op now
+  }, [derivedLoan?.borrower?.name])
 
   const isCreator = Boolean(user?.email && loanData?.userEmail && user.email === loanData.userEmail)
 
@@ -687,7 +693,13 @@ const LoanDetails = () => {
               <h3 className="text-xl font-bold text-gray-900 mb-4">Borrower Profile</h3>
               
               <div className="text-center mb-6">
-                <div className="text-6xl mb-3">{derivedLoan.borrower.avatar}</div>
+                <div className="mb-3 flex items-center justify-center">
+                  <img
+                    src={defaultAvatarUrl}
+                    alt="Borrower avatar"
+                    className="h-20 w-20 rounded-full object-cover border border-gray-200"
+                  />
+                </div>
                 <h4 className="text-lg font-semibold text-gray-900 mb-1">
                   {derivedLoan.borrower.name}
                   {derivedLoan.borrower.verified && (

@@ -37,6 +37,8 @@ const LoanAgreement = () => {
   const { agreementId } = useParams()
   const navigate = useNavigate()
   const [user] = useAuthState(auth)
+  const defaultAvatarUrl =
+    'https://lh3.googleusercontent.com/a/ACg8ocKi2g47Hdzf9x6DIsejB55Q02JMG9Bumyu_MB2ww671xVXk1-Q=s96-c'
   const [activeTab, setActiveTab] = useState('overview')
   const [newMessage, setNewMessage] = useState('')
   const [selectedFile, setSelectedFile] = useState(null)
@@ -192,7 +194,7 @@ const LoanAgreement = () => {
 
   useEffect(() => {
     if (!agreementId) return
-    const socketUrl = import.meta.env.VITE_SOCKET_URL || 'http://localhost:5000'
+    const socketUrl = import.meta.env.VITE_SOCKET_URL || 'https://fundmate-server-six.vercel.app'
     const socket = io(socketUrl, { transports: ['websocket'] })
     socketRef.current = socket
 
@@ -786,7 +788,11 @@ const LoanAgreement = () => {
                   Borrower
                 </h3>
                 <div className="flex items-start space-x-4">
-                  <div className="text-4xl">{agreement.borrower.avatar}</div>
+                  <img
+                    src={defaultAvatarUrl}
+                    alt="Borrower avatar"
+                    className="h-16 w-16 rounded-full object-cover border border-gray-200"
+                  />
                   <div className="flex-1">
                     <div className="flex items-center space-x-2 mb-2">
                       <h4 className="font-semibold text-lg">{agreement.borrower.name}</h4>
