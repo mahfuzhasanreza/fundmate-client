@@ -10,21 +10,13 @@ const Hero = () => {
 
   // Background slider images - using placeholder images for now
   const backgroundImages = [
-    // {
-    //   url: 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1926&q=80',
-    //   title: 'Peer-to-Peer Lending',
-    //   description: 'Connect with lenders and borrowers in your community'
-    // },
+   
     {
       url: 'https://images.unsplash.com/photo-1559136555-9303baea8ebd?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1970&q=80',
       title: 'Crowdfunding Campaigns',
-      description: 'Support meaningful projects and causes'
-    },
-    // {
-    //   url: 'https://images.unsplash.com/photo-1551836022-deb4988cc6c0?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1926&q=80',
-    //   title: 'Financial Growth',
-    //   description: 'Build financial security through community support'
-    // }
+      description: 'Support meaningful projects, community causes, and loans by funding.'
+    }
+    
   ]
 
   // Auto-slide functionality
@@ -196,7 +188,7 @@ const Hero = () => {
                 className="bg-white/10 backdrop-blur-md text-white text-sm font-semibold px-6 py-3 rounded-full inline-block border border-white/20"
                 whileHover={{ scale: 1.05, backgroundColor: "rgba(255,255,255,0.2)" }}
               >
-                🚀 Trusted by 10,000+ Community Members
+              Your Ultimate Fund Mate
               </motion.span>
             </motion.div>
             
@@ -296,7 +288,7 @@ const Hero = () => {
                 >
                   🔒
                 </motion.span>
-                <span className="text-white font-bold text-lg">Bank-Level Security</span>
+                <span className="text-white font-bold text-lg">Safe & Transparent</span>
               </motion.div>
 
               <motion.div 
@@ -311,7 +303,7 @@ const Hero = () => {
                   💰
                 </motion.span>
                 <div className="text-white">
-                  <p className="font-bold text-lg">৳2.5M+ Funded</p>
+                  <p className="font-bold text-lg">Funds Raised</p>
                   {/* <p className="text-sm opacity-80">Funded</p> */}
                 </div>
               </motion.div>

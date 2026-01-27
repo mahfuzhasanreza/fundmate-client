@@ -1,6 +1,8 @@
 import React from 'react'
 import { Wallet, Mail, Phone, MapPin, Facebook, Twitter, Linkedin, Instagram } from 'lucide-react'
 import { motion } from 'framer-motion'
+import logo from '../../../assets/logo.png'
+
 
 const Footer = () => {
   const currentYear = new Date().getFullYear()
@@ -33,13 +35,8 @@ const Footer = () => {
             transition={{ duration: 0.6 }}
           >
             <div className="flex items-center space-x-2">
-              <motion.div 
-                className="bg-gradient-to-r from-primary-600 to-primary-500 p-2 rounded-lg"
-                whileHover={{ rotate: 360 }}
-                transition={{ duration: 0.6 }}
-              >
-                <Wallet className="h-6 w-6 text-white" />
-              </motion.div>
+              <img src={logo} alt="FundMate Logo" className="w-8 h-8 md:w-10 md:h-10" />
+              
               <span className="text-2xl font-bold text-white">FundMate</span>
             </div>
             <p className="text-sm leading-relaxed">

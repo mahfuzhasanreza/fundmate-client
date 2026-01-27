@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
 import NotificationBell from '../NotificationBell'
 import { onAuthStateChange, logoutFromFirebase } from '../../services/firebaseAuthService'
+import logo from '../../../assets/logo.png'
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false)
@@ -75,14 +76,10 @@ const Navbar = () => {
             whileHover={{ scale: 1.05 }}
             transition={{ type: "spring", stiffness: 400 }}
           >
-            <motion.div 
-              className="bg-gradient-to-r from-primary-600 to-primary-500 p-2 rounded-lg"
-              whileHover={{ rotate: 360 }}
-              transition={{ duration: 0.6 }}
-            >
-              <Wallet className="h-6 w-6 md:h-8 md:w-8 text-white" />
-            </motion.div>
-            <span className="text-2xl md:text-3xl font-bold bg-primary-600 bg-clip-text text-transparent">
+            
+            <img src={logo} alt="FundMate Logo" className="w-8 h-8 md:w-10 md:h-10" />
+
+            <span className="text-2xl md:text-3xl font-bold bg-primary-500 bg-clip-text text-transparent">
               FundMate
             </span>
           </motion.div>
