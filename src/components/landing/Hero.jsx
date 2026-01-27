@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { ArrowRight, ChevronLeft, ChevronRight, X } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
+import cover from '../../../assets/cover.png'
 
 const Hero = () => {
   const [currentSlide, setCurrentSlide] = useState(0)
@@ -12,7 +13,7 @@ const Hero = () => {
   const backgroundImages = [
    
     {
-      url: 'https://images.unsplash.com/photo-1559136555-9303baea8ebd?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1970&q=80',
+      url: cover,
       title: 'Crowdfunding Campaigns',
       description: 'Support meaningful projects, community causes, and loans by funding.'
     }
@@ -72,9 +73,9 @@ const Hero = () => {
               style={{ backgroundImage: `url(${backgroundImages[currentSlide].url})` }}
             />
             {/* Gradient overlays for better text readability */}
-            <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-transparent" />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-            <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/40" />
+            <div className="absolute inset-0 bg-gradient-to-r from-black/10 via-black/50 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-black/40" />
           </motion.div>
         </AnimatePresence>
 
@@ -107,21 +108,6 @@ const Hero = () => {
         />
       ))}
 
-      {/* Geometric Shapes */}
-      <motion.div
-        className="absolute top-20 right-20 w-32 h-32 border-2 border-white/20 rounded-full"
-        animate={{ rotate: 360 }}
-        transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-      />
-      
-      <motion.div
-        className="absolute bottom-20 left-20 w-24 h-24 bg-gradient-to-br from-primary-400/30 to-secondary-400/30 rounded-lg"
-        animate={{ 
-          rotate: [0, 45, 0],
-          scale: [1, 1.1, 1]
-        }}
-        transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
-      />
 
       <div className="container-custom relative z-10">
         <div className="flex items-center justify-center min-h-screen py-20">
@@ -161,11 +147,11 @@ const Hero = () => {
             </motion.div>
             
             <motion.h1 
-              className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold text-white leading-tight"
+              className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight"
               variants={itemVariants}
             >
               Financial Support,{' '}
-              <span className="bg-gradient-to-r from-primary-400 via-primary-300 to-secondary-300 bg-clip-text text-transparent">
+              <span className="bg-primary-300 bg-clip-text text-transparent">
                 Simplified
               </span>
             </motion.h1>
@@ -224,26 +210,7 @@ const Hero = () => {
               className="flex flex-wrap gap-8 justify-center pt-12"
               variants={itemVariants}
             >
-              {/* <motion.div 
-                className="flex items-center space-x-3 bg-white/10 backdrop-blur-md px-6 py-3 rounded-2xl border border-white/20"
-                whileHover={{ scale: 1.05, backgroundColor: "rgba(255,255,255,0.15)" }}
-              >
-                <div className="flex -space-x-2">
-                  <motion.div 
-                    className="w-10 h-10 rounded-full bg-gradient-to-br from-primary-400 to-primary-500 border-3 border-white"
-                    whileHover={{ scale: 1.2, zIndex: 10 }}
-                  ></motion.div>
-                  <motion.div 
-                    className="w-10 h-10 rounded-full bg-gradient-to-br from-primary-500 to-primary-600 border-3 border-white"
-                    whileHover={{ scale: 1.2, zIndex: 10 }}
-                  ></motion.div>
-                  <motion.div 
-                    className="w-10 h-10 rounded-full bg-gradient-to-br from-primary-600 to-secondary-500 border-3 border-white"
-                    whileHover={{ scale: 1.2, zIndex: 10 }}
-                  ></motion.div>
-                </div>
-                <span className="text-white font-bold text-lg">4.9/5 Rating</span>
-              </motion.div> */}
+
               
               <motion.div 
                 className="flex items-center space-x-3 bg-white/10 backdrop-blur-md px-6 py-3 rounded-2xl border border-white/20"
