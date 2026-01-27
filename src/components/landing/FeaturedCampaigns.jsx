@@ -51,17 +51,17 @@ const FeaturedCampaigns = () => {
       <div className="container-custom">
         {/* Section Header */}
         <motion.div 
-          className="text-center mb-12"
+          className="text-center mb-10 md:mb-12"
           initial={{ opacity: 0, y: -20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
         >
 
-          <h2 className="text-3xl md:text-3xl lg:text-5xl font-bold text-gray-900 mb-4">
+          <h2 className="text-2xl sm:text-3xl md:text-3xl lg:text-5xl font-bold text-gray-900 mb-4">
             Built for <span className="text-primary-600">People</span>, Powered by Trust
           </h2>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+          <p className="text-base sm:text-lg text-gray-600 max-w-2xl mx-auto">
             A calmer, clearer way to fund causes and loans—with transparency you can see.
           </p>
         </motion.div>
@@ -99,29 +99,29 @@ const FeaturedCampaigns = () => {
 
         {/* Impact Strip */}
         <motion.div 
-          className="mt-12 bg-secondary-700 rounded-3xl px-6 py-8 md:px-10 flex flex-col md:flex-row items-center justify-between gap-6 text-white"
+          className="mt-12 bg-secondary-700 rounded-3xl px-6 py-8 md:px-10 flex flex-col md:flex-row items-center justify-between gap-6 text-white text-center md:text-left"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ delay: 0.2 }}
         >
-          <div>
+          <div className="max-w-xl">
             <p className="text-sm text-white/70 uppercase tracking-wide">Community momentum</p>
-            <h3 className="text-2xl font-bold mt-2">Every contribution moves a real story forward.</h3>
+            <h3 className="text-xl sm:text-2xl font-bold mt-2">Every contribution moves a real story forward.</h3>
           </div>
-          <div className="flex items-center gap-6">
+          <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
             <div className="text-center">
-              <p className="text-2xl font-bold">Active donors</p>
+              <p className="text-lg sm:text-2xl font-bold">Active donors</p>
               <p className="text-xs text-white/70">Growing daily</p>
             </div>
-            <div className="h-10 w-px bg-white/20" />
+            <div className="hidden sm:block h-10 w-px bg-white/20" />
             <div className="text-center">
-              <p className="text-2xl font-bold">Funds mobilized</p>
+              <p className="text-lg sm:text-2xl font-bold">Funds mobilized</p>
               <p className="text-xs text-white/70">Across causes</p>
             </div>
-            <div className="h-10 w-px bg-white/20" />
+            <div className="hidden sm:block h-10 w-px bg-white/20" />
             <div className="text-center">
-              <p className="text-2xl font-bold">On‑time updates</p>
+              <p className="text-lg sm:text-2xl font-bold">On‑time updates</p>
               <p className="text-xs text-white/70">Transparent progress</p>
             </div>
           </div>
