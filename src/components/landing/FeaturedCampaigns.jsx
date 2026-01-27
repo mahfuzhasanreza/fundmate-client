@@ -57,13 +57,8 @@ const FeaturedCampaigns = () => {
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
         >
-          <motion.span 
-            className="inline-flex items-center gap-2 bg-primary-100 text-primary-700 text-sm font-semibold px-4 py-2 rounded-full mb-4"
-            whileHover={{ scale: 1.05 }}
-          >
-            ✨ Our Impact Promise
-          </motion.span>
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+
+          <h2 className="text-3xl md:text-3xl lg:text-5xl font-bold text-gray-900 mb-4">
             Built for <span className="text-primary-600">People</span>, Powered by Trust
           </h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
@@ -104,7 +99,7 @@ const FeaturedCampaigns = () => {
 
         {/* Impact Strip */}
         <motion.div 
-          className="mt-12 bg-secondary-900 rounded-3xl px-6 py-8 md:px-10 flex flex-col md:flex-row items-center justify-between gap-6 text-white"
+          className="mt-12 bg-secondary-700 rounded-3xl px-6 py-8 md:px-10 flex flex-col md:flex-row items-center justify-between gap-6 text-white"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}

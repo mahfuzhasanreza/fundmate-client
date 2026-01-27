@@ -466,9 +466,9 @@ const OverviewSection = ({
           <p className="text-3xl font-bold text-gray-900 mt-3">{offersCount}</p>
           <p className="text-xs text-gray-500 mt-1">{acceptedCount} accepted</p>
         </div>
-        <div className="relative overflow-hidden bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl p-5 shadow-sm text-white">
+        <div className="relative overflow-hidden bg-secondary-700  rounded-2xl p-5 shadow-sm text-white">
           <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-full bg-white/15 flex items-center justify-center text-lg">
+            <div className="h-10 w-10 rounded-full bg-white/70 flex items-center justify-center text-lg">
               {user.avatar}
             </div>
             <div>

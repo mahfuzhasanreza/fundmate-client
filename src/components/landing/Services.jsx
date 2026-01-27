@@ -1,6 +1,6 @@
 import React from 'react'
 import { Wallet, TrendingUp, ArrowRight } from 'lucide-react'
-import { motion } from 'framer-motion'
+import { color, motion } from 'framer-motion'
 
 const Services = () => {
   const services = [
@@ -15,7 +15,7 @@ const Services = () => {
         'Automated repayment tracking',
         'Multiple offer selection'
       ],
-      gradient: 'from-primary-500 to-primary-600',
+      bg: 'primary-600',
       image: '💰'
     },
     {
@@ -29,7 +29,7 @@ const Services = () => {
         'Campaign transparency',
         'Admin approval for trust'
       ],
-      gradient: 'from-secondary-500 to-secondary-600',
+      bg: 'secondary-700',
       image: '📊'
     }
   ]
@@ -64,7 +64,7 @@ const Services = () => {
             >
               {/* Header */}
               <motion.div 
-                className={`bg-gradient-to-r ${service.gradient} p-8 text-white`}
+                className={`bg-${service.bg} p-8 text-white`}
                 whileHover={{ scale: 1.02 }}
                 transition={{ duration: 0.3 }}
               >
