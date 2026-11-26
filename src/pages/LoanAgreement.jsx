@@ -57,6 +57,35 @@ const LoanAgreement = () => {
   const [agreementDeleteStatus, setAgreementDeleteStatus] = useState(null)
   const socketRef = useRef(null)
   const seenMessageIdsRef = useRef(new Set())
+  const messageIdCounterRef = useRef(0)
+  const chatStorageKey = useMemo(() => `agreement-chat:${agreementId || 'unknown'}`, [agreementId])
+
+  const normalizeMessage = (msg) => {
+    if (!msg) return null
+    const id =
+      msg.id ||
+      msg._id ||
+      `${Date.now()}-${messageIdCounterRef.current++}-${Math.random().toString(36).slice(2, 6)}`
+    const senderEmail = msg.senderEmail || msg.email || msg.from
+    const sender =
+      msg.sender ||
+      msg.senderRole ||
+      msg.role ||
+      (senderEmail && borrowerEmail && senderEmail === borrowerEmail ? 'borrower' : null) ||
+      (senderEmail && lenderEmail && senderEmail === lenderEmail ? 'lender' : null) ||
+      'lender'
+    const message = msg.message ?? msg.text ?? msg.content ?? ''
+    const timestamp = msg.timestamp || msg.createdAt || msg.updatedAt || new Date().toISOString()
+    const attachments = Array.isArray(msg.attachments)
+      ? msg.attachments
+      : Array.isArray(msg.files)
+        ? msg.files
+        : msg.attachment
+          ? [msg.attachment]
+          : []
+
+    return { ...msg, id, sender, senderEmail, message, timestamp, attachments }
+  }
 
   useEffect(() => {
     const fetchAgreement = async () => {
@@ -138,7 +167,37 @@ const LoanAgreement = () => {
 
   useEffect(() => {
     if (!agreement) return
-    setChatMessages(Array.isArray(agreement.messages) ? agreement.messages : [])
+    const normalized = Array.isArray(agreement.messages)
+      ? agreement.messages.map(normalizeMessage).filter(Boolean)
+      : []
+    normalized.forEach((msg) => {
+      if (msg?.id) seenMessageIdsRef.current.add(msg.id)
+    })
+    if (normalized.length > 0) {
+      setChatMessages(normalized)
+      localStorage.setItem(chatStorageKey, JSON.stringify(normalized))
+    } else {
+      const cached = localStorage.getItem(chatStorageKey)
+      if (cached) {
+        try {
+          const parsed = JSON.parse(cached)
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            const cachedNormalized = parsed.map(normalizeMessage).filter(Boolean)
+            cachedNormalized.forEach((msg) => {
+              if (msg?.id) seenMessageIdsRef.current.add(msg.id)
+            })
+            setChatMessages(cachedNormalized)
+          } else {
+            setChatMessages([])
+          }
+        } catch {
+          localStorage.removeItem(chatStorageKey)
+          setChatMessages([])
+        }
+      } else {
+        setChatMessages([])
+      }
+    }
     if (Array.isArray(agreement.repaymentPlan) && agreement.repaymentPlan.length > 0) {
       setRepaymentPlan(agreement.repaymentPlan)
       return
@@ -194,7 +253,7 @@ const LoanAgreement = () => {
 
   useEffect(() => {
     if (!agreementId) return
-    const socketUrl = import.meta.env.VITE_SOCKET_URL || 'https://fundmate-server-six.vercel.app'
+    const socketUrl = import.meta.env.VITE_SOCKET_URL || 'http://localhost:5000'
     const socket = io(socketUrl, { transports: ['websocket'] })
     socketRef.current = socket
 
@@ -203,12 +262,18 @@ const LoanAgreement = () => {
     })
 
     socket.on('agreement:message', (payload) => {
-      if (payload?.agreementId !== agreementId) return
-      const incoming = payload.message
+      console.log('agreement:message payload', payload)
+      const payloadAgreementId = payload?.agreementId || payload?.message?.agreementId
+      if (payloadAgreementId && payloadAgreementId !== agreementId) return
+      const incoming = normalizeMessage(payload?.message ?? payload)
       if (!incoming?.id) return
       if (seenMessageIdsRef.current.has(incoming.id)) return
       seenMessageIdsRef.current.add(incoming.id)
-      setChatMessages((prev) => [...prev, incoming])
+      setChatMessages((prev) => {
+        const next = [...prev, incoming]
+        localStorage.setItem(chatStorageKey, JSON.stringify(next))
+        return next
+      })
     })
 
     return () => {
@@ -216,6 +281,24 @@ const LoanAgreement = () => {
       socket.disconnect()
     }
   }, [agreementId])
+
+  useEffect(() => {
+    if (!agreementId) return
+    const cached = localStorage.getItem(chatStorageKey)
+    if (!cached) return
+    try {
+      const parsed = JSON.parse(cached)
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        const normalized = parsed.map(normalizeMessage).filter(Boolean)
+        normalized.forEach((msg) => {
+          if (msg?.id) seenMessageIdsRef.current.add(msg.id)
+        })
+        setChatMessages(normalized)
+      }
+    } catch {
+      localStorage.removeItem(chatStorageKey)
+    }
+  }, [agreementId, chatStorageKey])
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -347,7 +430,9 @@ const LoanAgreement = () => {
       const message = {
         id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
         sender: senderRole,
+        senderEmail: user?.email || '',
         message: newMessage.trim(),
+        text: newMessage.trim(),
         timestamp: new Date().toISOString(),
         attachments
       }
@@ -356,11 +441,16 @@ const LoanAgreement = () => {
       socketRef.current?.emit('agreement:message', {
         agreementId,
         message,
+        text: message.message,
         senderEmail: user?.email || '',
         senderName: user?.displayName || ''
       })
 
-      setChatMessages((prev) => [...prev, message])
+      setChatMessages((prev) => {
+        const next = [...prev, message]
+        localStorage.setItem(chatStorageKey, JSON.stringify(next))
+        return next
+      })
       setNewMessage('')
       setSelectedFile(null)
     }
@@ -1150,13 +1240,31 @@ const LoanAgreement = () => {
                   <div className={`flex items-start space-x-3 max-w-2xl ${message.sender === 'borrower' ? 'flex-row-reverse space-x-reverse' : ''}`}>
                     {/* Avatar */}
                     <div className="flex-shrink-0">
-                      <div className={`w-10 h-10 rounded-full flex items-center justify-center text-lg font-bold ${
-                        message.sender === 'borrower' 
-                          ? 'bg-primary-100 text-primary-700' 
-                          : 'bg-blue-100 text-blue-700'
-                      }`}>
-                        {message.sender === 'borrower' ? agreement.borrower.avatar : agreement.lender.avatar}
-                      </div>
+                      {message.sender === 'borrower'
+                        ? (agreement.borrower.avatar?.startsWith('http')
+                          ? (
+                            <img
+                              src={agreement.borrower.avatar}
+                              alt="Borrower avatar"
+                              className="w-10 h-10 rounded-full object-cover border border-gray-200"
+                            />
+                          ) : (
+                            <div className="w-10 h-10 rounded-full flex items-center justify-center text-lg font-bold bg-primary-100 text-primary-700">
+                              {agreement.borrower.avatar || '👤'}
+                            </div>
+                          ))
+                        : (agreement.lender.avatar?.startsWith('http')
+                          ? (
+                            <img
+                              src={agreement.lender.avatar}
+                              alt="Lender avatar"
+                              className="w-10 h-10 rounded-full object-cover border border-gray-200"
+                            />
+                          ) : (
+                            <div className="w-10 h-10 rounded-full flex items-center justify-center text-lg font-bold bg-blue-100 text-blue-700">
+                              {agreement.lender.avatar || '👤'}
+                            </div>
+                          ))}
                     </div>
                     
                     {/* Message Content */}
@@ -1178,7 +1286,7 @@ const LoanAgreement = () => {
                         <p className="text-sm leading-relaxed">{message.message}</p>
                         
                         {/* Attachments */}
-                        {message.attachments.length > 0 && (
+                        {message.attachments?.length > 0 && (
                           <div className="mt-3 pt-3 border-t border-opacity-20 border-white">
                             {message.attachments.map((attachment, index) => (
                               <motion.div
@@ -1243,7 +1351,7 @@ const LoanAgreement = () => {
                     onChange={(e) => setNewMessage(e.target.value)}
                     className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-all resize-none"
                     rows={2}
-                    onKeyPress={(e) => {
+                    onKeyDown={(e) => {
                       if (e.key === 'Enter' && !e.shiftKey) {
                         e.preventDefault()
                         handleSendMessage()
