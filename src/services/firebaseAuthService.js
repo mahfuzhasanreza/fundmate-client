@@ -60,7 +60,7 @@ export const isGuestUser = (user) =>
 
 export const loginAsGuest = async () => {
   if (!isGuestLoginEnabled) {
-    throw new Error('Guest login is not available right now.');
+    throw new Error('Guest login is not set up yet. Please sign in or create an account.');
   }
   return loginWithFirebase(GUEST_EMAIL, GUEST_PASSWORD);
 };

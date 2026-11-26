@@ -8,8 +8,7 @@ import {
   signInWithGoogle,
   signInWithGithub,
   logoutFromFirebase,
-  loginAsGuest,
-  isGuestLoginEnabled
+  loginAsGuest
 } from '../services/firebaseAuthService'
 
 const Login = () => {
@@ -350,37 +349,27 @@ const Login = () => {
         </motion.form>
 
         {/* Guest Login */}
-        {isGuestLoginEnabled && (
-          <motion.div
-            className="space-y-2"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.65 }}
+        <motion.div
+          className="space-y-2"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.65 }}
+        >
+          <motion.button
+            type="button"
+            onClick={handleGuestSignIn}
+            disabled={isLoading}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            className="w-full flex items-center justify-center space-x-2 px-6 py-3 border-2 border-primary-500 text-primary-700 font-semibold rounded-xl hover:bg-primary-50 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-200"></div>
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-4 bg-white text-gray-500">Just looking around?</span>
-              </div>
-            </div>
-            <motion.button
-              type="button"
-              onClick={handleGuestSignIn}
-              disabled={isLoading}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              className="w-full flex items-center justify-center space-x-2 px-6 py-3 border-2 border-primary-500 text-primary-700 font-semibold rounded-xl hover:bg-primary-50 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <User className="h-5 w-5" />
-              <span>Continue as Guest</span>
-            </motion.button>
-            <p className="text-xs text-center text-gray-500">
-              Explore FundMate with a shared demo account, no sign-up needed.
-            </p>
-          </motion.div>
-        )}
+            <User className="h-5 w-5" />
+            <span>Continue as Guest</span>
+          </motion.button>
+          <p className="text-xs text-center text-gray-500">
+            Explore FundMate with a shared demo account.
+          </p>
+        </motion.div>
 
         {/* Sign Up Link */}
         <motion.div 
