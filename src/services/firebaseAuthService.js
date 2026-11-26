@@ -47,6 +47,25 @@ export const loginWithFirebase = async (email, password) => {
 };
 
 /**
+ * Guest (demo) account. The credentials come from .env and end up in the
+ * public bundle, so only ever use a throwaway demo account here.
+ */
+const GUEST_EMAIL = import.meta.env.VITE_GUEST_EMAIL || '';
+const GUEST_PASSWORD = import.meta.env.VITE_GUEST_PASSWORD || '';
+
+export const isGuestLoginEnabled = Boolean(GUEST_EMAIL && GUEST_PASSWORD);
+
+export const isGuestUser = (user) =>
+  Boolean(isGuestLoginEnabled && user?.email && user.email.toLowerCase() === GUEST_EMAIL.toLowerCase());
+
+export const loginAsGuest = async () => {
+  if (!isGuestLoginEnabled) {
+    throw new Error('Guest login is not available right now.');
+  }
+  return loginWithFirebase(GUEST_EMAIL, GUEST_PASSWORD);
+};
+
+/**
  * Logout user from Firebase
  */
 export const logoutFromFirebase = async () => {
