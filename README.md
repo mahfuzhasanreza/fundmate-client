@@ -5,8 +5,11 @@ The public web app for **FundMate**, a peer-to-peer lending and crowdfunding pla
 ![React](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=black)
 ![Vite](https://img.shields.io/badge/Vite-5-646CFF?logo=vite&logoColor=white)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind%20CSS-3-06B6D4?logo=tailwindcss&logoColor=white)
-![Firebase](https://img.shields.io/badge/Firebase-Auth%20%26%20Hosting-FFCA28?logo=firebase&logoColor=black)
+![Firebase](https://img.shields.io/badge/Firebase-Auth-FFCA28?logo=firebase&logoColor=black)
 ![Socket.IO](https://img.shields.io/badge/Socket.IO-client-010101?logo=socket.io&logoColor=white)
+![Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-000000?logo=vercel&logoColor=white)
+
+**Live site:** https://yourfundmate.vercel.app
 
 ---
 
@@ -81,7 +84,7 @@ The public web app for **FundMate**, a peer-to-peer lending and crowdfunding pla
 | Authentication | Firebase Auth (+ `react-firebase-hooks`) |
 | Real-time | `socket.io-client` |
 | PDF export | jsPDF, jspdf-autotable |
-| Hosting | Firebase Hosting |
+| Hosting | Vercel (Firebase Hosting config also included) |
 
 ---
 
@@ -284,6 +287,7 @@ fundmate-client/
 │   ├── main.jsx
 │   └── index.css
 ├── firebase.json            # Firebase Hosting config (SPA rewrites)
+├── vercel.json              # Vercel config (SPA rewrites)
 ├── tailwind.config.js
 ├── vite.config.js
 └── package.json
@@ -293,7 +297,18 @@ fundmate-client/
 
 ## Deployment
 
-The app is set up for **Firebase Hosting**, with all routes rewritten to `index.html` for client-side routing.
+The live site runs on **Vercel**. Both hosting configs rewrite every route to `index.html`, so client-side routes still work when the page is refreshed.
+
+### Vercel (production)
+
+```bash
+npm i -g vercel
+vercel --prod
+```
+
+Add all [environment variables](#environment-variables) in the Vercel project settings.
+
+### Firebase Hosting (alternative)
 
 ```bash
 npm run build
@@ -302,7 +317,7 @@ firebase login
 firebase deploy --only hosting
 ```
 
-Add your hosting domain to **Firebase Console → Authentication → Settings → Authorized domains** so that Google and GitHub sign-in work in production.
+Whichever host you use, add its domain to **Firebase Console → Authentication → Settings → Authorized domains** so that Google and GitHub sign-in work in production.
 
 ---
 
