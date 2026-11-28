@@ -1,124 +1,77 @@
 import React from 'react'
-import { Wallet, TrendingUp, ArrowRight } from 'lucide-react'
-import { color, motion } from 'framer-motion'
+import { Wallet, TrendingUp, Check } from 'lucide-react'
+import { Link } from 'react-router-dom'
+
+const services = [
+  {
+    icon: Wallet,
+    title: 'Loan Support',
+    description: 'Access personal loans from your trusted community with competitive interest rates.',
+    features: [
+      'Flexible loan amounts',
+      'Competitive interest rates',
+      'Digital loan agreements',
+      'Automated repayment tracking',
+      'Multiple offer selection'
+    ],
+    headerClass: 'bg-primary-600',
+    link: '/all-loans'
+  },
+  {
+    icon: TrendingUp,
+    title: 'Crowdfunding Campaigns',
+    description: 'Raise funds for your goals through community-supported crowdfunding campaigns.',
+    features: [
+      'Easy campaign creation',
+      'Real-time progress tracking',
+      'Multiple payment options',
+      'Campaign transparency',
+      'Admin approval for trust'
+    ],
+    headerClass: 'bg-secondary-700',
+    link: '/campaigns'
+  }
+]
 
 const Services = () => {
-  const services = [
-    {
-      icon: <Wallet className="h-12 w-12" />,
-      title: 'Loan Support',
-      description: 'Access personal loans from your trusted community with competitive interest rates.',
-      features: [
-        'Flexible loan amounts',
-        'Competitive interest rates',
-        'Digital loan agreements',
-        'Automated repayment tracking',
-        'Multiple offer selection'
-      ],
-      bg: 'primary-600',
-      image: '💰'
-    },
-    {
-      icon: <TrendingUp className="h-12 w-12" />,
-      title: 'Crowdfunding Campaigns',
-      description: 'Raise funds for your goals through community-supported crowdfunding campaigns.',
-      features: [
-        'Easy campaign creation',
-        'Real-time progress tracking',
-        'Multiple payment options',
-        'Campaign transparency',
-        'Admin approval for trust'
-      ],
-      bg: 'secondary-700',
-      image: '📊'
-    }
-  ]
-
   return (
-    <section id="services" className="py-20 md:py-28 bg-gradient-to-br from-gray-50 to-primary-50">
+    <section id="services" className="py-16 md:py-24 bg-white">
       <div className="container-custom">
-        {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto mb-16">
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-4">
-            Our{' '}
-            <span className="bg-gradient-to-r from-primary-600 to-primary-500 bg-clip-text text-transparent">
-              Services
-            </span>
+        <div className="text-center max-w-2xl mx-auto mb-14">
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+            Our <span className="text-primary-600">Services</span>
           </h2>
-          <p className="text-lg md:text-xl text-gray-600">
-            Choose the service that fits your needs. Whether you need a loan or want to raise funds for a cause.
+          <p className="text-lg text-gray-600">
+            Choose the service that fits your needs, whether you need a loan or want to raise funds for a cause.
           </p>
         </div>
 
-        {/* Services Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {services.map((service, index) => (
-            <motion.div
-              key={index}
-              className="bg-white rounded-2xl shadow-xl overflow-hidden group"
-              initial={{ opacity: 0, y: 50 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: index * 0.2 }}
-              whileHover={{ y: -10, boxShadow: "0 25px 50px rgba(0, 0, 0, 0.15)" }}
-            >
-              {/* Header */}
-              <motion.div 
-                className={`bg-${service.bg} p-8 text-white`}
-                whileHover={{ scale: 1.02 }}
-                transition={{ duration: 0.3 }}
-              >
-                <motion.div 
-                  className="text-6xl mb-4"
-                  whileHover={{ scale: 1.2, rotate: 10 }}
-                  transition={{ type: "spring", stiffness: 300 }}
-                >
-                  {service.image}
-                </motion.div>
-                <div className="flex items-center space-x-4 mb-4">
-                  <motion.div
-                    whileHover={{ rotate: 360 }}
-                    transition={{ duration: 0.6 }}
-                  >
-                    {service.icon}
-                  </motion.div>
-                  <h3 className="text-2xl font-bold">{service.title}</h3>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {services.map(({ icon: Icon, title, description, features, headerClass, link }) => (
+            <div key={title} className="bg-white rounded-xl border border-gray-200 overflow-hidden flex flex-col">
+              <div className={`${headerClass} p-8 text-white`}>
+                <div className="flex items-center gap-3 mb-3">
+                  <Icon className="h-8 w-8" />
+                  <h3 className="text-2xl font-bold">{title}</h3>
                 </div>
-                <p className="text-white/90 text-lg">
-                  {service.description}
-                </p>
-              </motion.div>
+                <p className="text-white/90">{description}</p>
+              </div>
 
-              {/* Features */}
-              <div className="p-8">
-                <ul className="space-y-4 mb-8">
-                  {service.features.map((feature, idx) => (
-                    <motion.li 
-                      key={idx} 
-                      className="flex items-start space-x-3"
-                      initial={{ opacity: 0, x: -20 }}
-                      whileInView={{ opacity: 1, x: 0 }}
-                      viewport={{ once: true }}
-                      transition={{ delay: idx * 0.1 }}
-                      whileHover={{ x: 5 }}
-                    >
-                      <div className="flex-shrink-0 w-6 h-6 rounded-full bg-primary-100 flex items-center justify-center mt-0.5">
-                        <ArrowRight className="h-4 w-4 text-primary-600" />
-                      </div>
+              <div className="p-8 flex flex-col flex-1">
+                <ul className="space-y-3 mb-8 flex-1">
+                  {features.map((feature) => (
+                    <li key={feature} className="flex items-start gap-3">
+                      <Check className="h-5 w-5 text-primary-600 flex-shrink-0 mt-0.5" />
                       <span className="text-gray-700">{feature}</span>
-                    </motion.li>
+                    </li>
                   ))}
                 </ul>
 
-                <motion.button 
-                  className="w-full btn-outline"
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                >
+                <Link to={link} className="btn-outline text-center">
                   Learn More
-                </motion.button>
+                </Link>
               </div>
-            </motion.div>
+            </div>
           ))}
         </div>
       </div>

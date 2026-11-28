@@ -1,303 +1,114 @@
 import React, { useState, useEffect } from 'react'
-import { ArrowRight, ChevronLeft, ChevronRight, X } from 'lucide-react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { useNavigate } from 'react-router-dom'
+import { ArrowRight, PlayCircle, ShieldCheck, Wallet, X } from 'lucide-react'
+import { Link } from 'react-router-dom'
 import cover from '../../../assets/cover.png'
 
 const Hero = () => {
-  const [currentSlide, setCurrentSlide] = useState(0)
   const [showVideoModal, setShowVideoModal] = useState(false)
-  const navigate = useNavigate()
 
-  // Background slider images - using placeholder images for now
-  const backgroundImages = [
-   
-    {
-      url: cover,
-      title: 'Crowdfunding Campaigns',
-      description: 'Support meaningful projects, community causes, and loans by funding.'
-    }
-    
-  ]
-
-  // Auto-slide functionality
+  // Close the demo modal with the Escape key
   useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % backgroundImages.length)
-    }, 5000) // Change slide every 5 seconds
-    return () => clearInterval(interval)
-  }, [backgroundImages.length])
-
-  const nextSlide = () => {
-    setCurrentSlide((prev) => (prev + 1) % backgroundImages.length)
-  }
-
-  const prevSlide = () => {
-    setCurrentSlide((prev) => (prev - 1 + backgroundImages.length) % backgroundImages.length)
-  }
-  
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.2
-      }
-    }
-  }
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.6 }
-    }
-  }
+    if (!showVideoModal) return
+    const onKey = (e) => e.key === 'Escape' && setShowVideoModal(false)
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [showVideoModal])
 
   return (
-    <section id="home" className="relative min-h-screen flex items-center overflow-hidden">
-      {/* Interactive Background Slider */}
-      <div className="absolute inset-0">
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={currentSlide}
-            className="absolute inset-0"
-            initial={{ opacity: 0, scale: 1.1 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 1.1 }}
-            transition={{ duration: 1.5, ease: "easeInOut" }}
-          >
-            <div 
-              className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-              style={{ backgroundImage: `url(${backgroundImages[currentSlide].url})` }}
-            />
-            {/* Gradient overlays for better text readability */}
-            {/* <div className="absolute inset-0 bg-gradient-to-r from-black/30 via-black/50 to-transparent" /> */}
-            <div className="absolute inset-0 bg-black/50" />
-            {/* <div className="absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent" /> */}
-            {/* <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-black/25" /> */}
-          </motion.div>
-        </AnimatePresence>
+    <section id="home" className="relative flex items-center min-h-[85vh] overflow-hidden">
+      {/* Background */}
+      <div
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+        style={{ backgroundImage: `url(${cover})` }}
+      />
+      <div className="absolute inset-0 bg-gray-900/65" />
 
-       
+      <div className="container-custom relative z-10 py-24">
+        <div className="max-w-3xl mx-auto text-center space-y-6">
+          <span className="inline-block text-sm font-semibold tracking-wide uppercase text-primary-200">
+            Your Ultimate Fund Mate
+          </span>
 
-        
-      </div>
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-tight">
+            Financial Support, <span className="text-primary-300">Simplified</span>
+          </h1>
 
-      {/* Enhanced Animated Elements */}
-      {/* Floating Particles */}
-      {[...Array(12)].map((_, i) => (
-        <motion.div
-          key={i}
-          className="absolute w-2 h-2 bg-white/20 rounded-full"
-          style={{
-            top: `${Math.random() * 100}%`,
-            left: `${Math.random() * 100}%`,
-          }}
-          animate={{
-            y: [0, -100, 0],
-            opacity: [0.1, 0.5, 0.1],
-            scale: [0.5, 1.2, 0.5],
-          }}
-          transition={{
-            duration: 8 + i * 1.5,
-            repeat: Infinity,
-            delay: i * 0.3,
-            ease: "easeInOut"
-          }}
-        />
-      ))}
+          <p className="text-lg md:text-xl text-gray-200 leading-relaxed max-w-2xl mx-auto">
+            FundMate connects people for peer-to-peer loans and crowdfunding campaigns.
+            Support meaningful projects, community causes, and loans by funding.
+          </p>
 
-
-      <div className="container-custom relative z-10">
-        <div className="flex items-center justify-center min-h-screen py-20">
-          {/* Centered Content */}
-          <motion.div 
-            className="text-center max-w-4xl mx-auto space-y-8"
-            variants={containerVariants}
-            initial="hidden"
-            animate="visible"
-          >
-            {/* Dynamic Background Title */}
-            <motion.div 
-              className="mb-6"
-              variants={itemVariants}
+          <div className="flex flex-col sm:flex-row gap-4 justify-center pt-2">
+            <Link
+              to="/login"
+              className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-lg bg-primary-600 hover:bg-primary-700 text-white font-semibold transition-colors"
             >
-              <AnimatePresence mode="wait">
-                <motion.h3
-                  key={currentSlide}
-                  className="text-lg md:text-xl text-white/80 font-medium mb-2"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  transition={{ duration: 0.5 }}
-                >
-                  {backgroundImages[currentSlide].description}
-                </motion.h3>
-              </AnimatePresence>
-            </motion.div>
-
-            <motion.div className="inline-block" variants={itemVariants}>
-              <motion.span 
-                className="bg-white/10 backdrop-blur-md text-white text-sm font-semibold px-6 py-3 rounded-full inline-block border border-white/20"
-                whileHover={{ scale: 1.05, backgroundColor: "rgba(255,255,255,0.2)" }}
-              >
-              Your Ultimate Fund Mate
-              </motion.span>
-            </motion.div>
-            
-            <motion.h1 
-              className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight"
-              variants={itemVariants}
+              Get Started
+              <ArrowRight className="h-5 w-5" />
+            </Link>
+            <button
+              type="button"
+              onClick={() => setShowVideoModal(true)}
+              className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-lg border border-white/40 text-white font-semibold hover:bg-white/10 transition-colors"
             >
-              Financial Support,{' '}
-              <span className="bg-primary-300 bg-clip-text text-transparent">
-                Simplified
-              </span>
-            </motion.h1>
-            
-            <motion.p 
-              className="text-xl md:text-2xl text-white/90 leading-relaxed max-w-3xl mx-auto"
-              variants={itemVariants}
-            >
-              FundMate connects people for peer-to-peer loans and crowdfunding campaigns.
-            </motion.p>
+              <PlayCircle className="h-5 w-5" />
+              Watch Demo
+            </button>
+          </div>
 
-            <motion.div 
-              className="flex flex-col sm:flex-row gap-6 justify-center"
-              variants={itemVariants}
-            >
-              <motion.button 
-                onClick={() => setShowVideoModal(true)}
-                className="px-8 py-4 bg-gradient-to-r from-primary-600 to-primary-500 text-white rounded-2xl font-bold text-lg flex items-center justify-center space-x-3 group shadow-2xl"
-                whileHover={{ 
-                  scale: 1.05, 
-                  boxShadow: "0 25px 50px rgba(22, 163, 74, 0.4)",
-                  y: -2
-                }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <span>Show Demo</span>
-                <motion.div
-                  animate={{ x: [0, 5, 0] }}
-                  transition={{ duration: 1.5, repeat: Infinity }}
-                >
-                  <ArrowRight className="h-6 w-6" />
-                </motion.div>
-              </motion.button>
-              <motion.button 
-                onClick={() => navigate('/login')}
-                className="px-8 py-4 bg-white/10 backdrop-blur-md text-white border-2 border-white/30 rounded-2xl font-bold text-lg flex items-center justify-center space-x-3 group shadow-2xl"
-                whileHover={{ 
-                  scale: 1.05, 
-                  backgroundColor: "rgba(255,255,255,0.2)",
-                  y: -2
-                }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <span>Start Now</span>
-                <motion.div
-                  animate={{ x: [0, 5, 0] }}
-                  transition={{ duration: 1.5, repeat: Infinity, delay: 0.2 }}
-                >
-                  <ArrowRight className="h-6 w-6" />
-                </motion.div>
-              </motion.button>
-            </motion.div>
-
-            {/* Enhanced Trust Indicators */}
-            <motion.div 
-              className="flex flex-wrap gap-8 justify-center pt-12"
-              variants={itemVariants}
-            >
-
-              
-              <motion.div 
-                className="flex items-center space-x-3 bg-white/10 backdrop-blur-md px-6 py-3 rounded-2xl border border-white/20"
-                whileHover={{ scale: 1.05, backgroundColor: "rgba(255,255,255,0.15)" }}
-              >
-                <motion.span 
-                  className="text-3xl"
-                  animate={{ rotate: [0, 10, -10, 0] }}
-                  transition={{ duration: 2, repeat: Infinity }}
-                >
-                  🔒
-                </motion.span>
-                <span className="text-white font-bold text-lg">Safe & Transparent</span>
-              </motion.div>
-
-              <motion.div 
-                className="flex items-center space-x-3 bg-white/10 backdrop-blur-md px-6 py-3 rounded-2xl border border-white/20"
-                whileHover={{ scale: 1.05, backgroundColor: "rgba(255,255,255,0.15)" }}
-              >
-                <motion.span 
-                  className="text-3xl"
-                  animate={{ scale: [1, 1.2, 1] }}
-                  transition={{ duration: 1.5, repeat: Infinity }}
-                >
-                  💰
-                </motion.span>
-                <div className="text-white">
-                  <p className="font-bold text-lg">Funds Raised</p>
-                  {/* <p className="text-sm opacity-80">Funded</p> */}
-                </div>
-              </motion.div>
-            </motion.div>
-          </motion.div>
+          <div className="flex flex-wrap gap-x-8 gap-y-3 justify-center pt-8 text-sm text-gray-200">
+            <div className="flex items-center gap-2">
+              <ShieldCheck className="h-5 w-5 text-primary-300" />
+              <span>Safe &amp; Transparent</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Wallet className="h-5 w-5 text-primary-300" />
+              <span>Loans &amp; Crowdfunding in One Place</span>
+            </div>
+          </div>
         </div>
       </div>
 
       {/* Video Modal */}
-      <AnimatePresence>
-        {showVideoModal && (
-          <motion.div
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={() => setShowVideoModal(false)}
+      {showVideoModal && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4"
+          onClick={() => setShowVideoModal(false)}
+        >
+          <div
+            className="relative w-full max-w-5xl bg-gray-900 rounded-xl overflow-hidden shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
           >
-            <motion.div
-              className="relative w-full max-w-5xl bg-gray-900 rounded-2xl overflow-hidden shadow-2xl"
-              initial={{ scale: 0.8, opacity: 0, y: 50 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.8, opacity: 0, y: 50 }}
-              transition={{ type: "spring", duration: 0.5 }}
-              onClick={(e) => e.stopPropagation()}
+            <button
+              type="button"
+              aria-label="Close video"
+              onClick={() => setShowVideoModal(false)}
+              className="absolute top-3 right-3 z-10 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-colors"
             >
-              {/* Close Button */}
-              <motion.button
-                onClick={() => setShowVideoModal(false)}
-                className="absolute top-4 right-4 z-10 bg-white/10 hover:bg-white/20 text-white p-2 rounded-full backdrop-blur-sm transition-all"
-                whileHover={{ scale: 1.1, rotate: 90 }}
-                whileTap={{ scale: 0.9 }}
-              >
-                <X className="h-6 w-6" />
-              </motion.button>
+              <X className="h-5 w-5" />
+            </button>
 
-              {/* Video Container */}
-              <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
-                <iframe
-                  className="absolute top-0 left-0 w-full h-full"
-                  src="https://www.youtube.com/embed/vKupj4y46gU?si=oWE1l8bBph1r_nRN&autoplay=1"
-                  title="FundMate Demo Video"
-                  frameBorder="0"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                  referrerPolicy="strict-origin-when-cross-origin"
-                  allowFullScreen
-                />
-              </div>
+            <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
+              <iframe
+                className="absolute top-0 left-0 w-full h-full"
+                src="https://www.youtube.com/embed/vKupj4y46gU?si=oWE1l8bBph1r_nRN&autoplay=1"
+                title="FundMate Demo Video"
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                referrerPolicy="strict-origin-when-cross-origin"
+                allowFullScreen
+              />
+            </div>
 
-              {/* Video Info */}
-              <div className="p-6 bg-gray-800">
-                <h3 className="text-2xl font-bold text-white mb-2">FundMate Platform Demo</h3>
-                <p className="text-gray-300">See how FundMate connects people for peer-to-peer loans and crowdfunding campaigns.</p>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            <div className="p-6 bg-gray-800">
+              <h3 className="text-xl font-bold text-white mb-1">FundMate Platform Demo</h3>
+              <p className="text-gray-300">
+                See how FundMate connects people for peer-to-peer loans and crowdfunding campaigns.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   )
 }
